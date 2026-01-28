@@ -4,6 +4,12 @@
 
 package frc.robot;
 
+import choreo.Choreo;
+import choreo.trajectory.DifferentialSample;
+import choreo.trajectory.Trajectory;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -14,6 +20,8 @@ import static frc.robot.Constants.FuelConstants.*;
 import frc.robot.commands.Autos;
 import frc.robot.subsystems.CANDriveSubsystem;
 import frc.robot.subsystems.CANFuelSubsystem;
+
+import java.util.Optional;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -26,8 +34,12 @@ public class RobotContainer {
   // The robot's subsystems
   private final CANDriveSubsystem driveSubsystem = new CANDriveSubsystem();
   private final CANFuelSubsystem ballSubsystem = new CANFuelSubsystem();
+    private final Optional<Trajectory<DifferentialSample>> trajectory = Choreo.loadTrajectory("test");
+    private final Timer PathTimer = new Timer();
 
-  // The driver's controller
+    // The driver's controller
+
+
   private final CommandXboxController driverController = new CommandXboxController(
       DRIVER_CONTROLLER_PORT);
 
@@ -38,10 +50,27 @@ public class RobotContainer {
   // The autonomous chooser
   private final SendableChooser<Command> autoChooser = new SendableChooser<>();
 
+
+    private boolean isRedAlliance() {
+        return DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue).equals(DriverStation.Alliance.Red);
+    }
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
+      // INIT CHOREO
+      if (trajectory.isPresent()) {
+          // Get the initial pose of the trajectory
+          Optional<Pose2d> initialPose = trajectory.get().getInitialPose(isRedAlliance());
+
+          if (initialPose.isPresent()) {
+              // Reset odometry to the start of the trajectory
+              driveSubsystem.resetOdometry(initialPose.get());
+          }
+      }
+
+      // Reset and start the timer when the autonomous period begins
+      PathTimer.restart();
     configureBindings();
 
     // Set the options to show up in the Dashboard for selecting auto modes. If you
@@ -77,6 +106,8 @@ public class RobotContainer {
     operatorController.a()
         .whileTrue(ballSubsystem.runEnd(() -> ballSubsystem.eject(), () -> ballSubsystem.stop()));
 
+    operatorController.b()
+            .whileTrue(driveSubsystem.goPathFollow(trajectory,PathTimer));
     // Set the default command for the drive subsystem to the command provided by
     // factory with the values provided by the joystick axes on the driver
     // controller. The Y axis of the controller is inverted so that pushing the
@@ -99,4 +130,7 @@ public class RobotContainer {
     // An example command will be run in autonomous
     return autoChooser.getSelected();
   }
+
+
+
 }

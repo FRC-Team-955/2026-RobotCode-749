@@ -4,7 +4,10 @@
 
 package frc.robot.subsystems;
 
+import java.util.Optional;
 import java.util.function.DoubleSupplier;
+
+import choreo.trajectory.*; // dumb all include
 
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
@@ -12,11 +15,19 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
+import edu.wpi.first.math.controller.LTVUnicycleController;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
+import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import static frc.robot.Constants.DriveConstants.*;
+
 
 public class CANDriveSubsystem extends SubsystemBase {
   private final SparkMax leftLeader;
@@ -24,7 +35,10 @@ public class CANDriveSubsystem extends SubsystemBase {
   private final SparkMax rightLeader;
   private final SparkMax rightFollower;
 
+  Pose2d pose;
+
   private final DifferentialDrive drive;
+    private final LTVUnicycleController controller = new LTVUnicycleController(0.02);
 
   public CANDriveSubsystem() {
     // create brushed motors for drive
@@ -79,4 +93,52 @@ public class CANDriveSubsystem extends SubsystemBase {
     return this.run(
         () -> drive.arcadeDrive(xSpeed.getAsDouble(), zRotation.getAsDouble()));
   }
+
+    public void resetOdometry(Pose2d a){
+    pose = a;
+      return;
+    }
+
+    public void followTrajectory(Optional<DifferentialSample> samples) {
+        // Get the current pose of the robot
+
+        DifferentialSample sample = samples.orElse(new choreo.trajectory.DifferentialSample(0,0,0,0,0,0,0,0,0,0,0,0));
+        // Get the velocity feedforward specified by the sample
+        ChassisSpeeds ff = sample.getChassisSpeeds();
+
+        // Generate the next speeds for the robot
+        ChassisSpeeds speeds = controller.calculate(
+                pose,
+                sample.getPose(),
+                ff.vxMetersPerSecond,
+                ff.omegaRadiansPerSecond
+        );
+
+
+        DifferentialDriveKinematics kinematics =
+                new DifferentialDriveKinematics(Units.inchesToMeters(27.0)); //27 = drivebase width?????
+        // Apply the generated speeds
+
+        DifferentialDriveWheelSpeeds wheelSpeeds = kinematics.toWheelSpeeds(speeds); //
+        drive.tankDrive(wheelSpeeds.leftMetersPerSecond, wheelSpeeds.rightMetersPerSecond);
+    }
+
+    private boolean isRedAlliance() {
+        return DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue).equals(DriverStation.Alliance.Red);
+    }
+    public void goPath(Optional<Trajectory<DifferentialSample>> trajectory, Timer timer){
+        if (trajectory.isPresent()) {
+            // Sample the trajectory at the current time into the autonomous period
+            Optional<DifferentialSample> sample = trajectory.get().sampleAt(timer.get(), isRedAlliance());
+
+            if (sample.isPresent()) {
+                this.followTrajectory(sample);
+            }
+        }
+
+    }
+
+    public Command goPathFollow(Optional<Trajectory<DifferentialSample>> trajectory, Timer timer){
+      return run(()->goPath(trajectory, timer));
+    }
 }
