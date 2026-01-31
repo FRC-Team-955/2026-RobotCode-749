@@ -16,6 +16,7 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.LTVUnicycleController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -28,6 +29,8 @@ import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
+
 import static frc.robot.Constants.DriveConstants.*;
 
 
@@ -42,8 +45,8 @@ public class CANDriveSubsystem extends SubsystemBase {
   private final DifferentialDrive drive;
     private final LTVUnicycleController controller = new LTVUnicycleController(0.02);
 
-  double lSetPoint = 0;
-  double rSetPoint = 0;
+  double lSetPoint;
+  double rSetPoint;
 
   public CANDriveSubsystem() {
     // create brushed motors for drive
@@ -91,10 +94,13 @@ public class CANDriveSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-      SmartDashboard.putNumber("leftLeaderEncoder", leftLeader.getEncoder().getPosition());
-      SmartDashboard.putNumber("leftFollowerEncoder", leftFollower.getEncoder().getPosition());
-      SmartDashboard.putNumber("rightLeaderEncoder", rightLeader.getEncoder().getPosition());
-      SmartDashboard.putNumber("rightFollowerEncoder", rightFollower.getEncoder().getPosition());
+      //
+      SmartDashboard.putNumber("leftLeaderEncoder", leftLeader.getEncoder().getPosition()/ENCODER_UNITS_PER_METER);
+      SmartDashboard.putNumber("leftFollowerEncoder", leftFollower.getEncoder().getPosition()/ENCODER_UNITS_PER_METER); // shouldn't be needed, just here to make sure (actually maybe it goes the opposite direction idk)
+      SmartDashboard.putNumber("rightLeaderEncoder", rightLeader.getEncoder().getPosition()/ENCODER_UNITS_PER_METER);
+      SmartDashboard.putNumber("rightFollowerEncoder", rightFollower.getEncoder().getPosition()/ENCODER_UNITS_PER_METER); // shouldn't be needed, just here to make sure
+      SmartDashboard.putNumber("leftSetPoint", lSetPoint);
+      SmartDashboard.putNumber("rightSetPoint", rSetPoint);
   }
 
   // Command factory to create command to drive the robot with joystick inputs.
@@ -103,12 +109,21 @@ public class CANDriveSubsystem extends SubsystemBase {
         () -> drive.arcadeDrive(xSpeed.getAsDouble(), zRotation.getAsDouble()));
   }
 
+  public Command driveTank(DoubleSupplier leftSpeed, DoubleSupplier rightSpeed) {
+      // setpoints included just for logging it
+      // use setpoints to tune encoder units
+      lSetPoint += leftSpeed.getAsDouble();
+      rSetPoint += rightSpeed.getAsDouble();
+      return this.run(
+              () -> drive.tankDrive(leftSpeed.getAsDouble(), rightSpeed.getAsDouble()));
+  }
+
   public Command drivePID(DoubleSupplier leftSpeed, DoubleSupplier rightSpeed) {
       // 2^12 = 4096 encoder units per revolution
       lSetPoint += leftSpeed.getAsDouble();
       rSetPoint += rightSpeed.getAsDouble();
       return this.run(
-            () -> drive.tankDrive(lSetPoint - leftLeader.getEncoder().getPosition(), rightSpeed.getAsDouble())
+            () -> drive.tankDrive(MathUtil.clamp(3 * (lSetPoint - leftLeader.getEncoder().getPosition()/ENCODER_UNITS_PER_METER), -0.8, 0.8), MathUtil.clamp(3 * (rSetPoint - rightLeader.getEncoder().getPosition()/ENCODER_UNITS_PER_METER), -0.8, 0.8))
     );
   }
 
