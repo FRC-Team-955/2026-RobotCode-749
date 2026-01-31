@@ -42,6 +42,9 @@ public class CANDriveSubsystem extends SubsystemBase {
   private final DifferentialDrive drive;
     private final LTVUnicycleController controller = new LTVUnicycleController(0.02);
 
+  double lSetPoint = 0;
+  double rSetPoint = 0;
+
   public CANDriveSubsystem() {
     // create brushed motors for drive
     leftLeader = new SparkMax(LEFT_LEADER_ID, MotorType.kBrushless);
@@ -98,6 +101,15 @@ public class CANDriveSubsystem extends SubsystemBase {
   public Command driveArcade(DoubleSupplier xSpeed, DoubleSupplier zRotation) {
     return this.run(
         () -> drive.arcadeDrive(xSpeed.getAsDouble(), zRotation.getAsDouble()));
+  }
+
+  public Command drivePID(DoubleSupplier leftSpeed, DoubleSupplier rightSpeed) {
+      // 2^12 = 4096 encoder units per revolution
+      lSetPoint += leftSpeed.getAsDouble();
+      rSetPoint += rightSpeed.getAsDouble();
+      return this.run(
+            () -> drive.tankDrive(lSetPoint - leftLeader.getEncoder().getPosition(), rightSpeed.getAsDouble())
+    );
   }
 
     public void resetOdometry(Pose2d a){
