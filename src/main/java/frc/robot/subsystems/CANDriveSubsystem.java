@@ -9,6 +9,7 @@ import java.util.function.DoubleSupplier;
 
 import choreo.trajectory.*; // dumb all include
 
+import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
@@ -24,6 +25,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import static frc.robot.Constants.DriveConstants.*;
@@ -42,10 +44,10 @@ public class CANDriveSubsystem extends SubsystemBase {
 
   public CANDriveSubsystem() {
     // create brushed motors for drive
-    leftLeader = new SparkMax(LEFT_LEADER_ID, MotorType.kBrushed);
-    leftFollower = new SparkMax(LEFT_FOLLOWER_ID, MotorType.kBrushed);
-    rightLeader = new SparkMax(RIGHT_LEADER_ID, MotorType.kBrushed);
-    rightFollower = new SparkMax(RIGHT_FOLLOWER_ID, MotorType.kBrushed);
+    leftLeader = new SparkMax(LEFT_LEADER_ID, MotorType.kBrushless);
+    leftFollower = new SparkMax(LEFT_FOLLOWER_ID, MotorType.kBrushless);
+    rightLeader = new SparkMax(RIGHT_LEADER_ID, MotorType.kBrushless);
+    rightFollower = new SparkMax(RIGHT_FOLLOWER_ID, MotorType.kBrushless);
 
     // set up differential drive class
     drive = new DifferentialDrive(leftLeader, rightLeader);
@@ -86,6 +88,10 @@ public class CANDriveSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
+      SmartDashboard.putNumber("leftLeaderEncoder", leftLeader.getEncoder().getPosition());
+      SmartDashboard.putNumber("leftFollowerEncoder", leftFollower.getEncoder().getPosition());
+      SmartDashboard.putNumber("rightLeaderEncoder", rightLeader.getEncoder().getPosition());
+      SmartDashboard.putNumber("rightFollowerEncoder", rightFollower.getEncoder().getPosition());
   }
 
   // Command factory to create command to drive the robot with joystick inputs.
