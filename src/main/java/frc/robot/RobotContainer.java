@@ -58,6 +58,8 @@ public class RobotContainer {
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
+
+
       // INIT CHOREO
       if (trajectory.isPresent()) {
           // Get the initial pose of the trajectory

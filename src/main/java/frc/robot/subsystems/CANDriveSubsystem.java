@@ -92,6 +92,10 @@ public class CANDriveSubsystem extends SubsystemBase {
     // so that postive values drive both sides forward
     config.inverted(true);
     leftLeader.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+
+
+    //INIT ARINS CODE
+      ps.setSource(()->leftLeader.getEncoder().getPosition(), ()->rightLeader.getEncoder().getPosition());
   }
 
   @Override
