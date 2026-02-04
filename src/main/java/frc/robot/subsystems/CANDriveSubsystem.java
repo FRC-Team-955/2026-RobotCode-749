@@ -40,8 +40,8 @@ public class CANDriveSubsystem extends SubsystemBase {
   private final SparkMax rightLeader;
   private final SparkMax rightFollower;
 
-  Pose2d pose;
 
+    private final PoseSubsystem ps = new PoseSubsystem();
   private final DifferentialDrive drive;
     private final LTVUnicycleController controller = new LTVUnicycleController(0.02);
 
@@ -57,6 +57,8 @@ public class CANDriveSubsystem extends SubsystemBase {
 
     // set up differential drive class
     drive = new DifferentialDrive(leftLeader, rightLeader);
+
+
 
     // Set can timeout. Because this project only sets parameters once on
     // construction, the timeout can be long without blocking robot operation. Code
@@ -127,10 +129,7 @@ public class CANDriveSubsystem extends SubsystemBase {
     );
   }
 
-    public void resetOdometry(Pose2d a){
-    pose = a;
-      return;
-    }
+
 
     public void followTrajectory(Optional<DifferentialSample> samples) {
         // Get the current pose of the robot
@@ -141,7 +140,7 @@ public class CANDriveSubsystem extends SubsystemBase {
 
         // Generate the next speeds for the robot
         ChassisSpeeds speeds = controller.calculate(
-                pose,
+                ps.getPose(),
                 sample.getPose(),
                 ff.vxMetersPerSecond,
                 ff.omegaRadiansPerSecond
@@ -169,6 +168,10 @@ public class CANDriveSubsystem extends SubsystemBase {
             }
         }
 
+    }
+
+    public void resetOdometry(Pose2d p){
+      ps.resetOdometry(p);
     }
 
     public Command goPathFollow(Optional<Trajectory<DifferentialSample>> trajectory, Timer timer){
