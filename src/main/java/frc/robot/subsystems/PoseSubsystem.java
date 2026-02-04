@@ -3,6 +3,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.math.geometry.Pose2d;
+import frc.robot.Constants;
 
 import java.util.function.DoubleSupplier;
 
@@ -38,8 +39,8 @@ public class PoseSubsystem {
                 l.getAsDouble(),
                 r.getAsDouble()
         );
-        int DEBUG = 1;
-        if (DEBUG == 1){
+
+        if (Constants.DEBUG == 1){
             System.out.print("R "); System.out.println(r.getAsDouble());
             System.out.print("L "); System.out.println(l.getAsDouble());
         }

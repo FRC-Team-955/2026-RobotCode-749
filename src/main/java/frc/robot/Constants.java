@@ -17,6 +17,9 @@ import edu.wpi.first.math.MathUtil;
  * wherever the constants are needed, to reduce verbosity.
  */
 public final class Constants {
+    public static int DEBUG = 1;
+
+
   public static final class DriveConstants {
     // Motor controller IDs for drivetrain motors
     public static final int LEFT_LEADER_ID = 6; // checked
