@@ -36,8 +36,8 @@ public class RobotContainer {
   private final CANFuelSubsystem ballSubsystem = new CANFuelSubsystem();
 
   //object to contain a trajectory
-    private final Optional<Trajectory<DifferentialSample>> trajectory = Choreo.loadTrajectory("test");
-    private final Timer PathTimer = new Timer(); //Timer object used for pathfollowing
+    //private final Optional<Trajectory<DifferentialSample>> trajectory = Choreo.loadTrajectory("test");
+    //private final Timer PathTimer = new Timer(); //Timer object used for pathfollowing
 
     // The driver's controller
   private final CommandXboxController driverController = new CommandXboxController(
@@ -61,7 +61,7 @@ public class RobotContainer {
 
 
       // INIT CHOREO
-      if (trajectory.isPresent()) {
+     /* if (trajectory.isPresent()) {
           // Get the initial pose of the trajectory
           Optional<Pose2d> initialPose = trajectory.get().getInitialPose(isRedAlliance());
 
@@ -72,7 +72,7 @@ public class RobotContainer {
       }
 
       // Reset and start the timer when the autonomous period begins
-      PathTimer.restart();
+      PathTimer.restart(); */
 
 
     configureBindings(); //controller bindings
@@ -101,8 +101,8 @@ public class RobotContainer {
         .whileTrue(ballSubsystem.runEnd(() -> ballSubsystem.eject(), () -> ballSubsystem.stop()));
 
     // b to test arins path follow
-    operatorController.b()
-            .whileTrue(driveSubsystem.goPathFollow(trajectory,PathTimer));
+    operatorController.b();
+           // .whileTrue(driveSubsystem.goPathFollow(trajectory,PathTimer));
     // Set the default command for the drive subsystem to the command provided by
     // factory with the values provided by the joystick axes on the driver
     // controller. The Y axis of the controller is inverted so that pushing the

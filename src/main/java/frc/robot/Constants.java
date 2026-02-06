@@ -22,10 +22,10 @@ public final class Constants {
 
   public static final class DriveConstants {
     // Motor controller IDs for drivetrain motors
-    public static final int LEFT_LEADER_ID = 6; // checked
+    public static final int LEFT_LEADER_ID = 4; // checked
     public static final int LEFT_FOLLOWER_ID = 2;
-    public static final int RIGHT_LEADER_ID = 8; //8
-    public static final int RIGHT_FOLLOWER_ID = 9; //9
+    public static final int RIGHT_LEADER_ID = 5; //8
+    public static final int RIGHT_FOLLOWER_ID = 3; //9
     // Encoder units per meter, depends on encoder units per revolution and wheel radius
     // This constant NEEDS to be tuned
     public static final double ENCODER_UNITS_PER_METER = 4096 * 8.45 * 2/Math.PI;
@@ -36,8 +36,8 @@ public final class Constants {
 
   public static final class FuelConstants {
     // Motor controller IDs for Fuel Mechanism motors
-    public static final int FEEDER_MOTOR_ID = 4; // checked
-    public static final int INTAKE_LAUNCHER_MOTOR_ID = 3;
+    public static final int FEEDER_MOTOR_ID = 6; // checked
+    public static final int INTAKE_LAUNCHER_MOTOR_ID = 1;
 
     // Current limit and nominal voltage for fuel mechanism motors.
     public static final int FEEDER_MOTOR_CURRENT_LIMIT = 60;
