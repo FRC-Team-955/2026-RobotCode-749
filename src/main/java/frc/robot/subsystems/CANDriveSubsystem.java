@@ -41,8 +41,8 @@ public class CANDriveSubsystem extends SubsystemBase {
   private final SparkMax rightFollower;
 
 
-    private final PoseSubsystem ps = new PoseSubsystem();
-  private final DifferentialDrive drive;
+    private final PoseSubsystem ps = new PoseSubsystem(); //Pose Estimator Class
+  private final DifferentialDrive drive; //builtin wpilib drive
     private final LTVUnicycleController controller = new LTVUnicycleController(0.02);
 
   double lSetPoint;
@@ -100,7 +100,7 @@ public class CANDriveSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-      //
+      //logging
       SmartDashboard.putNumber("leftLeaderEncoder", leftLeader.getEncoder().getPosition()/ENCODER_UNITS_PER_METER);
       SmartDashboard.putNumber("leftFollowerEncoder", leftFollower.getEncoder().getPosition()/ENCODER_UNITS_PER_METER); // shouldn't be needed, just here to make sure (actually maybe it goes the opposite direction idk)
       SmartDashboard.putNumber("rightLeaderEncoder", rightLeader.getEncoder().getPosition()/ENCODER_UNITS_PER_METER);
@@ -137,8 +137,8 @@ public class CANDriveSubsystem extends SubsystemBase {
 
     public void followTrajectory(Optional<DifferentialSample> samples) {
         // Get the current pose of the robot
-
         DifferentialSample sample = samples.orElse(new choreo.trajectory.DifferentialSample(0,0,0,0,0,0,0,0,0,0,0,0));
+
         // Get the velocity feedforward specified by the sample
         ChassisSpeeds ff = sample.getChassisSpeeds();
 
@@ -153,8 +153,8 @@ public class CANDriveSubsystem extends SubsystemBase {
 
         DifferentialDriveKinematics kinematics =
                 new DifferentialDriveKinematics(Units.inchesToMeters(27.0)); //27 = drivebase width?????
-        // Apply the generated speeds
 
+        // Apply the generated speeds
         DifferentialDriveWheelSpeeds wheelSpeeds = kinematics.toWheelSpeeds(speeds); //
         drive.tankDrive(wheelSpeeds.leftMetersPerSecond, wheelSpeeds.rightMetersPerSecond);
     }

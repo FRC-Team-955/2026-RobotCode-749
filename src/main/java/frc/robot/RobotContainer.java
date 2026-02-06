@@ -34,12 +34,12 @@ public class RobotContainer {
   // The robot's subsystems
   private final CANDriveSubsystem driveSubsystem = new CANDriveSubsystem();
   private final CANFuelSubsystem ballSubsystem = new CANFuelSubsystem();
+
+  //object to contain a trajectory
     private final Optional<Trajectory<DifferentialSample>> trajectory = Choreo.loadTrajectory("test");
-    private final Timer PathTimer = new Timer();
+    private final Timer PathTimer = new Timer(); //Timer object used for pathfollowing
 
     // The driver's controller
-
-
   private final CommandXboxController driverController = new CommandXboxController(
       DRIVER_CONTROLLER_PORT);
 
@@ -50,7 +50,7 @@ public class RobotContainer {
   // The autonomous chooser
   private final SendableChooser<Command> autoChooser = new SendableChooser<>();
 
-
+// self-explanatory
     private boolean isRedAlliance() {
         return DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue).equals(DriverStation.Alliance.Red);
     }
@@ -73,7 +73,9 @@ public class RobotContainer {
 
       // Reset and start the timer when the autonomous period begins
       PathTimer.restart();
-    configureBindings();
+
+
+    configureBindings(); //controller bindings
 
     // Set the options to show up in the Dashboard for selecting auto modes. If you
     // add additional auto modes you can add additional lines here with
@@ -81,17 +83,7 @@ public class RobotContainer {
     autoChooser.setDefaultOption("Autonomous", Autos.exampleAuto(driveSubsystem, ballSubsystem));
   }
 
-  /**
-   * Use this method to define your trigger->command mappings. Triggers can be
-   * created via the {@link Trigger#Trigger(java.util.function.BooleanSupplier)}
-   * constructor with an arbitrary predicate, or via the named factories in
-   * {@link edu.wpi.first.wpilibj2.command.button.CommandGenericHID}'s subclasses
-   * for {@link CommandXboxController Xbox}/
-   * {@link edu.wpi.first.wpilibj2.command.button.CommandPS4Controller PS4}
-   * controllers or
-   * {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight
-   * joysticks}.
-   */
+
   private void configureBindings() {
 
     // While the left bumper on operator controller is held, intake Fuel
@@ -108,6 +100,7 @@ public class RobotContainer {
     operatorController.a()
         .whileTrue(ballSubsystem.runEnd(() -> ballSubsystem.eject(), () -> ballSubsystem.stop()));
 
+    // b to test arins path follow
     operatorController.b()
             .whileTrue(driveSubsystem.goPathFollow(trajectory,PathTimer));
     // Set the default command for the drive subsystem to the command provided by
