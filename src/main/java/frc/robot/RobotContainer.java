@@ -111,14 +111,17 @@ public class RobotContainer {
     // results in clockwise rotation (front of the robot turning right). Both axes
     // are also scaled down so the rotation is more easily controllable.
     driveSubsystem.setDefaultCommand(
-        /* driveSubsystem.driveArcade(
-            () -> -operatorController.getLeftY() * DRIVE_SCALING,
-            () -> -operatorController.getRightX() * ROTATION_SCALING));
-        */
-        driveSubsystem.driveTank(
+
+         driveSubsystem.driveArcade(
+            () -> operatorController.getLeftY() * DRIVE_SCALING,
+            () -> operatorController.getRightX() * ROTATION_SCALING));
+
+
+            /*
+            driveSubsystem.driveTank(
             () -> -operatorController.getLeftY() * DRIVE_SCALING - operatorController.getRightX() * ROTATION_SCALING,
             () -> -operatorController.getLeftY() * DRIVE_SCALING + operatorController.getRightX() * ROTATION_SCALING));
-
+*/
   }
 
   /**

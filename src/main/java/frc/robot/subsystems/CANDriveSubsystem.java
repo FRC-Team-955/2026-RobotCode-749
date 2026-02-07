@@ -28,9 +28,11 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
+import static edu.wpi.first.wpilibj.drive.DifferentialDrive.arcadeDriveIK;
 import static frc.robot.Constants.DriveConstants.*;
 
 
@@ -77,10 +79,12 @@ public class CANDriveSubsystem extends SubsystemBase {
     config.voltageCompensation(12);
     config.smartCurrentLimit(DRIVE_MOTOR_CURRENT_LIMIT);
 
+
     // Set configuration to follow each leader and then apply it to corresponding
     // follower. Resetting in case a new controller is swapped
     // in and persisting in case of a controller reset due to breaker trip
     config.follow(leftLeader);
+
     leftFollower.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     config.follow(rightLeader);
     rightFollower.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
@@ -109,19 +113,35 @@ public class CANDriveSubsystem extends SubsystemBase {
       SmartDashboard.putNumber("rightSetPoint", rSetPoint);
   }
 
+  public void logMotors(DoubleSupplier xSpeed, DoubleSupplier zRotation, boolean squareInputs) {
+      double qxSpeed = MathUtil.applyDeadband(xSpeed.getAsDouble(), 0.02);
+      double qzRotation = MathUtil.applyDeadband(zRotation.getAsDouble(), 0.02);
+
+      var speeds = arcadeDriveIK(qxSpeed, qzRotation, squareInputs);
+
+      double m_leftOutput = speeds.left;
+      double m_rightOutput = speeds.right;
+      drive.arcadeDrive(xSpeed.getAsDouble(), zRotation.getAsDouble());
+      System.out.print("L: "); System.out.print(leftLeader.getAppliedOutput()); System.out.print(" R: ");System.out.println(rightLeader.getAppliedOutput());
+      System.out.print("LF: "); System.out.print(leftFollower.getAppliedOutput()); System.out.print(" RF: ");System.out.println(rightFollower.getAppliedOutput());
+  }
+
   // Command factory to create command to drive the robot with joystick inputs.
   public Command driveArcade(DoubleSupplier xSpeed, DoubleSupplier zRotation) {
     return this.run(
-        () -> drive.arcadeDrive(xSpeed.getAsDouble(), zRotation.getAsDouble()));
+        () -> logMotors(xSpeed,zRotation, false));
   }
+
+
 
   public Command driveTank(DoubleSupplier leftSpeed, DoubleSupplier rightSpeed) {
       // setpoints included just for logging it
       // use setpoints to tune encoder units
-      lSetPoint += leftSpeed.getAsDouble();
+      lSetPoint += leftSpeed.getAsDouble(); //JIN THIS DOESNT RUN....... read about commands
       rSetPoint += rightSpeed.getAsDouble();
-      return this.run(
-              () -> drive.tankDrive(leftSpeed.getAsDouble(), rightSpeed.getAsDouble()));
+
+      return new SequentialCommandGroup(
+              run(() -> drive.tankDrive(leftSpeed.getAsDouble(), rightSpeed.getAsDouble())), run(()->System.out.println("DEBUG"))  );
   }
 
   public Command drivePID(DoubleSupplier leftSpeed, DoubleSupplier rightSpeed) {
