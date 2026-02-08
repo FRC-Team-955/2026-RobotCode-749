@@ -89,6 +89,8 @@ public class RobotContainer {
     // While the left bumper on operator controller is held, intake Fuel
     operatorController.leftBumper()
         .whileTrue(ballSubsystem.runEnd(() -> ballSubsystem.intake(), () -> ballSubsystem.stop()));
+
+
     // While the right bumper on the operator controller is held, spin up for 1
     // second, then launch fuel. When the button is released, stop.
     operatorController.rightBumper()
@@ -99,6 +101,8 @@ public class RobotContainer {
     // the intake
     operatorController.a()
         .whileTrue(ballSubsystem.runEnd(() -> ballSubsystem.eject(), () -> ballSubsystem.stop()));
+
+    operatorController.y().whileTrue(ballSubsystem.feederTestC());
 
     // b to test arins path follow
     operatorController.b().whileTrue(driveSubsystem.goPathFollow(trajectory,PathTimer));
@@ -116,7 +120,7 @@ public class RobotContainer {
             () -> operatorController.getRightX() * ROTATION_SCALING));
 
 
-            /*
+/*
             driveSubsystem.driveTank(
             () -> -operatorController.getLeftY() * DRIVE_SCALING - operatorController.getRightX() * ROTATION_SCALING,
             () -> -operatorController.getLeftY() * DRIVE_SCALING + operatorController.getRightX() * ROTATION_SCALING));

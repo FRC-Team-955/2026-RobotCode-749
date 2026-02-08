@@ -40,18 +40,20 @@ public final class Constants {
     public static final int INTAKE_LAUNCHER_MOTOR_ID = 1;
 
     // Current limit and nominal voltage for fuel mechanism motors.
-    public static final int FEEDER_MOTOR_CURRENT_LIMIT = 60;
-    public static final int LAUNCHER_MOTOR_CURRENT_LIMIT = 60;
+    public static final int FEEDER_MOTOR_CURRENT_LIMIT = 55;
+    public static final int LAUNCHER_MOTOR_CURRENT_LIMIT = 55;
 
     // Voltage values for various fuel operations. These values may need to be tuned
     // based on exact robot construction.
     // See the Software Guide for tuning information
-    public static final double INTAKING_FEEDER_VOLTAGE = -12;
-    public static final double INTAKING_INTAKE_VOLTAGE = 10;
-    public static final double LAUNCHING_FEEDER_VOLTAGE = 9;
-    public static final double LAUNCHING_LAUNCHER_VOLTAGE = 10.6;
-    public static final double SPIN_UP_FEEDER_VOLTAGE = -6;
-    public static final double SPIN_UP_SECONDS = 1;
+      public static final double INTAKE_SCALE = -1.00;
+      public static final double LAUNCH_SCALE = -0.789; //set to -0.955 for real?
+    public static final double INTAKING_FEEDER_VOLTAGE = (-12)*INTAKE_SCALE;
+    public static final double INTAKING_INTAKE_VOLTAGE = 4.4*INTAKE_SCALE;
+    public static final double LAUNCHING_FEEDER_VOLTAGE = (9)*LAUNCH_SCALE;
+    public static final double LAUNCHING_LAUNCHER_VOLTAGE = 12*LAUNCH_SCALE;
+    public static final double SPIN_UP_FEEDER_VOLTAGE = (-6)*LAUNCH_SCALE;
+    public static final double SPIN_UP_SECONDS = 0.5;
   }
 
   public static final class OperatorConstants {
@@ -62,7 +64,7 @@ public final class Constants {
 
     // This value is multiplied by the joystick value when driving the robot to
     // help avoid driving and turning too fast and being difficult to control
-    public static final double DRIVE_SCALING = .7;
-    public static final double ROTATION_SCALING = .8;
+    public static final double DRIVE_SCALING = .68;
+    public static final double ROTATION_SCALING = .62;
   }
 }
