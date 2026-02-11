@@ -146,6 +146,7 @@ public class CANDriveSubsystem extends SubsystemBase {
   public Command driveArcade(DoubleSupplier xSpeed, DoubleSupplier zRotation) {
      // need to add some sort of slow down slow thingy
       return new SequentialCommandGroup(
+              run(() -> updateSetPoints(xSpeed.getAsDouble() + zRotation.getAsDouble(), xSpeed.getAsDouble() - zRotation.getAsDouble())),
               run(() -> drive.arcadeDrive(safeSpeed(xSpeed.getAsDouble()) ,zRotation.getAsDouble())),
               run(() -> setLastTick(safeSpeed(xSpeed.getAsDouble()))) );
   }
@@ -153,21 +154,23 @@ public class CANDriveSubsystem extends SubsystemBase {
 
 
   public Command driveTank(DoubleSupplier leftSpeed, DoubleSupplier rightSpeed) {
-      /* // setpoints included just for logging it
+      // setpoints included just for logging it
       // use setpoints to tune encoder units
-      lSetPoint += leftSpeed.getAsDouble(); //JIN THIS DOESNT RUN....... read about commands
-      rSetPoint += rightSpeed.getAsDouble(); */
-
-      return this.run(
-              () -> drive.tankDrive(leftSpeed.getAsDouble(), rightSpeed.getAsDouble()));
+      return new SequentialCommandGroup(
+              run(() -> updateSetPoints(leftSpeed.getAsDouble(), rightSpeed.getAsDouble())),
+              run(() -> drive.tankDrive(leftSpeed.getAsDouble(), rightSpeed.getAsDouble())));
   }
+    private void updateSetPoints(double leftSpeed, double rightSpeed) {
+        lSetPoint += leftSpeed;
+        rSetPoint += rightSpeed;
+    }
 
   public Command drivePID(DoubleSupplier leftSpeed, DoubleSupplier rightSpeed) {
       // 2^12 = 4096 encoder units per revolution
-      lSetPoint += leftSpeed.getAsDouble(); // THIS WONT WORK - stuff with commands?
-      rSetPoint += rightSpeed.getAsDouble();
-      return this.run(
-            () -> drive.tankDrive(MathUtil.clamp(3 * (lSetPoint - leftLeader.getEncoder().getPosition()/ENCODER_UNITS_PER_METER), -0.8, 0.8), MathUtil.clamp(3 * (rSetPoint - rightLeader.getEncoder().getPosition()/ENCODER_UNITS_PER_METER), -0.8, 0.8))
+      return new SequentialCommandGroup(
+              run(() -> updateSetPoints(leftSpeed.getAsDouble(), rightSpeed.getAsDouble())),
+            run(() -> drive.tankDrive(MathUtil.clamp(3 * (lSetPoint - leftLeader.getEncoder().getPosition()/ENCODER_UNITS_PER_METER), -0.8, 0.8),
+                                        MathUtil.clamp(3 * (rSetPoint - rightLeader.getEncoder().getPosition()/ENCODER_UNITS_PER_METER), -0.8, 0.8)))
     );
   }
 
