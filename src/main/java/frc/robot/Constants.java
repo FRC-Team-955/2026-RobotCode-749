@@ -22,7 +22,7 @@ public final class Constants {
 
   public static final class DriveConstants {
     // Motor controller IDs for drivetrain motors
-    public static final int LEFT_LEADER_ID = 2; // checked
+    public static final int LEFT_LEADER_ID = 2;
     public static final int LEFT_FOLLOWER_ID = 3;
     public static final int RIGHT_LEADER_ID = 5; //8
     public static final int RIGHT_FOLLOWER_ID = 4; //9
@@ -66,5 +66,8 @@ public final class Constants {
     // help avoid driving and turning too fast and being difficult to control
     public static final double DRIVE_SCALING = .68;
     public static final double ROTATION_SCALING = .62;
+
+    // This determines how fast the robot will slow down, a smaller value will make the robot slow down slower (less jerk)
+      public static final double SAFE_SPEED_CAP = 0.2;
   }
 }

@@ -49,6 +49,7 @@ public class CANDriveSubsystem extends SubsystemBase {
 
   double lSetPoint;
   double rSetPoint;
+  double lastTick = 0;
 
   public CANDriveSubsystem() {
     // create brushed motors for drive
@@ -125,28 +126,45 @@ public class CANDriveSubsystem extends SubsystemBase {
       System.out.print("L: "); System.out.print(leftLeader.getAppliedOutput()); System.out.print(" R: ");System.out.println(rightLeader.getAppliedOutput());
       System.out.print("LF: "); System.out.print(leftFollower.getAppliedOutput()); System.out.print(" RF: ");System.out.println(rightFollower.getAppliedOutput());
   }
+  private double safeSpeed(double xSpeed) {
+      if (Math.abs(xSpeed-lastTick) > Constants.OperatorConstants.SAFE_SPEED_CAP) {
+          if (xSpeed > lastTick) {
+              return xSpeed + Constants.OperatorConstants.SAFE_SPEED_CAP;
+          } else {
+              return xSpeed - Constants.OperatorConstants.SAFE_SPEED_CAP;
+          }
+      }
+      return xSpeed;
+  }
+
+  private void setLastTick(double xSpeed) {
+      lastTick = xSpeed;
+  }
+
 
   // Command factory to create command to drive the robot with joystick inputs.
   public Command driveArcade(DoubleSupplier xSpeed, DoubleSupplier zRotation) {
-    return this.run(
-        () -> logMotors(xSpeed,zRotation, false));
+     // need to add some sort of slow down slow thingy
+      return new SequentialCommandGroup(
+              run(() -> drive.arcadeDrive(safeSpeed(xSpeed.getAsDouble()) ,zRotation.getAsDouble())),
+              run(() -> setLastTick(safeSpeed(xSpeed.getAsDouble()))) );
   }
 
 
 
   public Command driveTank(DoubleSupplier leftSpeed, DoubleSupplier rightSpeed) {
-      // setpoints included just for logging it
+      /* // setpoints included just for logging it
       // use setpoints to tune encoder units
       lSetPoint += leftSpeed.getAsDouble(); //JIN THIS DOESNT RUN....... read about commands
-      rSetPoint += rightSpeed.getAsDouble();
+      rSetPoint += rightSpeed.getAsDouble(); */
 
-      return new SequentialCommandGroup(
-              run(() -> drive.tankDrive(leftSpeed.getAsDouble(), rightSpeed.getAsDouble())), run(()->System.out.println("DEBUG"))  );
+      return this.run(
+              () -> drive.tankDrive(leftSpeed.getAsDouble(), rightSpeed.getAsDouble()));
   }
 
   public Command drivePID(DoubleSupplier leftSpeed, DoubleSupplier rightSpeed) {
       // 2^12 = 4096 encoder units per revolution
-      lSetPoint += leftSpeed.getAsDouble();
+      lSetPoint += leftSpeed.getAsDouble(); // THIS WONT WORK - stuff with commands?
       rSetPoint += rightSpeed.getAsDouble();
       return this.run(
             () -> drive.tankDrive(MathUtil.clamp(3 * (lSetPoint - leftLeader.getEncoder().getPosition()/ENCODER_UNITS_PER_METER), -0.8, 0.8), MathUtil.clamp(3 * (rSetPoint - rightLeader.getEncoder().getPosition()/ENCODER_UNITS_PER_METER), -0.8, 0.8))

@@ -123,7 +123,7 @@ public class RobotContainer {
 /*
             driveSubsystem.driveTank(
             () -> -operatorController.getLeftY() * DRIVE_SCALING - operatorController.getRightX() * ROTATION_SCALING,
-            () -> -operatorController.getLeftY() * DRIVE_SCALING + operatorController.getRightX() * ROTATION_SCALING));
+            () -> -operatorController.getLeftY() * DRIVE_SCALING + operatorController.getRightX() * ROTATION_SCALING)); // make sure +- are correct
 */
   }
 
