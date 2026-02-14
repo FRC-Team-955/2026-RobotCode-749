@@ -21,6 +21,9 @@ public class PoseSubsystem extends SubsystemBase {
     private  DifferentialDrivePoseEstimator m_poseEstimator;
     private DoubleSupplier l; //link to encoder value? IDK if this works just testing
     private DoubleSupplier r; //object for passing encoder values
+    double OldL = 0;
+    double OldR = 0;
+    double gyroAngle=0;
 
 
 
@@ -46,8 +49,10 @@ public class PoseSubsystem extends SubsystemBase {
 
     // uh set source?
     public void setSource(DoubleSupplier leftencoder, DoubleSupplier rightencoder){
-        l = (()->{ return -leftencoder.getAsDouble();});
-        r=rightencoder;
+        l = (()->{ return -leftencoder.getAsDouble()/Constants.DriveConstants.ENCODER_UNITS_PER_METER;});
+        r=(()->{ return -rightencoder.getAsDouble()/Constants.DriveConstants.ENCODER_UNITS_PER_METER;});
+        OldL = l.getAsDouble();
+        OldR=r.getAsDouble();
         m_poseEstimator =
         new DifferentialDrivePoseEstimator(
                 m_kinematics,
@@ -62,10 +67,11 @@ public class PoseSubsystem extends SubsystemBase {
     //update loop event
     @Override
     public void periodic() {
-        // Update the odometry in the periodic block
 
+        // Update the odometry in the periodic block
+gyroAngle += (360/42)*Math.atan(((r.getAsDouble()-OldR)-(l.getAsDouble()-OldL))/Constants.DriveConstants.DBASE_WIDTH);
         m_poseEstimator.update(
-                new Rotation2d(), l.getAsDouble(), r.getAsDouble());
+                new Rotation2d(), l.getAsDouble(), r.getAsDouble()); //use Rotation2d (gyroAngle) for reals
         if (Constants.DEBUG == 1){
             System.out.print("R "); System.out.println(r.getAsDouble());
             System.out.print("L "); System.out.println(l.getAsDouble());
@@ -76,5 +82,8 @@ public class PoseSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("EPOS_THETA", m_poseEstimator.getEstimatedPosition().getRotation().getDegrees());
         SmartDashboard.putNumber("EPOS_LE", l.getAsDouble());
         SmartDashboard.putNumber("EPOS_RE", r.getAsDouble());
+
+        OldL = l.getAsDouble();
+        OldR = r.getAsDouble();
     }
 }

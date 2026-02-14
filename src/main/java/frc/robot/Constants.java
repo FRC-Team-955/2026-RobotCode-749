@@ -21,6 +21,8 @@ public final class Constants {
 
 
   public static final class DriveConstants {
+     public static final double DBASE_WIDTH = 0.7;
+
     // Motor controller IDs for drivetrain motors
     public static final int LEFT_LEADER_ID = 2;
     public static final int LEFT_FOLLOWER_ID = 3;
@@ -28,7 +30,7 @@ public final class Constants {
     public static final int RIGHT_FOLLOWER_ID = 4; //9
     // Encoder units per meter, depends on encoder units per revolution and wheel radius
     // This constant NEEDS to be tuned
-    public static final double ENCODER_UNITS_PER_METER = 4096 * 8.45 * 2/Math.PI;
+    public static final double ENCODER_UNITS_PER_METER = 8.45 * 2/Math.PI /5;
     // Current limit for drivetrain motors. 60A is a reasonable maximum to reduce
     // likelihood of tripping breakers or damaging CIM motors
     public static final int DRIVE_MOTOR_CURRENT_LIMIT = 60;

@@ -107,10 +107,10 @@ public class CANDriveSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
       //logging
-      SmartDashboard.putNumber("leftLeaderEncoder", leftLeader.getEncoder().getPosition()/ENCODER_UNITS_PER_METER);
-      SmartDashboard.putNumber("leftFollowerEncoder", leftFollower.getEncoder().getPosition()/ENCODER_UNITS_PER_METER); // shouldn't be needed, just here to make sure (actually maybe it goes the opposite direction idk)
-      SmartDashboard.putNumber("rightLeaderEncoder", rightLeader.getEncoder().getPosition()/ENCODER_UNITS_PER_METER);
-      SmartDashboard.putNumber("rightFollowerEncoder", rightFollower.getEncoder().getPosition()/ENCODER_UNITS_PER_METER); // shouldn't be needed, just here to make sure
+      SmartDashboard.putNumber("leftLeaderEncoder", leftLeader.getEncoder().getPosition());
+      SmartDashboard.putNumber("leftFollowerEncoder", leftFollower.getEncoder().getPosition()); // shouldn't be needed, just here to make sure (actually maybe it goes the opposite direction idk)
+      SmartDashboard.putNumber("rightLeaderEncoder", rightLeader.getEncoder().getPosition());
+      SmartDashboard.putNumber("rightFollowerEncoder", rightFollower.getEncoder().getPosition()); // shouldn't be needed, just here to make sure
       SmartDashboard.putNumber("leftSetPoint", lSetPoint);
       SmartDashboard.putNumber("rightSetPoint", rSetPoint);
   }
