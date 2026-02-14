@@ -4,7 +4,7 @@
 
 package frc.robot;
 
-import edu.wpi.first.math.MathUtil;
+
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
@@ -21,7 +21,7 @@ public final class Constants {
 
 
   public static final class DriveConstants {
-     public static final double DBASE_WIDTH = 0.7;
+     public static final double DBASE_WIDTH = 0.55;
 
     // Motor controller IDs for drivetrain motors
     public static final int LEFT_LEADER_ID = 2;
@@ -30,11 +30,11 @@ public final class Constants {
     public static final int RIGHT_FOLLOWER_ID = 4; //9
     // Encoder units per meter, depends on encoder units per revolution and wheel radius
     // This constant NEEDS to be tuned
-    public static final double ENCODER_UNITS_PER_METER = (4096)/(Math.PI*5.844*0.0254*8.45);
+    public static final double ENCODER_UNITS_PER_METER = (8.45)/(Math.PI*5.844*0.0254);
     // Current limit for drivetrain motors. 60A is a reasonable maximum to reduce
     // likelihood of tripping breakers or damaging CIM motors
     public static final int DRIVE_MOTOR_CURRENT_LIMIT = 60;
-      // This determines how fast the robot will slow down, a smaller value will make the robot slow down slower (less jerk)
+      // This determines how fast the robot will slow down, a smaller value will make the robot accel/decel slower (less jerk)
       public static final double SAFE_SPEED_CAP = 0.2;
   }
 

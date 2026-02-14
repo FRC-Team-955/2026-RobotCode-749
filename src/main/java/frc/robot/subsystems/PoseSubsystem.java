@@ -14,7 +14,11 @@ import frc.robot.Constants;
 
 import java.util.function.DoubleSupplier;
 
+
+import com.ctre.phoenix6.hardware.Pigeon2;
+
 public class PoseSubsystem extends SubsystemBase {
+    Pigeon2 gyro = new Pigeon2(13, "rio");
 
 
     private DifferentialDriveKinematics m_kinematics;
@@ -69,9 +73,9 @@ public class PoseSubsystem extends SubsystemBase {
     public void periodic() {
 
         // Update the odometry in the periodic block
-gyroAngle += (360/42)*Math.atan(((r.getAsDouble()-OldR)-(l.getAsDouble()-OldL))/Constants.DriveConstants.DBASE_WIDTH);
+gyroAngle += Math.atan(((r.getAsDouble()-OldR)-(l.getAsDouble()-OldL))/Constants.DriveConstants.DBASE_WIDTH);
         m_poseEstimator.update(
-                new Rotation2d(), l.getAsDouble(), r.getAsDouble()); //use Rotation2d (gyroAngle) for reals
+                gyro.getRotation2d(), l.getAsDouble(), r.getAsDouble()); //use Rotation2d (gyroAngle) for reals
         if (Constants.DEBUG == 1){
             System.out.print("R "); System.out.println(r.getAsDouble());
             System.out.print("L "); System.out.println(l.getAsDouble());
@@ -82,6 +86,9 @@ gyroAngle += (360/42)*Math.atan(((r.getAsDouble()-OldR)-(l.getAsDouble()-OldL))/
         SmartDashboard.putNumber("EPOS_THETA", m_poseEstimator.getEstimatedPosition().getRotation().getDegrees());
         SmartDashboard.putNumber("EPOS_LE", l.getAsDouble());
         SmartDashboard.putNumber("EPOS_RE", r.getAsDouble());
+        SmartDashboard.putNumber("EPOS_dLE", l.getAsDouble()-OldL);
+        SmartDashboard.putNumber("EPOS_dRE", r.getAsDouble()-OldR);
+
 
         OldL = l.getAsDouble();
         OldR = r.getAsDouble();
