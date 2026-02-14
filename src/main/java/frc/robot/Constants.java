@@ -32,6 +32,8 @@ public final class Constants {
     // Current limit for drivetrain motors. 60A is a reasonable maximum to reduce
     // likelihood of tripping breakers or damaging CIM motors
     public static final int DRIVE_MOTOR_CURRENT_LIMIT = 60;
+      // This determines how fast the robot will slow down, a smaller value will make the robot slow down slower (less jerk)
+      public static final double SAFE_SPEED_CAP = 0.2;
   }
 
   public static final class FuelConstants {
@@ -66,8 +68,5 @@ public final class Constants {
     // help avoid driving and turning too fast and being difficult to control
     public static final double DRIVE_SCALING = .68;
     public static final double ROTATION_SCALING = .62;
-
-    // This determines how fast the robot will slow down, a smaller value will make the robot slow down slower (less jerk)
-      public static final double SAFE_SPEED_CAP = 0.2;
   }
 }

@@ -18,6 +18,7 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.LTVUnicycleController;
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
@@ -47,9 +48,9 @@ public class CANDriveSubsystem extends SubsystemBase {
   private final DifferentialDrive drive; //builtin wpilib drive
     private final LTVUnicycleController controller = new LTVUnicycleController(0.02);
 
+    private final SlewRateLimiter limit = new SlewRateLimiter(10 * Constants.DriveConstants.SAFE_SPEED_CAP);
   double lSetPoint;
   double rSetPoint;
-  double lastTick = 0;
 
   public CANDriveSubsystem() {
     // create brushed motors for drive
@@ -126,29 +127,13 @@ public class CANDriveSubsystem extends SubsystemBase {
       System.out.print("L: "); System.out.print(leftLeader.getAppliedOutput()); System.out.print(" R: ");System.out.println(rightLeader.getAppliedOutput());
       System.out.print("LF: "); System.out.print(leftFollower.getAppliedOutput()); System.out.print(" RF: ");System.out.println(rightFollower.getAppliedOutput());
   }
-  private double safeSpeed(double xSpeed) {
-      if (Math.abs(xSpeed-lastTick) > Constants.OperatorConstants.SAFE_SPEED_CAP) {
-          if (xSpeed > lastTick) {
-              return xSpeed + Constants.OperatorConstants.SAFE_SPEED_CAP;
-          } else {
-              return xSpeed - Constants.OperatorConstants.SAFE_SPEED_CAP;
-          }
-      }
-      return xSpeed;
-  }
-
-  private void setLastTick(double xSpeed) {
-      lastTick = xSpeed;
-  }
-
 
   // Command factory to create command to drive the robot with joystick inputs.
   public Command driveArcade(DoubleSupplier xSpeed, DoubleSupplier zRotation) {
-     // need to add some sort of slow down slow thingy
-      return new SequentialCommandGroup(
-              run(() -> updateSetPoints(xSpeed.getAsDouble() + zRotation.getAsDouble(), xSpeed.getAsDouble() - zRotation.getAsDouble())),
-              run(() -> drive.arcadeDrive(safeSpeed(xSpeed.getAsDouble()) ,zRotation.getAsDouble())),
-              run(() -> setLastTick(safeSpeed(xSpeed.getAsDouble()))) );
+      return this.run(() -> {
+              updateSetPoints(limit.calculate(xSpeed.getAsDouble()) + zRotation.getAsDouble(), limit.calculate(xSpeed.getAsDouble()) - zRotation.getAsDouble());
+              drive.arcadeDrive(limit.calculate(xSpeed.getAsDouble()) ,zRotation.getAsDouble());
+      });
   }
 
 
@@ -156,7 +141,7 @@ public class CANDriveSubsystem extends SubsystemBase {
   public Command driveTank(DoubleSupplier leftSpeed, DoubleSupplier rightSpeed) {
       // setpoints included just for logging it
       // use setpoints to tune encoder units
-      return new SequentialCommandGroup(
+      return new SequentialCommandGroup( // THIS WILL NOT WORK (look at drivearcade)
               run(() -> updateSetPoints(leftSpeed.getAsDouble(), rightSpeed.getAsDouble())),
               run(() -> drive.tankDrive(leftSpeed.getAsDouble(), rightSpeed.getAsDouble())));
   }
@@ -167,7 +152,7 @@ public class CANDriveSubsystem extends SubsystemBase {
 
   public Command drivePID(DoubleSupplier leftSpeed, DoubleSupplier rightSpeed) {
       // 2^12 = 4096 encoder units per revolution
-      return new SequentialCommandGroup(
+      return new SequentialCommandGroup( // THIS WILL NOT WORK (look at drivearcade)
               run(() -> updateSetPoints(leftSpeed.getAsDouble(), rightSpeed.getAsDouble())),
             run(() -> drive.tankDrive(MathUtil.clamp(3 * (lSetPoint - leftLeader.getEncoder().getPosition()/ENCODER_UNITS_PER_METER), -0.8, 0.8),
                                         MathUtil.clamp(3 * (rSetPoint - rightLeader.getEncoder().getPosition()/ENCODER_UNITS_PER_METER), -0.8, 0.8)))
