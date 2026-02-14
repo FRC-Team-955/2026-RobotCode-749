@@ -8,6 +8,7 @@ import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
@@ -70,5 +71,10 @@ public class PoseSubsystem extends SubsystemBase {
             System.out.print("L "); System.out.println(l.getAsDouble());
             System.out.print("EPOS: X: "); System.out.print(m_poseEstimator.getEstimatedPosition().getTranslation().getX()); System.out.print(" Y: "); System.out.print(m_poseEstimator.getEstimatedPosition().getTranslation().getY()); System.out.print(" THETA: "); System.out.println(m_poseEstimator.getEstimatedPosition().getRotation().getDegrees());
         }
+        SmartDashboard.putNumber("EPOS_X", m_poseEstimator.getEstimatedPosition().getTranslation().getX());
+        SmartDashboard.putNumber("EPOS_Y", m_poseEstimator.getEstimatedPosition().getTranslation().getY());
+        SmartDashboard.putNumber("EPOS_THETA", m_poseEstimator.getEstimatedPosition().getRotation().getDegrees());
+        SmartDashboard.putNumber("EPOS_LE", l.getAsDouble());
+        SmartDashboard.putNumber("EPOS_RE", r.getAsDouble());
     }
 }
