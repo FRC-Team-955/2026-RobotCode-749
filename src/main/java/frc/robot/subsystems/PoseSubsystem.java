@@ -1,8 +1,13 @@
 package frc.robot.subsystems;
+import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.estimator.DifferentialDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
+import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
+
+
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.util.Units;
 import frc.robot.Constants;
 
 import java.util.function.DoubleSupplier;
@@ -10,25 +15,27 @@ import java.util.function.DoubleSupplier;
 public class PoseSubsystem {
 
 
-    private final DifferentialDriveOdometry odo;
+    private DifferentialDriveKinematics m_kinematics;
+    private  DifferentialDrivePoseEstimator m_poseEstimator;
     private DoubleSupplier l; //link to encoder value? IDK if this works just testing
     private DoubleSupplier r; //object for passing encoder values
-    public PoseSubsystem(){
-        odo = new DifferentialDriveOdometry(Rotation2d.kZero, 0,0);
-    }
 
-        //SELF EXPLANATORY......
+
+
+
+    //SELF EXPLANATORY......
     public void resetOdometry(Pose2d a){
-        odo.resetPose(a);
+        m_poseEstimator.resetPose(a);
     }
     //overloaded function for in case a zero-reset is needed
     public void resetOdometry(){
-        odo.resetPose(new Pose2d(0,0,Rotation2d.kZero));
+
+        m_poseEstimator.resetPose(new Pose2d());
     }
 
     // get pose2d format of best guess pose from the PoseSubsystem
     public Pose2d getPose() {
-        return odo.getPoseMeters();
+        return m_poseEstimator.getEstimatedPosition();
     }
 
     public Rotation2d getGyro(){
@@ -39,20 +46,27 @@ public class PoseSubsystem {
     public void setSource(DoubleSupplier leftencoder, DoubleSupplier rightencoder){
         l = leftencoder;
         r=rightencoder;
+        m_poseEstimator =
+        new DifferentialDrivePoseEstimator(
+                m_kinematics,
+                new Rotation2d(),
+                l.getAsDouble(),
+                r.getAsDouble(),
+                new Pose2d(),
+                VecBuilder.fill(0.05, 0.05, Units.degreesToRadians(5)),
+                VecBuilder.fill(0.5, 0.5, Units.degreesToRadians(30)));
     }
 
     //update loop event
     public void periodic() {
         // Update the odometry in the periodic block
-        odo.update(
-            getGyro(),
-                l.getAsDouble(),
-                r.getAsDouble()
-        );
 
+        m_poseEstimator.update(
+                new Rotation2d(), l.getAsDouble(), r.getAsDouble());
         if (Constants.DEBUG == 1){
             System.out.print("R "); System.out.println(r.getAsDouble());
             System.out.print("L "); System.out.println(l.getAsDouble());
+            System.out.print("EPOS: X: "); System.out.print(m_poseEstimator.getEstimatedPosition().getTranslation().getX()); System.out.print(" Y: "); System.out.print(m_poseEstimator.getEstimatedPosition().getTranslation().getY()); System.out.print(" THETA: "); System.out.println(m_poseEstimator.getEstimatedPosition().getRotation().getDegrees());
         }
     }
 }
