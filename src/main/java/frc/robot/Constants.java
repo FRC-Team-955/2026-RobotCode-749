@@ -17,7 +17,7 @@ import edu.wpi.first.math.MathUtil;
  * wherever the constants are needed, to reduce verbosity.
  */
 public final class Constants {
-    public static int DEBUG = 1;
+    public static int DEBUG = 0;
 
 
   public static final class DriveConstants {
@@ -30,7 +30,7 @@ public final class Constants {
     public static final int RIGHT_FOLLOWER_ID = 4; //9
     // Encoder units per meter, depends on encoder units per revolution and wheel radius
     // This constant NEEDS to be tuned
-    public static final double ENCODER_UNITS_PER_METER = 8.45 * 2/Math.PI /5;
+    public static final double ENCODER_UNITS_PER_METER = (4096)/(Math.PI*5.844*0.0254*8.45);
     // Current limit for drivetrain motors. 60A is a reasonable maximum to reduce
     // likelihood of tripping breakers or damaging CIM motors
     public static final int DRIVE_MOTOR_CURRENT_LIMIT = 60;
