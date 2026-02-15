@@ -21,7 +21,7 @@ public final class Constants {
 
 
   public static final class DriveConstants {
-     public static final double DBASE_WIDTH = 0.55;
+     public static final double DBASE_WIDTH = 0.55; // meters
 
     // Motor controller IDs for drivetrain motors
     public static final int LEFT_LEADER_ID = 2;
