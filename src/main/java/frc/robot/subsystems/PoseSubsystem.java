@@ -21,13 +21,14 @@ public class PoseSubsystem extends SubsystemBase {
     Pigeon2 gyro = new Pigeon2(Constants.DriveConstants.PIGEON_ID, "rio");
 
 
+
     private DifferentialDriveKinematics m_kinematics;
     private  DifferentialDrivePoseEstimator m_poseEstimator;
     private DoubleSupplier l; //link to encoder value? IDK if this works just testing
     private DoubleSupplier r; //object for passing encoder values
     double OldL = 0;
     double OldR = 0;
-    double gyroAngle=0;
+
 
 
 
@@ -73,7 +74,7 @@ public class PoseSubsystem extends SubsystemBase {
     public void periodic() {
 
         // Update the odometry in the periodic block
-gyroAngle += Math.atan(((r.getAsDouble()-OldR)-(l.getAsDouble()-OldL))/Constants.DriveConstants.DBASE_WIDTH);
+
         m_poseEstimator.update(
                 gyro.getRotation2d(), l.getAsDouble(), r.getAsDouble()); //use Rotation2d (gyroAngle) for reals
         if (Constants.DEBUG == 1){
