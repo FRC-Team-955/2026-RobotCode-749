@@ -26,12 +26,16 @@ public final class Constants {
     // Motor controller IDs for drivetrain motors
     public static final int LEFT_LEADER_ID = 2;
     public static final int LEFT_FOLLOWER_ID = 3;
-    public static final int RIGHT_LEADER_ID = 5; //8
-    public static final int RIGHT_FOLLOWER_ID = 4; //9
+    public static final int RIGHT_LEADER_ID = 5;
+    public static final int RIGHT_FOLLOWER_ID = 4;
       public static final int PIGEON_ID = 13;
-    // Encoder units per meter, depends on encoder units per revolution and wheel radius
-    // This constant NEEDS to be tuned
+    // Encoder units per meter, hopefully is right (we are fairly certain)
     public static final double ENCODER_UNITS_PER_METER = (8.45)/(Math.PI*5.844*0.0254);
+    // Cap for PID (max speed while using PID, must be between 0 and 1)
+    public static final double PID_DRIVE_CAP = 0.8;
+    // PID constant determines acceleration, higher value means higher acceleration
+    // Want this value to be as high as possible without overshoot
+    public static final double PID_CONSTANT = 3;
     // Current limit for drivetrain motors. 60A is a reasonable maximum to reduce
     // likelihood of tripping breakers or damaging CIM motors
     public static final int DRIVE_MOTOR_CURRENT_LIMIT = 60;

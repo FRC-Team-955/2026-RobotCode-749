@@ -151,12 +151,11 @@ public class CANDriveSubsystem extends SubsystemBase {
     }
 
   public Command drivePID(DoubleSupplier leftSpeed, DoubleSupplier rightSpeed) {
-      // 2^12 = 4096 encoder units per revolution
-      return new SequentialCommandGroup( // THIS WILL NOT WORK (look at drivearcade)
-              run(() -> updateSetPoints(leftSpeed.getAsDouble(), rightSpeed.getAsDouble())),
-            run(() -> drive.tankDrive(MathUtil.clamp(3 * (lSetPoint - leftLeader.getEncoder().getPosition()/ENCODER_UNITS_PER_METER), -0.8, 0.8),
-                                        MathUtil.clamp(3 * (rSetPoint - rightLeader.getEncoder().getPosition()/ENCODER_UNITS_PER_METER), -0.8, 0.8)))
-    );
+      return this.run(() -> {
+          updateSetPoints(leftSpeed.getAsDouble(), rightSpeed.getAsDouble());
+          drive.tankDrive(MathUtil.clamp(PID_CONSTANT * (lSetPoint - leftLeader.getEncoder().getPosition()/ENCODER_UNITS_PER_METER), -1 * PID_DRIVE_CAP, PID_DRIVE_CAP),
+                            MathUtil.clamp(PID_CONSTANT * (rSetPoint - rightLeader.getEncoder().getPosition()/ENCODER_UNITS_PER_METER), -1 * PID_DRIVE_CAP, PID_DRIVE_CAP));
+      });
   }
 
 
