@@ -28,6 +28,7 @@ public final class Constants {
     public static final int LEFT_FOLLOWER_ID = 3;
     public static final int RIGHT_LEADER_ID = 5; //8
     public static final int RIGHT_FOLLOWER_ID = 4; //9
+      public static final int PIGEON_ID = 13;
     // Encoder units per meter, depends on encoder units per revolution and wheel radius
     // This constant NEEDS to be tuned
     public static final double ENCODER_UNITS_PER_METER = (8.45)/(Math.PI*5.844*0.0254);

@@ -18,7 +18,7 @@ import java.util.function.DoubleSupplier;
 import com.ctre.phoenix6.hardware.Pigeon2;
 
 public class PoseSubsystem extends SubsystemBase {
-    Pigeon2 gyro = new Pigeon2(13, "rio");
+    Pigeon2 gyro = new Pigeon2(Constants.DriveConstants.PIGEON_ID, "rio");
 
 
     private DifferentialDriveKinematics m_kinematics;
