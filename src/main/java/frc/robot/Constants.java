@@ -51,7 +51,7 @@ public final class Constants {
     // based on exact robot construction.
     // See the Software Guide for tuning information
       public static final double INTAKE_SCALE = -1.00;
-      public static final double LAUNCH_SCALE = -0.789; //set to -0.955 for real?
+      public static final double LAUNCH_SCALE = -0.749; //set to -0.955 for real?
     public static final double INTAKING_FEEDER_VOLTAGE = (-12)*INTAKE_SCALE;
     public static final double INTAKING_INTAKE_VOLTAGE = 4.4*INTAKE_SCALE;
     public static final double LAUNCHING_FEEDER_VOLTAGE = (9)*LAUNCH_SCALE;
@@ -68,7 +68,7 @@ public final class Constants {
 
     // This value is multiplied by the joystick value when driving the robot to
     // help avoid driving and turning too fast and being difficult to control
-    public static final double DRIVE_SCALING = .68;
+    public static final double DRIVE_SCALING = .67; /// <--------------------- LOOK ITS 67!
     public static final double ROTATION_SCALING = .62;
   }
 }
