@@ -47,6 +47,7 @@ public final class Constants {
     // Motor controller IDs for Fuel Mechanism motors
     public static final int FEEDER_MOTOR_ID = 6; // checked
     public static final int INTAKE_LAUNCHER_MOTOR_ID = 1;
+    public static final int SHOOTER_WHEELS_MOTOR_ID = 676767;
 
     // Current limit and nominal voltage for fuel mechanism motors.
     public static final int FEEDER_MOTOR_CURRENT_LIMIT = 55;
@@ -63,6 +64,8 @@ public final class Constants {
     public static final double LAUNCHING_LAUNCHER_VOLTAGE = 12*LAUNCH_SCALE;
     public static final double SPIN_UP_FEEDER_VOLTAGE = (-6)*LAUNCH_SCALE;
     public static final double SPIN_UP_SECONDS = 0.5;
+      public static final double SHOOTER_SPIN_UP_VOLTAGE = 12;
+      public static final double SHOOTER_LAUNCH_VOLTAGE = 12;
   }
 
   public static final class OperatorConstants {

@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix6.hardware.TalonFX;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
@@ -19,12 +20,14 @@ import static frc.robot.Constants.FuelConstants.*;
 public class CANFuelSubsystem extends SubsystemBase {
   private final SparkMax feederRoller;
   private final SparkMax intakeLauncherRoller;
+  private final TalonFX shooterWheels;
 
   /** Creates a new CANBallSubsystem. */
   public CANFuelSubsystem() {
     // create brushed motors for each of the motors on the launcher mechanism
     intakeLauncherRoller = new SparkMax(INTAKE_LAUNCHER_MOTOR_ID, MotorType.kBrushless);
     feederRoller = new SparkMax(FEEDER_MOTOR_ID, MotorType.kBrushless);
+    shooterWheels = new TalonFX(SHOOTER_WHEELS_MOTOR_ID,"rio");
 
     // put default values for various fuel operations onto the dashboard
     // all methods in this subsystem pull their values from the dashbaord to allow
@@ -72,6 +75,7 @@ public class CANFuelSubsystem extends SubsystemBase {
     feederRoller.setVoltage(SmartDashboard.getNumber("Launching feeder roller value", LAUNCHING_FEEDER_VOLTAGE));
     intakeLauncherRoller
         .setVoltage(SmartDashboard.getNumber("Launching launcher roller value", LAUNCHING_LAUNCHER_VOLTAGE));
+      shooterWheels.setVoltage(SHOOTER_LAUNCH_VOLTAGE);
   }
 
     public void feederTest() {
@@ -95,6 +99,7 @@ public class CANFuelSubsystem extends SubsystemBase {
         .setVoltage(SmartDashboard.getNumber("Spin-up feeder roller value", SPIN_UP_FEEDER_VOLTAGE));
     intakeLauncherRoller
         .setVoltage(SmartDashboard.getNumber("Launching launcher roller value", LAUNCHING_LAUNCHER_VOLTAGE));
+    shooterWheels.setVoltage(SHOOTER_SPIN_UP_VOLTAGE);
   }
 
   // A command factory to turn the spinUp method into a command that requires this
