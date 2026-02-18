@@ -75,7 +75,7 @@ public class CANFuelSubsystem extends SubsystemBase {
     feederRoller.setVoltage(SmartDashboard.getNumber("Launching feeder roller value", LAUNCHING_FEEDER_VOLTAGE));
     intakeLauncherRoller
         .setVoltage(SmartDashboard.getNumber("Launching launcher roller value", LAUNCHING_LAUNCHER_VOLTAGE));
-      shooterWheels.setVoltage(SHOOTER_LAUNCH_VOLTAGE); ///MAKE THIS STOPPPPPPPPPPPPP
+      shooterWheels.setVoltage(SHOOTER_LAUNCH_VOLTAGE); ///MAKE THIS STOPPPPPPPPPPPPPhkjsadk
   }
 
     public void feederTest() {
