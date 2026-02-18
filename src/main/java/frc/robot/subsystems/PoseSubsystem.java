@@ -22,7 +22,8 @@ public class PoseSubsystem extends SubsystemBase {
 
 
 
-    private DifferentialDriveKinematics m_kinematics;
+    DifferentialDriveKinematics m_kinematics =
+            new DifferentialDriveKinematics(Units.inchesToMeters(27.0)); //27 = drivebase width?????
     private  DifferentialDrivePoseEstimator m_poseEstimator;
     private DoubleSupplier l; //link to encoder value? IDK if this works just testing
     private DoubleSupplier r; //object for passing encoder values

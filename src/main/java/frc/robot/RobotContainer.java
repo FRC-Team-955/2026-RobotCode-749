@@ -21,6 +21,7 @@ import static frc.robot.Constants.FuelConstants.*;
 import frc.robot.commands.Autos;
 import frc.robot.subsystems.CANDriveSubsystem;
 import frc.robot.subsystems.CANFuelSubsystem;
+import frc.robot.subsystems.PoseSubsystem;
 
 import java.util.Optional;
 
@@ -33,7 +34,8 @@ import java.util.Optional;
  */
 public class RobotContainer {
   // The robot's subsystems
-  private final CANDriveSubsystem driveSubsystem = new CANDriveSubsystem();
+    private final PoseSubsystem ps = new PoseSubsystem();
+  private final CANDriveSubsystem driveSubsystem = new CANDriveSubsystem(ps);
   private final CANFuelSubsystem ballSubsystem = new CANFuelSubsystem();
 
   //object to contain a trajectory

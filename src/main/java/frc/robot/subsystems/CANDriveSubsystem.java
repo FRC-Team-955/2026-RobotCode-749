@@ -44,7 +44,7 @@ public class CANDriveSubsystem extends SubsystemBase {
   private final SparkMax rightFollower;
 
 
-    private final PoseSubsystem ps = new PoseSubsystem(); //Pose Estimator Class
+    private final PoseSubsystem ps; //Pose Estimator Class
   private final DifferentialDrive drive; //builtin wpilib drive
     private final LTVUnicycleController controller = new LTVUnicycleController(0.02);
 
@@ -56,7 +56,8 @@ public class CANDriveSubsystem extends SubsystemBase {
     Pose2d targetPose = new Pose2d();
     boolean enableTargetPose = false;
 
-  public CANDriveSubsystem() {
+  public CANDriveSubsystem(PoseSubsystem ps) {
+      this.ps = ps;
     // create brushed motors for drive
     leftLeader = new SparkMax(LEFT_LEADER_ID, MotorType.kBrushless);
     leftFollower = new SparkMax(LEFT_FOLLOWER_ID, MotorType.kBrushless);
