@@ -28,5 +28,14 @@ public final class Autos {
         ballSubsystem.runOnce(() -> ballSubsystem.stop()));
   }
 
+  /*
+  public static Command initalAuto(CANDriveSubsystem driveSubsystem, CANFuelSubsystem ballSubsystem){
+  //turn from start pos to face hub
+  //unload init balls
+  //
+  }
+
+   */
+
 
 }

@@ -33,6 +33,8 @@ public class PoseSubsystem extends SubsystemBase {
 
 
 
+
+
     //SELF EXPLANATORY......
     public void resetOdometry(Pose2d a){
         m_poseEstimator.resetPose(a);
@@ -48,9 +50,6 @@ public class PoseSubsystem extends SubsystemBase {
         return m_poseEstimator.getEstimatedPosition();
     }
 
-    public Rotation2d getGyro(){
-        return Rotation2d.kZero; ///////////////////// PLACEHOLDER do a source like the encoders here
-    }
 
     // uh set source?
     public void setSource(DoubleSupplier leftencoder, DoubleSupplier rightencoder){

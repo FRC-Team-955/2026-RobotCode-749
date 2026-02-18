@@ -8,6 +8,7 @@ import choreo.Choreo;
 import choreo.trajectory.DifferentialSample;
 import choreo.trajectory.Trajectory;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -102,10 +103,11 @@ public class RobotContainer {
     operatorController.a()
         .whileTrue(ballSubsystem.runEnd(() -> ballSubsystem.eject(), () -> ballSubsystem.stop()));
 
-    operatorController.y().whileTrue(ballSubsystem.feederTestC());
+    operatorController.y().onTrue(driveSubsystem.toggleUseTargetPoint());
 
-    // b to test arins path follow
-    operatorController.b().whileTrue(driveSubsystem.goPathFollow(trajectory,PathTimer));
+    // b = test go-to-pt
+    operatorController.b().onTrue(driveSubsystem.CresetOdometry().andThen(driveSubsystem.setTargetPoint(new Pose2d(1,1,new Rotation2d()))));
+
     // Set the default command for the drive subsystem to the command provided by
     // factory with the values provided by the joystick axes on the driver
     // controller. The Y axis of the controller is inverted so that pushing the

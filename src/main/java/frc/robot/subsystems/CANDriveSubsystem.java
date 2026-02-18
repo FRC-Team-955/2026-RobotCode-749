@@ -49,8 +49,12 @@ public class CANDriveSubsystem extends SubsystemBase {
     private final LTVUnicycleController controller = new LTVUnicycleController(0.02);
 
     private final SlewRateLimiter limit = new SlewRateLimiter(10 * Constants.DriveConstants.SAFE_SPEED_CAP);
+    DifferentialDriveKinematics kinematics =
+            new DifferentialDriveKinematics(Units.inchesToMeters(27.0)); //27 = drivebase width?????
   double lSetPoint;
   double rSetPoint;
+    Pose2d targetPose = new Pose2d();
+    boolean enableTargetPose = false;
 
   public CANDriveSubsystem() {
     // create brushed motors for drive
@@ -61,6 +65,7 @@ public class CANDriveSubsystem extends SubsystemBase {
 
     // set up differential drive class
     drive = new DifferentialDrive(leftLeader, rightLeader);
+    targetPose = ps.getPose();
 
 
 
@@ -113,6 +118,10 @@ public class CANDriveSubsystem extends SubsystemBase {
       SmartDashboard.putNumber("rightFollowerEncoder", rightFollower.getEncoder().getPosition()); // shouldn't be needed, just here to make sure
       SmartDashboard.putNumber("leftSetPoint", lSetPoint);
       SmartDashboard.putNumber("rightSetPoint", rSetPoint);
+
+
+      driveAtTargetPose();
+
   }
 
   public void logMotors(DoubleSupplier xSpeed, DoubleSupplier zRotation, boolean squareInputs) {
@@ -148,6 +157,7 @@ public class CANDriveSubsystem extends SubsystemBase {
     private void updateSetPoints(double leftSpeed, double rightSpeed) {
         lSetPoint += leftSpeed;
         rSetPoint += rightSpeed;
+
     }
 
   public Command drivePID(DoubleSupplier leftSpeed, DoubleSupplier rightSpeed) {
@@ -176,8 +186,7 @@ public class CANDriveSubsystem extends SubsystemBase {
         );
 
 
-        DifferentialDriveKinematics kinematics =
-                new DifferentialDriveKinematics(Units.inchesToMeters(27.0)); //27 = drivebase width?????
+
 
         // Apply the generated speeds
         DifferentialDriveWheelSpeeds wheelSpeeds = kinematics.toWheelSpeeds(speeds); //
@@ -202,8 +211,64 @@ public class CANDriveSubsystem extends SubsystemBase {
     public void resetOdometry(Pose2d p){
       ps.resetOdometry(p);
     }
+    public Command CresetOdometry(){
+        return run(()->resetOdometry(new Pose2d()));
+    }
 
     public Command goPathFollow(Optional<Trajectory<DifferentialSample>> trajectory, Timer timer){
       return run(()->goPath(trajectory, timer));
     }
+
+
+    public Command setTargetPoint(Pose2d a){
+      return run(()->{targetPose=a;enableTargetPose=true;});
+    }
+
+    public Command toggleUseTargetPoint(){
+      return run(()->enableTargetPose=!enableTargetPose);
+    }
+
+    public void driveAtTargetPose() {
+        if (!enableTargetPose || targetPose == null) return;
+
+        Pose2d currentPose = ps.getPose();
+
+        // LTV controller computes chassis speeds
+        ChassisSpeeds speeds = controller.calculate(
+                currentPose,
+                targetPose,
+                0.0, // desired linear velocity
+                0.0  // desired angular velocity
+        );
+
+        // Convert to wheel speeds
+        DifferentialDriveWheelSpeeds wheelSpeeds =
+                kinematics.toWheelSpeeds(speeds);
+
+
+
+        drive.tankDrive(
+                wheelSpeeds.leftMetersPerSecond ,
+                wheelSpeeds.rightMetersPerSecond
+        );
+
+        if (isAtPose(currentPose, targetPose)) {
+            drive.tankDrive(0, 0);
+            enableTargetPose = false;
+        }
+
+
+    }
+
+    private boolean isAtPose(Pose2d current, Pose2d target) {
+        double dx = current.getX() - target.getX();
+        double dy = current.getY() - target.getY();
+        double dist = Math.hypot(dx, dy); // :)
+
+        double angleError =
+                current.getRotation().minus(target.getRotation()).getRadians();
+
+        return dist < 0.05 && Math.abs(angleError) < Math.toRadians(3);
+    }
+
 }
