@@ -30,12 +30,15 @@ public final class Autos {
 
   /*
   public static Command initalAuto(CANDriveSubsystem driveSubsystem, CANFuelSubsystem ballSubsystem){
-  //turn from start pos to face hub
-  //unload init balls
-  //
-  }
+  // turn from start pos to face hub
+  // unload init balls
 
-   */
+  // let's map this out in a drawing before doing any code*
+  //      -use a bird's eye field model drawing with a correctly scaled robot
+  //       (I can help you do that in Onshape) -Mathis
+    return new SequentialCommandGroup();
+  }
+  */
 
 
 }
