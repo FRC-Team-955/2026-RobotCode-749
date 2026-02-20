@@ -160,12 +160,23 @@ public class CANDriveSubsystem extends SubsystemBase {
         rSetPoint += rightSpeed;
 
     }
+  
+  public Command setPIDSetpoints(DoubleSupplier lPoint, DoubleSupplier rPoint) {
+    return this.runOnce(() -> {
+      updateSetPoints(lPoint.getAsDouble(), rPoint.getAsDouble());
+    }
+    )
+  }
 
-  public Command drivePID(DoubleSupplier leftSpeed, DoubleSupplier rightSpeed) {
+  public Command autoDrivePID(DoubleSupplier leftSpeed, DoubleSupplier rightSpeed) {
       return this.run(() -> {
           updateSetPoints(leftSpeed.getAsDouble(), rightSpeed.getAsDouble());
           drive.tankDrive(MathUtil.clamp(PID_CONSTANT * (lSetPoint - leftLeader.getEncoder().getPosition()/ENCODER_UNITS_PER_METER), -1 * PID_DRIVE_CAP, PID_DRIVE_CAP),
                             MathUtil.clamp(PID_CONSTANT * (rSetPoint - rightLeader.getEncoder().getPosition()/ENCODER_UNITS_PER_METER), -1 * PID_DRIVE_CAP, PID_DRIVE_CAP));
+      }).until(() -> {
+        double lDiff = Math.abs(leftSpeed.getAsDouble()-lSetPoint);
+        double rDiff = Math.abs(rightSpeed.getAsDouble()-rSetPoint);
+        return lDiff < 0.05 && rDiff < 0.05;
       });
   }
 
