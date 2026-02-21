@@ -5,6 +5,7 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.subsystems.CANFuelSubsystem;
 import frc.robot.subsystems.CANDriveSubsystem;
@@ -26,6 +27,20 @@ public final class Autos {
         ballSubsystem.launchCommand().withTimeout(9),  // might not need 
         // Stop running the launcher
         ballSubsystem.runOnce(() -> ballSubsystem.stop()));
+  }
+
+  public static Command PIDAuto(CANDriveSubsystem driveSubsystem, CANFuelSubsystem ballSubsystem) {
+      return new SequentialCommandGroup(
+              driveSubsystem.setPIDSetpoints(() -> 1, () -> -1),
+              driveSubsystem.autoDrivePID()
+      );
+  }
+
+  public static Command PIDRotateHalf(CANDriveSubsystem driveSubsystem, CANFuelSubsystem ballSubsystem) {
+      return new SequentialCommandGroup(
+              driveSubsystem.setPIDSetpoints(() -> 0.5, () -> 0.5),
+              driveSubsystem.autoDrivePID()
+      );
   }
 
   /*
