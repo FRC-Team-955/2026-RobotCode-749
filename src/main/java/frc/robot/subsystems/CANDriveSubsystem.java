@@ -165,7 +165,7 @@ public class CANDriveSubsystem extends SubsystemBase {
     return this.runOnce(() -> {
       updateSetPoints(lPoint.getAsDouble(), rPoint.getAsDouble());
     }
-    )
+    );
   }
 
   public Command autoDrivePID(DoubleSupplier leftSpeed, DoubleSupplier rightSpeed) {
