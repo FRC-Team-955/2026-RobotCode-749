@@ -90,6 +90,7 @@ public class CANFuelSubsystem extends SubsystemBase {
   public void stop() {
     feederRoller.set(0);
     intakeLauncherRoller.set(0);
+    shooterWheels.setVoltage(0);
   }
 
   // A method to spin up the launcher roller while spinning the feeder roller to
