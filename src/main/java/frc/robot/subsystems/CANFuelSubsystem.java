@@ -22,12 +22,14 @@ public class CANFuelSubsystem extends SubsystemBase {
   private final SparkMax intakeLauncherRoller;
   private final TalonFX shooterWheels;
 
+
   /** Creates a new CANBallSubsystem. */
   public CANFuelSubsystem() {
-    // create brushed motors for each of the motors on the launcher mechanism
+    // create brushLESS motors for each of the motors on the launcher mechanism
     intakeLauncherRoller = new SparkMax(INTAKE_LAUNCHER_MOTOR_ID, MotorType.kBrushless);
     feederRoller = new SparkMax(FEEDER_MOTOR_ID, MotorType.kBrushless);
     shooterWheels = new TalonFX(SHOOTER_WHEELS_MOTOR_ID,"rio");
+
 
     // put default values for various fuel operations onto the dashboard
     // all methods in this subsystem pull their values from the dashbaord to allow
