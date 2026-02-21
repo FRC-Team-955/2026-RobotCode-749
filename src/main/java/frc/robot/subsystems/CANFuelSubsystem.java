@@ -22,12 +22,14 @@ public class CANFuelSubsystem extends SubsystemBase {
   private final SparkMax intakeLauncherRoller;
   private final TalonFX shooterWheels;
 
+
   /** Creates a new CANBallSubsystem. */
   public CANFuelSubsystem() {
-    // create brushed motors for each of the motors on the launcher mechanism
+    // create brushLESS motors for each of the motors on the launcher mechanism
     intakeLauncherRoller = new SparkMax(INTAKE_LAUNCHER_MOTOR_ID, MotorType.kBrushless);
     feederRoller = new SparkMax(FEEDER_MOTOR_ID, MotorType.kBrushless);
     shooterWheels = new TalonFX(SHOOTER_WHEELS_MOTOR_ID,"rio");
+
 
     // put default values for various fuel operations onto the dashboard
     // all methods in this subsystem pull their values from the dashbaord to allow
@@ -37,7 +39,7 @@ public class CANFuelSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("Intaking intake roller value", INTAKING_INTAKE_VOLTAGE);
     SmartDashboard.putNumber("Launching feeder roller value", LAUNCHING_FEEDER_VOLTAGE);
     SmartDashboard.putNumber("Launching launcher roller value", LAUNCHING_LAUNCHER_VOLTAGE);
-    SmartDashboard.putNumber("Spin-up feeder roller value", SPIN_UP_FEEDER_VOLTAGE);
+    SmartDashboard.putNumber("Spin-up feeder roller value", FEEDER_SPIN_UP_VOLTAGE);
 
     // create the configuration for the feeder roller, set a current limit and apply
     // the config to the controller
@@ -90,13 +92,14 @@ public class CANFuelSubsystem extends SubsystemBase {
   public void stop() {
     feederRoller.set(0);
     intakeLauncherRoller.set(0);
+    shooterWheels.setVoltage(0);
   }
 
   // A method to spin up the launcher roller while spinning the feeder roller to
   // push Fuel away from the launcher
   public void spinUp() {
     feederRoller
-        .setVoltage(SmartDashboard.getNumber("Spin-up feeder roller value", SPIN_UP_FEEDER_VOLTAGE));
+        .setVoltage(SmartDashboard.getNumber("Spin-up feeder roller value", FEEDER_SPIN_UP_VOLTAGE));
     intakeLauncherRoller
         .setVoltage(SmartDashboard.getNumber("Launching launcher roller value", LAUNCHING_LAUNCHER_VOLTAGE));
     shooterWheels.setVoltage(SHOOTER_SPIN_UP_VOLTAGE);

@@ -5,6 +5,7 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.subsystems.CANFuelSubsystem;
 import frc.robot.subsystems.CANDriveSubsystem;
@@ -16,16 +17,30 @@ public final class Autos {
         // Drive backwards for .25 seconds. The driveArcadeAuto command factory
         // creates a command which does not end which allows us to control
         // the timing using the withTimeout decorator
-        driveSubsystem.driveArcade(() -> 0.5, () -> 0).withTimeout(.25),
+        driveSubsystem.driveArcade(() -> 0.5, () -> 0).withTimeout(.25),  // make faster?
         // Stop driving. This line uses the regular driveArcade command factory so it
         // ends immediately after commanding the motors to stop
         driveSubsystem.driveArcade(() -> 0, () -> 0),
         // Spin up the launcher for 1 second and then launch balls for 9 seconds, for a
         // total of 10 seconds
-        ballSubsystem.spinUpCommand().withTimeout(1),
-        ballSubsystem.launchCommand().withTimeout(9),
+        ballSubsystem.spinUpCommand().withTimeout(1), // longer spinup time for more consistency?
+        ballSubsystem.launchCommand().withTimeout(9),  // might not need 
         // Stop running the launcher
         ballSubsystem.runOnce(() -> ballSubsystem.stop()));
+  }
+
+  public static Command PIDAuto(CANDriveSubsystem driveSubsystem, CANFuelSubsystem ballSubsystem) {
+      return new SequentialCommandGroup(
+              driveSubsystem.setPIDSetpoints(() -> 1, () -> -1),
+              driveSubsystem.autoDrivePID()
+      );
+  }
+
+  public static Command PIDRotateHalf(CANDriveSubsystem driveSubsystem, CANFuelSubsystem ballSubsystem) {
+      return new SequentialCommandGroup(
+              driveSubsystem.setPIDSetpoints(() -> 0.5, () -> 0.5),
+              driveSubsystem.autoDrivePID()
+      );
   }
 
   /*
