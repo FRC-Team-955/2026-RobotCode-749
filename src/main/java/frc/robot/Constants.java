@@ -75,15 +75,15 @@ public final class Constants {
         public static final double BOTTOM_SETPOINT = 0.0; //METERS
         public static final double kP = 1.0; ////// THIS NEEDS TUNING!!!!!!!!!!!!!!!!!!!!
 
-        //public static final int targetHeight = -130;
+
 
     }
 
   public static final class OperatorConstants {
     // Port constants for driver and operator controllers. These should match the
     // values in the Joystick tab of the Driver Station software
-    public static final int DRIVER_CONTROLLER_PORT = 2;
-    public static final int OPERATOR_CONTROLLER_PORT = 1;
+    public static final int DRIVER_CONTROLLER_PORT = 2; /// DRIVER has just drive
+    public static final int OPERATOR_CONTROLLER_PORT = 1; /// OPERATOR everyhting else
 
     // This value is multiplied by the joystick value when driving the robot to
     // help avoid driving and turning too fast and being difficult to control
