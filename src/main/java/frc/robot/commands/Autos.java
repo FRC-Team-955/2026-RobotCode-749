@@ -4,6 +4,8 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -41,6 +43,10 @@ public final class Autos {
               driveSubsystem.setPIDSetpoints(() -> 0.5, () -> 0.5),
               driveSubsystem.autoDrivePID()
       );
+  }
+
+  public static Command ArinsPIDAuto(CANDriveSubsystem ds){
+      return ds.driveAtTargetPose(new Pose2d(3,3,new Rotation2d()));
   }
 
   /*
