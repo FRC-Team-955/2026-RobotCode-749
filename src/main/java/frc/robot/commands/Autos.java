@@ -49,7 +49,8 @@ public final class Autos {
 
     public static Command boringAuto(CANDriveSubsystem driveSubsystem, CANFuelSubsystem ballSubsystem) {
         return new SequentialCommandGroup(
-               driveSubsystem.setPIDSetpoints(() -> 0.03, () -> 0.03),
+                driveSubsystem.resetPIDSetpoints(),
+               driveSubsystem.setPIDSetpoints(() -> .03, () -> 0.03),
           driveSubsystem.autoDrivePID(),
           ballSubsystem.spinUpCommand().until(() -> ballSubsystem.isAtSpeed()),
           ballSubsystem.launchCommand().withTimeout(2),

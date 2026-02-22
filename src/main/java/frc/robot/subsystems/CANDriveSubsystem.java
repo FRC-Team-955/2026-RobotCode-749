@@ -23,7 +23,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
@@ -49,8 +48,7 @@ public class CANDriveSubsystem extends SubsystemBase {
     private final LTVUnicycleController controller = new LTVUnicycleController(0.02);
 
     private final SlewRateLimiter limit = new SlewRateLimiter(10 * Constants.DriveConstants.SAFE_SPEED_CAP);
-    DifferentialDriveKinematics kinematics =
-            new DifferentialDriveKinematics(DBASE_WIDTH); //27 = drivebase width?????
+    DifferentialDriveKinematics kinematics = new DifferentialDriveKinematics(DBASE_WIDTH);
     double lSetPoint;
     double rSetPoint;
 
@@ -108,6 +106,11 @@ public class CANDriveSubsystem extends SubsystemBase {
 
         //INIT ARINS CODE
         ps.setSource(()->leftLeader.getEncoder().getPosition(), ()->rightLeader.getEncoder().getPosition());
+    }
+
+    public Command resetPIDSetpoints(){
+        return this.runOnce(()->{lSetPoint= leftLeader.getEncoder().getPosition()/ENCODER_UNITS_PER_METER;
+            rSetPoint= rightLeader.getEncoder().getPosition()/ENCODER_UNITS_PER_METER;});
     }
 
     @Override
