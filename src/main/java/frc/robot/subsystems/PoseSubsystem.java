@@ -61,7 +61,7 @@ public class PoseSubsystem extends SubsystemBase {
         m_poseEstimator =
         new DifferentialDrivePoseEstimator(
                 m_kinematics,
-                new Rotation2d(),
+                gyro.getRotation2d(),
                 l.getAsDouble(),
                 r.getAsDouble(),
                 new Pose2d(),

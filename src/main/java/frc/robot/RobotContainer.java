@@ -107,10 +107,10 @@ public class RobotContainer {
     operatorController.a()
         .whileTrue(ballSubsystem.runEnd(() -> ballSubsystem.eject(), () -> ballSubsystem.stop()));
 
-    operatorController.y().whileTrue(driveSubsystem.driveAtTargetPose());
 
-    // b = test go-to-pt
-    operatorController.b().onTrue(driveSubsystem.CresetOdometry().andThen(driveSubsystem.setTargetPoint(new Pose2d(1,1,new Rotation2d()))));
+    //go forward 1
+    operatorController.y().whileTrue(driveSubsystem.driveAtTargetPose(new Pose2d(1,1,new Rotation2d())));
+
 
     // Set the default command for the drive subsystem to the command provided by
     // factory with the values provided by the joystick axes on the driver
