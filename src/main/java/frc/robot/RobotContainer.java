@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import static frc.robot.Constants.OperatorConstants.*;
 import static frc.robot.Constants.FuelConstants.*;
 import frc.robot.commands.Autos;
+import frc.robot.subsystems.CANClimberSubsystem;
 import frc.robot.subsystems.CANDriveSubsystem;
 import frc.robot.subsystems.CANFuelSubsystem;
 import frc.robot.subsystems.PoseSubsystem;
@@ -37,6 +38,7 @@ public class RobotContainer {
     private final PoseSubsystem ps = new PoseSubsystem();
     private final CANDriveSubsystem driveSubsystem = new CANDriveSubsystem(ps);
     private final CANFuelSubsystem ballSubsystem = new CANFuelSubsystem();
+    private final CANClimberSubsystem climberSubsystem = new CANClimberSubsystem();
 
     //object to contain a trajectory
     private final Optional<Trajectory<DifferentialSample>> trajectory = Choreo.loadTrajectory("test");
@@ -107,6 +109,10 @@ public class RobotContainer {
         // the intake
         operatorController.a()
                 .whileTrue(ballSubsystem.runEnd(() -> ballSubsystem.eject(), () -> ballSubsystem.stop()));
+
+        operatorController.x().onTrue(climberSubsystem.goToTop());
+        operatorController.b().onTrue(climberSubsystem.goToBottom());
+
 
 
         //go forward 1 and up 1
