@@ -75,11 +75,12 @@ public class Robot extends TimedRobot {
   /** This function is called once each time the robot enters Disabled mode. */
   @Override
   public void disabledInit() {
+    fuelSubsystem.setBrakeMode();
   }
 
   @Override
   public void disabledPeriodic() {
-      fuelSubsystem.setBrakeMode();
+
   }
 
   /**
@@ -89,17 +90,17 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
-
+    fuelSubsystem.setCoastMode();
     // schedule the autonomous command (example)
     if (m_autonomousCommand != null) {
-      CommandScheduler.getInstance().schedule(m_autonomousCommand);;
+      CommandScheduler.getInstance().schedule(m_autonomousCommand);
     }
   }
 
   /** This function is called periodically during autonomous. */
   @Override
   public void autonomousPeriodic() {
-      fuelSubsystem.setCoastMode();
+
   }
 
   @Override
@@ -111,12 +112,13 @@ public class Robot extends TimedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
+    fuelSubsystem.setCoastMode();
   }
 
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
-      fuelSubsystem.setCoastMode();
+
   }
 
   @Override
