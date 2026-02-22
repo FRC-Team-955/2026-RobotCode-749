@@ -90,6 +90,7 @@ this.ballSubsystem = fs;
         autoChooser.setDefaultOption("Example Auto", Autos.exampleAuto(driveSubsystem, ballSubsystem));
         autoChooser.addOption("PID 1m Auto", Autos.PIDAuto(driveSubsystem, ballSubsystem));
         autoChooser.addOption("PID rotate bashy", Autos.PIDRotateHalf(driveSubsystem, ballSubsystem));
+        autoChooser.addOption("shoot", Autos.boringAuto(driveSubsystem, ballSubsystem));
         autoChooser.addOption("go forward and right", Autos.ArinsPIDAuto(driveSubsystem));
     }
 

@@ -25,15 +25,17 @@ public final class Autos {
                 driveSubsystem.driveArcade(() -> 0, () -> 0),
                 // Spin up the launcher for 1 second and then launch balls for 9 seconds, for a
                 // total of 10 seconds
-                ballSubsystem.spinUpCommand().withTimeout(1), // longer spinup time for more consistency?
-                ballSubsystem.launchCommand().withTimeout(9),  // might not need
+                ballSubsystem.spinUpCommand().until(()->ballSubsystem.isAtSpeed()),
+                ballSubsystem.launchCommand().withTimeout(2),
+                // ballSubsystem.spinUpCommand().withTimeout(1), // longer spinup time for more consistency?
+                // ballSubsystem.launchCommand().withTimeout(9),  // might not need
                 // Stop running the launcher
                 ballSubsystem.runOnce(() -> ballSubsystem.stop()));
     }
 
     public static Command PIDAuto(CANDriveSubsystem driveSubsystem, CANFuelSubsystem ballSubsystem) {
         return new SequentialCommandGroup(
-                driveSubsystem.setPIDSetpoints(() -> 1, () -> -1),
+                driveSubsystem.setPIDSetpoints(() -> 0.2, () -> -0.2), //????????????
                 driveSubsystem.autoDrivePID()
         );
     }
@@ -42,6 +44,16 @@ public final class Autos {
         return new SequentialCommandGroup(
                 driveSubsystem.setPIDSetpoints(() -> 0.5, () -> 0.5),
                 driveSubsystem.autoDrivePID()
+        );
+    }
+
+    public static Command boringAuto(CANDriveSubsystem driveSubsystem, CANFuelSubsystem ballSubsystem) {
+        return new SequentialCommandGroup(
+               driveSubsystem.setPIDSetpoints(() -> 0.03, () -> 0.03),
+          driveSubsystem.autoDrivePID(),
+          ballSubsystem.spinUpCommand().until(() -> ballSubsystem.isAtSpeed()),
+          ballSubsystem.launchCommand().withTimeout(2),
+                ballSubsystem.runOnce(() -> ballSubsystem.stop())
         );
     }
 

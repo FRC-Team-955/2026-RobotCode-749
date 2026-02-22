@@ -22,10 +22,9 @@ public class PoseSubsystem extends SubsystemBase {
 
 
 
-    DifferentialDriveKinematics m_kinematics =
-            new DifferentialDriveKinematics(Constants.DriveConstants.DBASE_WIDTH); //27 = drivebase width?????
-    private  DifferentialDrivePoseEstimator m_poseEstimator = new DifferentialDrivePoseEstimator(m_kinematics,gyro.getRotation2d(),0,0,new Pose2d());
-    private DoubleSupplier l; //link to encoder value? IDK if this works just testing
+    DifferentialDriveKinematics kinematics = new DifferentialDriveKinematics(Constants.DriveConstants.DBASE_WIDTH); //27 = drivebase width?????
+    private  DifferentialDrivePoseEstimator m_poseEstimator = new DifferentialDrivePoseEstimator(kinematics,gyro.getRotation2d(),0,0,new Pose2d());
+    private DoubleSupplier l; //link to encoder value
     private DoubleSupplier r; //object for passing encoder values
     double OldL = 0;
     double OldR = 0;
@@ -60,13 +59,13 @@ public class PoseSubsystem extends SubsystemBase {
         OldR=r.getAsDouble();
         m_poseEstimator =
         new DifferentialDrivePoseEstimator(
-                m_kinematics,
+                kinematics,
                 gyro.getRotation2d(),
                 l.getAsDouble(),
                 r.getAsDouble(),
                 new Pose2d(),
-                VecBuilder.fill(0.05, 0.05, Units.degreesToRadians(5)),
-                VecBuilder.fill(0.5, 0.5, Units.degreesToRadians(30))); //very scuffed estimate for the noise stuff
+                VecBuilder.fill(0.05, 0.05, Units.degreesToRadians(3)), //gyro accuracy
+                VecBuilder.fill(0.5, 0.5, Units.degreesToRadians(10)));
     }
 
     //update loop event
