@@ -70,8 +70,12 @@ public final class Constants {
   }
     public static class ClimbConstants {
       public static final int CLIMBER_ID = 67;
-      public static final double gearRatio = 1/35;
-      //public static final int targetHeight = -130;
+      public static final double GEAR_RATIO = 1/35;
+      public static final double MAX_OUTPUT = 12;
+      public static final double TOP_SETPOINT = 0.3; //METERS
+        public static final double BOTTOM_SETPOINT = 0.0; //METERS
+
+        //public static final int targetHeight = -130;
 
     }
 
