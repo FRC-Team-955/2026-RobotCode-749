@@ -53,8 +53,8 @@ public class CANDriveSubsystem extends SubsystemBase {
             new DifferentialDriveKinematics(Units.inchesToMeters(27.0)); //27 = drivebase width?????
   double lSetPoint;
   double rSetPoint;
-
-
+    Pose2d targetPose = new Pose2d();
+    boolean enableTargetPose = false;
 
   public CANDriveSubsystem(PoseSubsystem ps) {
       this.ps = ps;
@@ -66,7 +66,7 @@ public class CANDriveSubsystem extends SubsystemBase {
 
     // set up differential drive class
     drive = new DifferentialDrive(leftLeader, rightLeader);
-
+    targetPose = ps.getPose();
 
 
 
@@ -121,6 +121,7 @@ public class CANDriveSubsystem extends SubsystemBase {
       SmartDashboard.putNumber("rightSetPoint", rSetPoint);
 
 
+      driveAtTargetPose();
 
   }
 
@@ -221,13 +222,25 @@ public class CANDriveSubsystem extends SubsystemBase {
     public void resetOdometry(Pose2d p){
       ps.resetOdometry(p);
     }
+    public Command CresetOdometry(){
+        return run(()->resetOdometry(new Pose2d()));
+    }
+
+    public Command goPathFollow(Optional<Trajectory<DifferentialSample>> trajectory, Timer timer){
+      return run(()->goPath(trajectory, timer));
+    }
 
 
+    public Command setTargetPoint(Pose2d a){
+      return run(()->{targetPose=a;enableTargetPose=true;});
+    }
 
+    public Command toggleUseTargetPoint(){
+      return run(()->enableTargetPose=!enableTargetPose);
+    }
 
-
-    public void funcDriveAtTargetPose(Pose2d targetPose) {
-        if (targetPose == null) return;
+    public void driveAtTargetPose(Pose2d targetPose) {
+        if (!enableTargetPose || targetPose == null) return;
 
         Pose2d currentPose = ps.getPose();
 
@@ -246,10 +259,14 @@ public class CANDriveSubsystem extends SubsystemBase {
 
 
         drive.tankDrive(
-                wheelSpeeds.leftMetersPerSecond/3 ,
-                wheelSpeeds.rightMetersPerSecond/3
+                wheelSpeeds.leftMetersPerSecond ,
+                wheelSpeeds.rightMetersPerSecond
         );
 
+        if (isAtPose(currentPose, targetPose)) {
+            drive.tankDrive(0, 0);
+            enableTargetPose = false;
+        }
 
 
     }
@@ -263,10 +280,6 @@ public class CANDriveSubsystem extends SubsystemBase {
                 current.getRotation().minus(target.getRotation()).getRadians();
 
         return dist < 0.05 && Math.abs(angleError) < Math.toRadians(3);
-    }
-
-    public Command driveAtTargetPose(Pose2d target){
-      return run(()->funcDriveAtTargetPose(target)).until(()->isAtPose(ps.getPose(),target)).finallyDo(() -> drive.tankDrive(0, 0));
     }
 
 }
