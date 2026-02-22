@@ -68,6 +68,12 @@ public final class Constants {
       public static final double SHOOTER_SPIN_UP_VOLTAGE = -7.6;
       public static final double SHOOTER_LAUNCH_VOLTAGE = -6.7;
   }
+    public static class ClimbConstants {
+      public static final int CLIMBER_ID = 67;
+      public static final double gearRatio = 1/35;
+      //public static final int targetHeight = -130;
+
+    }
 
   public static final class OperatorConstants {
     // Port constants for driver and operator controllers. These should match the
