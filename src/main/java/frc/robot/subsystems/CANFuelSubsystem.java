@@ -117,6 +117,10 @@ public class CANFuelSubsystem extends SubsystemBase {
     return this.run(() -> launch());
   }
 
+  public boolean isAtSpeed(){
+      return (Math.abs((-shooterWheels.getVelocity().getValueAsDouble())- 58) < 0.5);
+  }
+
   @Override
   public void periodic() {
     // This method will be called once per scheduler run

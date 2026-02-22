@@ -102,7 +102,7 @@ this.ballSubsystem = fs;
         // While the right bumper on the operator controller is held, spin up for 1
         // second, then launch fuel. When the button is released, stop.
         operatorController.rightBumper()
-                .whileTrue(ballSubsystem.spinUpCommand().withTimeout(SPIN_UP_SECONDS)
+                .whileTrue(ballSubsystem.spinUpCommand().until(()->ballSubsystem.isAtSpeed())
                         .andThen(ballSubsystem.launchCommand())
                         .finallyDo(() -> ballSubsystem.stop()));
         // While the A button is held on the operator controller, eject fuel back out
