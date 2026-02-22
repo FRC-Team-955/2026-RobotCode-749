@@ -222,9 +222,7 @@ public class CANDriveSubsystem extends SubsystemBase {
     public void resetOdometry(Pose2d p){
       ps.resetOdometry(p);
     }
-    public Command CresetOdometry(){
-        return run(()->resetOdometry(new Pose2d()));
-    }
+
 
     public Command goPathFollow(Optional<Trajectory<DifferentialSample>> trajectory, Timer timer){
       return run(()->goPath(trajectory, timer));
