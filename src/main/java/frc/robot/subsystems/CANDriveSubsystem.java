@@ -9,7 +9,7 @@ import java.util.function.DoubleSupplier;
 
 import choreo.trajectory.*; // dumb all include
 
-import com.revrobotics.RelativeEncoder;
+
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
@@ -130,8 +130,6 @@ public class CANDriveSubsystem extends SubsystemBase {
 
         var speeds = arcadeDriveIK(qxSpeed, qzRotation, squareInputs);
 
-        double m_leftOutput = speeds.left;
-        double m_rightOutput = speeds.right;
         drive.arcadeDrive(xSpeed.getAsDouble(), zRotation.getAsDouble());
         System.out.print("L: "); System.out.print(leftLeader.getAppliedOutput()); System.out.print(" R: ");System.out.println(rightLeader.getAppliedOutput());
         System.out.print("LF: "); System.out.print(leftFollower.getAppliedOutput()); System.out.print(" RF: ");System.out.println(rightFollower.getAppliedOutput());
