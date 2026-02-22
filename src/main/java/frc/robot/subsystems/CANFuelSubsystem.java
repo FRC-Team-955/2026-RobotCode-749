@@ -118,7 +118,7 @@ public class CANFuelSubsystem extends SubsystemBase {
   }
 
   public boolean isAtSpeed(){
-      return (((-shooterWheels.getVelocity().getValueAsDouble())- 58) > -0.3);
+      return (((-shooterWheels.getVelocity().getValueAsDouble())- 58) > -1.2);
   }
 
   @Override
