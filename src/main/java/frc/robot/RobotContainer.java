@@ -109,7 +109,7 @@ public class RobotContainer {
         .whileTrue(ballSubsystem.runEnd(() -> ballSubsystem.eject(), () -> ballSubsystem.stop()));
 
 
-    //go forward 1
+    //go forward 1 and up 1
     operatorController.y().onTrue(driveSubsystem.driveAtTargetPose(new Pose2d(1,1,new Rotation2d())));
 
 

@@ -66,7 +66,7 @@ public class PoseSubsystem extends SubsystemBase {
                 r.getAsDouble(),
                 new Pose2d(),
                 VecBuilder.fill(0.05, 0.05, Units.degreesToRadians(5)),
-                VecBuilder.fill(0.5, 0.5, Units.degreesToRadians(30)));
+                VecBuilder.fill(0.5, 0.5, Units.degreesToRadians(30))); //very scuffed estimate for the noise stuff
     }
 
     //update loop event
