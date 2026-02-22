@@ -121,5 +121,6 @@ public class CANFuelSubsystem extends SubsystemBase {
   public void periodic() {
     // This method will be called once per scheduler run
       SmartDashboard.putNumber("Shooter Velocity", shooterWheels.getVelocity().getValueAsDouble());
+      SmartDashboard.putNumber("Shooter Encoder", shooterWheels.getPosition().getValueAsDouble());
   }
 }
