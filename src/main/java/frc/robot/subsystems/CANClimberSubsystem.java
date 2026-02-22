@@ -64,6 +64,6 @@ public class CANClimberSubsystem extends SubsystemBase {
 
     @Override
         public void periodic() {
-            SmartDashboard.putNumber("leftCurrentDistance", getPos());
+            SmartDashboard.putNumber("climber", getPos());
     }
 }
