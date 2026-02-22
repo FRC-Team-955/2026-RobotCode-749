@@ -37,7 +37,7 @@ public class RobotContainer {
     // The robot's subsystems
     private final PoseSubsystem ps = new PoseSubsystem();
     private final CANDriveSubsystem driveSubsystem = new CANDriveSubsystem(ps);
-    private final CANFuelSubsystem ballSubsystem = new CANFuelSubsystem();
+    private CANFuelSubsystem ballSubsystem;
     private final CANClimberSubsystem climberSubsystem = new CANClimberSubsystem();
 
     //object to contain a trajectory
@@ -62,9 +62,9 @@ public class RobotContainer {
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
      */
-    public RobotContainer() {
+    public RobotContainer(CANFuelSubsystem fs) {
 
-
+this.ballSubsystem = fs;
         // INIT CHOREO
         if (trajectory.isPresent()) {
             // Get the initial pose of the trajectory
