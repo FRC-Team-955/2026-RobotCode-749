@@ -5,6 +5,7 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
@@ -22,13 +23,19 @@ public class CANFuelSubsystem extends SubsystemBase {
   private final SparkMax intakeLauncherRoller;
   private final TalonFX shooterWheels;
 
-
+    public void setBrakeMode() {
+        shooterWheels.setNeutralMode(NeutralModeValue.Brake);
+    }
+    public void setCoastMode() {
+        shooterWheels.setNeutralMode(NeutralModeValue.Coast);
+    }
   /** Creates a new CANBallSubsystem. */
   public CANFuelSubsystem() {
     // create brushLESS motors for each of the motors on the launcher mechanism
     intakeLauncherRoller = new SparkMax(INTAKE_LAUNCHER_MOTOR_ID, MotorType.kBrushless);
     feederRoller = new SparkMax(FEEDER_MOTOR_ID, MotorType.kBrushless);
     shooterWheels = new TalonFX(SHOOTER_WHEELS_MOTOR_ID,"rio");
+
 
 
     // put default values for various fuel operations onto the dashboard

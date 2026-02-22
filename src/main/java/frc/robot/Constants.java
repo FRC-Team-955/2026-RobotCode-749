@@ -28,6 +28,7 @@ public final class Constants {
     public static final int LEFT_FOLLOWER_ID = 3;
     public static final int RIGHT_LEADER_ID = 5;
     public static final int RIGHT_FOLLOWER_ID = 4;
+    public static final int CLIMBER_ID = 67;
       public static final int PIGEON_ID = 13;
     // Encoder units per meter, hopefully is right (we are fairly certain)
     public static final double ENCODER_UNITS_PER_METER = (8.45)/(Math.PI*5.844*0.0254);

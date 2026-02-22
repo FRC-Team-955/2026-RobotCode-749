@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.hal.HAL;
 import edu.wpi.first.hal.FRCNetComm.tResourceType;
 import edu.wpi.first.wpilibj.DataLogManager;
@@ -11,6 +13,9 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
+import frc.robot.subsystems.CANFuelSubsystem;
+
+import static frc.robot.Constants.FuelConstants.SHOOTER_WHEELS_MOTOR_ID;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -21,11 +26,12 @@ import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
  * build.gradle file in the
  * project.
  */
+
 public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
 
   private RobotContainer m_robotContainer;
-
+    private final CANFuelSubsystem fuelSubsystem = new CANFuelSubsystem();
   /**
    * This function is run when the robot is first started up and should be used
    * for any
@@ -73,6 +79,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void disabledPeriodic() {
+      fuelSubsystem.setBrakeMode();
   }
 
   /**
@@ -92,6 +99,7 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during autonomous. */
   @Override
   public void autonomousPeriodic() {
+      fuelSubsystem.setCoastMode();
   }
 
   @Override
@@ -108,6 +116,7 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
+      fuelSubsystem.setCoastMode();
   }
 
   @Override
