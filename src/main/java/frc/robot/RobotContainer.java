@@ -129,8 +129,8 @@ public class RobotContainer {
         driveSubsystem.setDefaultCommand(
 
                 driveSubsystem.driveArcade(
-                        () -> operatorController.getLeftY() * DRIVE_SCALING,
-                        () -> operatorController.getRightX() * ROTATION_SCALING));
+                        () -> driverController.getLeftY() * DRIVE_SCALING,
+                        () -> driverController.getRightX() * ROTATION_SCALING));
 
 
 /*
