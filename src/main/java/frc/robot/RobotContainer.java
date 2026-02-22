@@ -12,6 +12,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
@@ -81,6 +82,7 @@ this.ballSubsystem = fs;
 
 
         configureBindings(); //controller bindings
+        SmartDashboard.putData(autoChooser);
 
         // Set the options to show up in the Dashboard for selecting auto modes. If you
         // add additional auto modes you can add additional lines here with

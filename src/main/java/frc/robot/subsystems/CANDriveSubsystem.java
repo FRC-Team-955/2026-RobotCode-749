@@ -50,7 +50,7 @@ public class CANDriveSubsystem extends SubsystemBase {
 
     private final SlewRateLimiter limit = new SlewRateLimiter(10 * Constants.DriveConstants.SAFE_SPEED_CAP);
     DifferentialDriveKinematics kinematics =
-            new DifferentialDriveKinematics(Units.inchesToMeters(27.0)); //27 = drivebase width?????
+            new DifferentialDriveKinematics(DBASE_WIDTH); //27 = drivebase width?????
     double lSetPoint;
     double rSetPoint;
 
