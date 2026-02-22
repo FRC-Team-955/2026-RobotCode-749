@@ -121,7 +121,6 @@ public class CANDriveSubsystem extends SubsystemBase {
       SmartDashboard.putNumber("rightSetPoint", rSetPoint);
 
 
-      driveAtTargetPose();
 
   }
 
@@ -226,20 +225,19 @@ public class CANDriveSubsystem extends SubsystemBase {
         return run(()->resetOdometry(new Pose2d()));
     }
 
-    public Command goPathFollow(Optional<Trajectory<DifferentialSample>> trajectory, Timer timer){
-      return run(()->goPath(trajectory, timer));
-    }
-
 
     public Command setTargetPoint(Pose2d a){
-      return run(()->{targetPose=a;enableTargetPose=true;});
+      return run(()->{targetPose=a;});
     }
 
-    public Command toggleUseTargetPoint(){
-      return run(()->enableTargetPose=!enableTargetPose);
+    public Command enableTargetPose(){
+      return run(()->enableTargetPose=true);
+    }
+    public Command disableTargetPose(){
+        return run(()->enableTargetPose=false);
     }
 
-    public void driveAtTargetPose() {
+    public void funcDriveAtTargetPose() {
         if (!enableTargetPose || targetPose == null) return;
 
         Pose2d currentPose = ps.getPose();
@@ -280,6 +278,10 @@ public class CANDriveSubsystem extends SubsystemBase {
                 current.getRotation().minus(target.getRotation()).getRadians();
 
         return dist < 0.05 && Math.abs(angleError) < Math.toRadians(3);
+    }
+
+    public Command driveAtTargetPose(){
+      return run(()->funcDriveAtTargetPose());
     }
 
 }
