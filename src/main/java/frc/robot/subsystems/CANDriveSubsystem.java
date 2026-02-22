@@ -221,9 +221,7 @@ public class CANDriveSubsystem extends SubsystemBase {
     public void resetOdometry(Pose2d p){
       ps.resetOdometry(p);
     }
-    public Command CresetOdometry(){
-        return run(()->resetOdometry(new Pose2d()));
-    }
+
 
 
 
