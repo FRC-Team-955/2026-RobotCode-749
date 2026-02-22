@@ -86,6 +86,7 @@ public class RobotContainer {
     autoChooser.setDefaultOption("Example Auto", Autos.exampleAuto(driveSubsystem, ballSubsystem));
     autoChooser.addOption("PID 1m Auto", Autos.PIDAuto(driveSubsystem, ballSubsystem));
     autoChooser.addOption("PID rotate bashy", Autos.PIDRotateHalf(driveSubsystem, ballSubsystem));
+      autoChooser.addOption("go forward and right", Autos.ArinsPIDAuto(driveSubsystem));
   }
 
 
@@ -107,10 +108,10 @@ public class RobotContainer {
     operatorController.a()
         .whileTrue(ballSubsystem.runEnd(() -> ballSubsystem.eject(), () -> ballSubsystem.stop()));
 
-    //operatorController.y().onTrue(driveSubsystem.toggleUseTargetPoint());
 
-    // b = test go-to-pt
-    //operatorController.b().onTrue(driveSubsystem.CresetOdometry().andThen(driveSubsystem.setTargetPoint(new Pose2d(1,1,new Rotation2d()))));
+    //go forward 1 and up 1
+    operatorController.y().onTrue(driveSubsystem.driveAtTargetPose(new Pose2d(1,1,new Rotation2d())));
+
 
     // Set the default command for the drive subsystem to the command provided by
     // factory with the values provided by the joystick axes on the driver
