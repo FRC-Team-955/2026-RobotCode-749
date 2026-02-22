@@ -109,7 +109,7 @@ public class RobotContainer {
 
 
     //go forward 1
-    operatorController.y().whileTrue(driveSubsystem.driveAtTargetPose(new Pose2d(1,1,new Rotation2d())));
+    operatorController.y().onTrue(driveSubsystem.driveAtTargetPose(new Pose2d(1,1,new Rotation2d())));
 
 
     // Set the default command for the drive subsystem to the command provided by
