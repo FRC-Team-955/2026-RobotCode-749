@@ -87,6 +87,13 @@ public class CANFuelSubsystem extends SubsystemBase {
       shooterWheels.setVoltage(SHOOTER_LAUNCH_VOLTAGE); ///brake mode makes this stop
   }
 
+    public void weakLaunch() {
+        feederRoller.setVoltage(SmartDashboard.getNumber("Launching feeder roller value", LAUNCHING_FEEDER_VOLTAGE));
+        intakeLauncherRoller
+                .setVoltage(SmartDashboard.getNumber("Launching launcher roller value", LAUNCHING_LAUNCHER_VOLTAGE));
+        shooterWheels.setVoltage(SHOOTER_WEAK_LAUNCH_VOLTAGE); ///brake mode makes this stop
+    }
+
 
   // A method to stop the rollers
   public void stop() {
@@ -97,29 +104,38 @@ public class CANFuelSubsystem extends SubsystemBase {
 
   // A method to spin up the launcher roller while spinning the feeder roller to
   // push Fuel away from the launcher
-  public void spinUp() {
+  public void spinUp(double voltage) {
     feederRoller
         .setVoltage(SmartDashboard.getNumber("Spin-up feeder roller value", FEEDER_SPIN_UP_VOLTAGE));
     intakeLauncherRoller
         .setVoltage(SmartDashboard.getNumber("Launching launcher roller value", LAUNCHING_LAUNCHER_VOLTAGE));
-    shooterWheels.setVoltage(SHOOTER_SPIN_UP_VOLTAGE);
+    shooterWheels.setVoltage(voltage);
   }
 
   // A command factory to turn the spinUp method into a command that requires this
   // subsystem
   public Command spinUpCommand() {
-    return this.run(() -> spinUp());
+    return this.run(() -> spinUp(SHOOTER_SPIN_UP_VOLTAGE));
   }
+    public Command spinUpWeakCommand() {
+        return this.run(() -> spinUp(SHOOTER_SPIN_UP_VOLTAGE));
+    }
 
   // A command factory to turn the launch method into a command that requires this
   // subsystem
   public Command launchCommand() {
     return this.run(() -> launch());
   }
+    public Command weakLaunchCommand() {
+        return this.run(() -> weakLaunch());
+    }
 
   public boolean isAtSpeed(){
       return (((-shooterWheels.getVelocity().getValueAsDouble())- 58) > -1.2);
   }
+    public boolean isAtWeakSpeed(){
+        return (((-shooterWheels.getVelocity().getValueAsDouble())- 29) > -1.2);
+    }
 
   @Override
   public void periodic() {

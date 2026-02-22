@@ -90,7 +90,8 @@ this.ballSubsystem = fs;
         autoChooser.setDefaultOption("Example Auto", Autos.exampleAuto(driveSubsystem, ballSubsystem));
         autoChooser.addOption("PID 1m Auto", Autos.PIDAuto(driveSubsystem, ballSubsystem));
         autoChooser.addOption("PID rotate bashy", Autos.PIDRotateHalf(driveSubsystem, ballSubsystem));
-        autoChooser.addOption("shoot", Autos.boringAuto(driveSubsystem, ballSubsystem));
+        autoChooser.addOption("go back then shoot", Autos.boringAuto(driveSubsystem, ballSubsystem));
+        autoChooser.addOption("weak shoot", Autos.weakShoot(driveSubsystem, ballSubsystem));
         autoChooser.addOption("go forward and right", Autos.ArinsPIDAuto(driveSubsystem));
     }
 
@@ -108,6 +109,12 @@ this.ballSubsystem = fs;
                 .whileTrue(ballSubsystem.spinUpCommand().until(()->ballSubsystem.isAtSpeed())
                         .andThen(ballSubsystem.launchCommand())
                         .finallyDo(() -> ballSubsystem.stop()));
+
+        operatorController.y()
+                .whileTrue(ballSubsystem.spinUpWeakCommand().until(()->ballSubsystem.isAtWeakSpeed())
+                        .andThen(ballSubsystem.weakLaunchCommand())
+                        .finallyDo(() -> ballSubsystem.stop()));
+
         // While the A button is held on the operator controller, eject fuel back out
         // the intake
         operatorController.a()

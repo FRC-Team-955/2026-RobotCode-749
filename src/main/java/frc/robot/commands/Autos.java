@@ -50,13 +50,22 @@ public final class Autos {
     public static Command boringAuto(CANDriveSubsystem driveSubsystem, CANFuelSubsystem ballSubsystem) {
         return new SequentialCommandGroup(
                 driveSubsystem.resetPIDSetpoints(),
-               driveSubsystem.setPIDSetpoints(() -> .03, () -> 0.03),
+               driveSubsystem.setPIDSetpoints(() -> -3, () -> -3),
           driveSubsystem.autoDrivePID(),
           ballSubsystem.spinUpCommand().until(() -> ballSubsystem.isAtSpeed()),
           ballSubsystem.launchCommand().withTimeout(2),
                 ballSubsystem.runOnce(() -> ballSubsystem.stop())
         );
     }
+
+    public static Command weakShoot(CANDriveSubsystem driveSubsystem, CANFuelSubsystem ballSubsystem) {
+        return new SequentialCommandGroup(
+             ballSubsystem.spinUpWeakCommand().until(() -> ballSubsystem.isAtWeakSpeed()),
+                ballSubsystem.weakLaunchCommand().withTimeout(2),
+                ballSubsystem.runOnce(() -> ballSubsystem.stop())
+        );
+    }
+
 
     public static Command ArinsPIDAuto(CANDriveSubsystem ds){
         return ds.driveAtTargetPose(new Pose2d(3,3,new Rotation2d()));
