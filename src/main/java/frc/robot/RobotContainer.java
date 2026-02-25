@@ -19,6 +19,8 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
 import static frc.robot.Constants.OperatorConstants.*;
 import static frc.robot.Constants.FuelConstants.*;
+import static frc.robot.DSUtil.isRedAlliance;
+
 import frc.robot.commands.Autos;
 import frc.robot.subsystems.CANClimberSubsystem;
 import frc.robot.subsystems.CANDriveSubsystem;
@@ -56,10 +58,7 @@ public class RobotContainer {
     // The autonomous chooser
     private final SendableChooser<Command> autoChooser = new SendableChooser<>();
 
-    // self-explanatory
-    private boolean isRedAlliance() {
-        return DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue).equals(DriverStation.Alliance.Red);
-    }
+
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
      */
