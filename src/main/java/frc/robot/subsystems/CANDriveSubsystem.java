@@ -42,7 +42,6 @@ public class CANDriveSubsystem extends SubsystemBase {
     private final SparkMax rightLeader;
     private final SparkMax rightFollower;
 
-
     private final PoseSubsystem ps; //Pose Estimator Class
     private final DifferentialDrive drive; //builtin wpilib drive
     private final LTVUnicycleController controller = new LTVUnicycleController(0.02);
@@ -51,7 +50,6 @@ public class CANDriveSubsystem extends SubsystemBase {
     DifferentialDriveKinematics kinematics = new DifferentialDriveKinematics(DBASE_WIDTH);
     double lSetPoint;
     double rSetPoint;
-
 
 
     public CANDriveSubsystem(PoseSubsystem ps) {
@@ -64,9 +62,6 @@ public class CANDriveSubsystem extends SubsystemBase {
 
         // set up differential drive class
         drive = new DifferentialDrive(leftLeader, rightLeader);
-
-
-
 
         // Set can timeout. Because this project only sets parameters once on
         // construction, the timeout can be long without blocking robot operation. Code
@@ -85,7 +80,6 @@ public class CANDriveSubsystem extends SubsystemBase {
         config.voltageCompensation(12);
         config.smartCurrentLimit(DRIVE_MOTOR_CURRENT_LIMIT);
 
-
         // Set configuration to follow each leader and then apply it to corresponding
         // follower. Resetting in case a new controller is swapped
         // in and persisting in case of a controller reset due to breaker trip
@@ -103,14 +97,8 @@ public class CANDriveSubsystem extends SubsystemBase {
         config.inverted(true);
         leftLeader.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
-
         //INIT ARINS CODE
         ps.setSource(()->leftLeader.getEncoder().getPosition(), ()->rightLeader.getEncoder().getPosition());
-    }
-
-    public Command resetPIDSetpoints(){
-        return this.runOnce(()->{lSetPoint= leftLeader.getEncoder().getPosition()/ENCODER_UNITS_PER_METER;
-            rSetPoint= rightLeader.getEncoder().getPosition()/ENCODER_UNITS_PER_METER;});
     }
 
     @Override
@@ -122,8 +110,6 @@ public class CANDriveSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("rightFollowerEncoder", rightFollower.getEncoder().getPosition()); // shouldn't be needed, just here to make sure
         SmartDashboard.putNumber("leftSetPoint", lSetPoint);
         SmartDashboard.putNumber("rightSetPoint", rSetPoint);
-
-
 
     }
 
@@ -149,8 +135,6 @@ public class CANDriveSubsystem extends SubsystemBase {
         });
     }
 
-
-
     public Command driveTank(DoubleSupplier leftSpeed, DoubleSupplier rightSpeed) {
         // setpoints included just for logging it
         // use setpoints to tune encoder units
@@ -158,10 +142,16 @@ public class CANDriveSubsystem extends SubsystemBase {
                 run(() -> updateSetPoints(leftSpeed.getAsDouble(), rightSpeed.getAsDouble())),
                 run(() -> drive.tankDrive(leftSpeed.getAsDouble(), rightSpeed.getAsDouble())));
     }
+
     private void updateSetPoints(double leftSpeed, double rightSpeed) {
         lSetPoint += leftSpeed;
         rSetPoint += rightSpeed;
 
+    }
+
+    public Command resetPIDSetpoints(){
+        return this.runOnce(()->{lSetPoint= leftLeader.getEncoder().getPosition()/ENCODER_UNITS_PER_METER;
+            rSetPoint= rightLeader.getEncoder().getPosition()/ENCODER_UNITS_PER_METER;});
     }
 
     public Command setPIDSetpoints(DoubleSupplier lPoint, DoubleSupplier rPoint) {
@@ -181,7 +171,6 @@ public class CANDriveSubsystem extends SubsystemBase {
             return lDiff < 0.1 && rDiff < 0.1;
         });
     }
-
 
 
     public void followTrajectory(Optional<DifferentialSample> samples) {
@@ -225,9 +214,6 @@ public class CANDriveSubsystem extends SubsystemBase {
     public void resetOdometry(Pose2d p){
         ps.resetOdometry(p);
     }
-
-
-
 
 
     public void funcDriveAtTargetPose(Pose2d targetPose) {
