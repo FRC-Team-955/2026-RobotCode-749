@@ -10,6 +10,7 @@ import java.util.function.DoubleSupplier;
 import choreo.trajectory.*; // dumb all include
 
 
+import com.revrobotics.sim.SparkRelativeEncoderSim;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
@@ -17,15 +18,22 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.LTVUnicycleController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
+import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Encoder;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim;
+import edu.wpi.first.wpilibj.simulation.EncoderSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -42,6 +50,9 @@ public class CANDriveSubsystem extends SubsystemBase {
     private final SparkMax rightLeader;
     private final SparkMax rightFollower;
 
+    private SparkRelativeEncoderSim m_leftEncoderSim;
+    private SparkRelativeEncoderSim m_rightEncoderSim;
+
     private final PoseSubsystem ps; //Pose Estimator Class
     private final DifferentialDrive drive; //builtin wpilib drive
     private final LTVUnicycleController controller = new LTVUnicycleController(0.02);
@@ -52,6 +63,21 @@ public class CANDriveSubsystem extends SubsystemBase {
     double rSetPoint;
 
 
+    DifferentialDrivetrainSim drivetrainSim = new DifferentialDrivetrainSim(
+            DCMotor.getNEO(2),       // 2 NEO motors on each side of the drivetrain.
+            7.29,                    // 7.29:1 gearing reduction.
+            7.5,                     // MOI of 7.5 kg m^2 (from CAD model).
+            60.0,                    // The mass of the robot is 60 kg.
+            Units.inchesToMeters(3), // The robot uses 3" radius wheels.
+            0.7112,                  // The track width is 0.7112 meters.
+            // The standard deviations for measurement noise:
+            // x and y:          0.001 m
+            // heading:          0.001 rad
+            // l and r velocity: 0.1   m/s
+            // l and r position: 0.005 m
+            VecBuilder.fill(0.001, 0.001, 0.001, 0.1, 0.1, 0.005, 0.005));
+
+
     public CANDriveSubsystem(PoseSubsystem ps) {
         this.ps = ps;
         // create brushed motors for drive
@@ -59,6 +85,10 @@ public class CANDriveSubsystem extends SubsystemBase {
         leftFollower = new SparkMax(LEFT_FOLLOWER_ID, MotorType.kBrushless);
         rightLeader = new SparkMax(RIGHT_LEADER_ID, MotorType.kBrushless);
         rightFollower = new SparkMax(RIGHT_FOLLOWER_ID, MotorType.kBrushless);
+
+        m_leftEncoderSim = new SparkRelativeEncoderSim(leftLeader);
+        m_rightEncoderSim = new SparkRelativeEncoderSim(rightLeader);
+
 
         // set up differential drive class
         drive = new DifferentialDrive(leftLeader, rightLeader);
@@ -261,6 +291,30 @@ public class CANDriveSubsystem extends SubsystemBase {
 
     public Command driveAtTargetPose(Pose2d target){
         return run(()->funcDriveAtTargetPose(target)).until(()->isAtPose(ps.getPose(),target)).finallyDo(() -> drive.tankDrive(0, 0));
+    }
+
+
+    public void simulationPeriodic() {
+        // Set the inputs to the system. Note that we need to convert
+        // the [-1, 1] PWM signal to voltage by multiplying it by the
+        // robot controller voltage.
+        drivetrainSim.setInputs(leftLeader.get() * RobotController.getInputVoltage(),
+                rightLeader.get() * RobotController.getInputVoltage());
+        // Advance the model by 20 ms. Note that if you are running this
+        // subsystem in a separate thread or have changed the nominal timestep
+        // of TimedRobot, this value needs to match it.
+        drivetrainSim.update(0.02);
+        // Update all of our sensors.
+
+        if(m_leftEncoderSim == null){
+            System.out.println("IDIOT. CALL ARIN AND TELL HIM TO GET A BRAIN");
+        }
+        else {
+            m_leftEncoderSim.setPosition(drivetrainSim.getLeftPositionMeters());
+            m_leftEncoderSim.setVelocity(drivetrainSim.getLeftVelocityMetersPerSecond());
+            m_rightEncoderSim.setPosition(drivetrainSim.getRightPositionMeters());
+            m_rightEncoderSim.setVelocity(drivetrainSim.getRightVelocityMetersPerSecond());
+        }
     }
 
 }
