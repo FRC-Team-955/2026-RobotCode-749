@@ -304,16 +304,18 @@ public class CANDriveSubsystem extends SubsystemBase {
         // subsystem in a separate thread or have changed the nominal timestep
         // of TimedRobot, this value needs to match it.
         drivetrainSim.update(0.02);
+        System.out.println("Left output: " + leftLeader.get());
+        System.out.println("Right output: " + rightLeader.get());
         // Update all of our sensors.
 
         if(m_leftEncoderSim == null || m_rightEncoderSim==null){
             System.out.println("IDIOT. CALL ARIN AND TELL HIM TO GET A BRAIN");
         }
         else {
-            m_leftEncoderSim.setPosition(drivetrainSim.getLeftPositionMeters());
-            m_leftEncoderSim.setVelocity(drivetrainSim.getLeftVelocityMetersPerSecond());
-            m_rightEncoderSim.setPosition(drivetrainSim.getRightPositionMeters());
-            m_rightEncoderSim.setVelocity(drivetrainSim.getRightVelocityMetersPerSecond());
+            m_leftEncoderSim.setPosition(drivetrainSim.getLeftPositionMeters()*ENCODER_UNITS_PER_METER);
+            m_leftEncoderSim.setVelocity(drivetrainSim.getLeftVelocityMetersPerSecond()*ENCODER_UNITS_PER_METER);
+            m_rightEncoderSim.setPosition(drivetrainSim.getRightPositionMeters()*ENCODER_UNITS_PER_METER);
+            m_rightEncoderSim.setVelocity(drivetrainSim.getRightVelocityMetersPerSecond()*ENCODER_UNITS_PER_METER);
         }
     }
 

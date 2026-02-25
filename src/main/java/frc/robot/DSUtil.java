@@ -1,5 +1,7 @@
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 
@@ -7,6 +9,11 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 // Also for stuff to be put on DS, to be accessd all over in the code
 public class DSUtil {
     public static final Field2d FIELD = new Field2d();
+    public static Pose2d addPose(Pose2d a, Pose2d b){
+        return new Pose2d(a.getX()+b.getX(), a.getY()+b.getY(), new Rotation2d(a.getRotation().getRadians()+b.getRotation().getRadians()));
+    }
+    public static Pose2d INITIAL_POSE = new Pose2d(4,4,new Rotation2d());
+
     public static boolean isRedAlliance() {
         return DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue).equals(DriverStation.Alliance.Red);
     }
