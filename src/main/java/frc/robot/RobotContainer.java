@@ -41,7 +41,6 @@ public class RobotContainer {
     private CANDriveSubsystem driveSubsystem;
     private CANFuelSubsystem ballSubsystem;
     private final CANClimberSubsystem climberSubsystem = new CANClimberSubsystem();
-
     //object to contain a trajectory
     private final Optional<Trajectory<DifferentialSample>> trajectory = Choreo.loadTrajectory("test");
     private final Timer PathTimer = new Timer(); //Timer object used for pathfollowing
