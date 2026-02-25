@@ -8,6 +8,7 @@ import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -16,6 +17,7 @@ import java.util.function.DoubleSupplier;
 
 
 import com.ctre.phoenix6.hardware.Pigeon2;
+import frc.robot.LimelightHelpers;
 
 public class PoseSubsystem extends SubsystemBase {
     Pigeon2 gyro = new Pigeon2(Constants.DriveConstants.PIGEON_ID, "rio");
@@ -28,6 +30,48 @@ public class PoseSubsystem extends SubsystemBase {
     private DoubleSupplier r; //object for passing encoder values
     double OldL = 0;
     double OldR = 0;
+
+
+    // Basic targeting data
+   double tx = LimelightHelpers.getTX("");  // Horizontal offset from crosshair to target in degrees
+    double ty = LimelightHelpers.getTY("");  // Vertical offset from crosshair to target in degrees
+    double ta = LimelightHelpers.getTA("");  // Target area (0% to 100% of image)
+    boolean hasTarget = LimelightHelpers.getTV(""); // Do you have a valid target?
+
+    double txnc = LimelightHelpers.getTXNC("");  // Horizontal offset from principal pixel/point to target in degrees
+    double tync = LimelightHelpers.getTYNC("");  // Vertical offset from principal pixel/point to target in degrees
+
+
+    public PoseSubsystem() {
+        // Switch to pipeline 0
+        LimelightHelpers.setPipelineIndex("", 0);
+        // Set a custom crop window for improved performance (-1 to 1 for each value)
+        LimelightHelpers.setCropWindow("", -0.5, 0.5, -0.5, 0.5);
+
+// Change the camera pose relative to robot center (x forward, y left, z up, degrees)
+        LimelightHelpers.setCameraPose_RobotSpace("",
+                0.5,    // Forward offset (meters)
+                0.0,    // Side offset (meters)
+                0.5,    // Height offset (meters)
+                0.0,    // Roll (degrees)
+                30.0,   // Pitch (degrees)
+                0.0     // Yaw (degrees)
+        );
+
+// Set AprilTag offset tracking point (meters)
+        LimelightHelpers.setFiducial3DOffset("",
+                0.0,    // Forward offset
+                0.0,    // Side offset
+                0.5     // Height offset
+        );
+
+// Configure AprilTag detection
+        LimelightHelpers.SetFiducialIDFiltersOverride("", new int[]{1, 2, 3, 4}); // Only track these tag IDs
+        LimelightHelpers.SetFiducialDownscalingOverride("", 2.0f); // Process at half resolution
+
+// Adjust keystone crop window (-0.95 to 0.95 for both horizontal and vertical)
+        LimelightHelpers.setKeystone("", 0.1, -0.05);
+    }
 
 
 
@@ -68,12 +112,22 @@ public class PoseSubsystem extends SubsystemBase {
                 VecBuilder.fill(0.5, 0.5, Units.degreesToRadians(10)));
     }
 
+
+    private boolean isRedAlliance() {
+        return DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue).equals(DriverStation.Alliance.Red);
+    }
     //update loop event
     @Override
     public void periodic() {
-
+        LimelightHelpers.PoseEstimate limelightMeasurement;
+        if (isRedAlliance()){
+             limelightMeasurement= LimelightHelpers.getBotPoseEstimate_wpiRed("");
+        }
+        else{
+            limelightMeasurement= LimelightHelpers.getBotPoseEstimate_wpiBlue("");
+        }
         // Update the odometry in the periodic block
-
+        m_poseEstimator.addVisionMeasurement(limelightMeasurement.pose, limelightMeasurement.timestampSeconds);
         m_poseEstimator.update(
                 gyro.getRotation2d(), l.getAsDouble(), r.getAsDouble()); //use Rotation2d (gyroAngle) for reals
         if (Constants.DEBUG == 1){
