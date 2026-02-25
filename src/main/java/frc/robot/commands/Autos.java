@@ -35,7 +35,7 @@ public final class Autos {
 
     public static Command PIDAuto(CANDriveSubsystem driveSubsystem, CANFuelSubsystem ballSubsystem) {
         return new SequentialCommandGroup(
-                driveSubsystem.setPIDSetpoints(() -> 0.2, () -> -0.2), //????????????
+                driveSubsystem.setPIDSetpoints(() -> 1, () -> -1), //???????????? signs????? magnitude?????
                 driveSubsystem.autoDrivePID()
         );
     }
@@ -49,7 +49,6 @@ public final class Autos {
 
     public static Command boringAuto(CANDriveSubsystem driveSubsystem, CANFuelSubsystem ballSubsystem) {
         return new SequentialCommandGroup(
-                driveSubsystem.resetPIDSetpoints(),
                driveSubsystem.setPIDSetpoints(() -> -3, () -> -3),
           driveSubsystem.autoDrivePID(),
           ballSubsystem.spinUpCommand().until(() -> ballSubsystem.isAtSpeed()),
