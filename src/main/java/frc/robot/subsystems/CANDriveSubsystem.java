@@ -34,7 +34,6 @@ import frc.robot.Constants;
 
 import static edu.wpi.first.wpilibj.drive.DifferentialDrive.arcadeDriveIK;
 import static frc.robot.Constants.DriveConstants.*;
-import static frc.robot.DSUtil.isRedAlliance;
 
 
 public class CANDriveSubsystem extends SubsystemBase {
@@ -42,7 +41,6 @@ public class CANDriveSubsystem extends SubsystemBase {
     private final SparkMax leftFollower;
     private final SparkMax rightLeader;
     private final SparkMax rightFollower;
-
 
     private final PoseSubsystem ps; //Pose Estimator Class
     private final DifferentialDrive drive; //builtin wpilib drive
@@ -52,7 +50,6 @@ public class CANDriveSubsystem extends SubsystemBase {
     DifferentialDriveKinematics kinematics = new DifferentialDriveKinematics(DBASE_WIDTH);
     double lSetPoint;
     double rSetPoint;
-
 
 
     public CANDriveSubsystem(PoseSubsystem ps) {
@@ -65,9 +62,6 @@ public class CANDriveSubsystem extends SubsystemBase {
 
         // set up differential drive class
         drive = new DifferentialDrive(leftLeader, rightLeader);
-
-
-
 
         // Set can timeout. Because this project only sets parameters once on
         // construction, the timeout can be long without blocking robot operation. Code
@@ -86,7 +80,6 @@ public class CANDriveSubsystem extends SubsystemBase {
         config.voltageCompensation(12);
         config.smartCurrentLimit(DRIVE_MOTOR_CURRENT_LIMIT);
 
-
         // Set configuration to follow each leader and then apply it to corresponding
         // follower. Resetting in case a new controller is swapped
         // in and persisting in case of a controller reset due to breaker trip
@@ -104,14 +97,8 @@ public class CANDriveSubsystem extends SubsystemBase {
         config.inverted(true);
         leftLeader.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
-
         //INIT ARINS CODE
         ps.setSource(()->leftLeader.getEncoder().getPosition(), ()->rightLeader.getEncoder().getPosition());
-    }
-
-    public Command resetPIDSetpoints(){
-        return this.runOnce(()->{lSetPoint= leftLeader.getEncoder().getPosition()/ENCODER_UNITS_PER_METER;
-            rSetPoint= rightLeader.getEncoder().getPosition()/ENCODER_UNITS_PER_METER;});
     }
 
     @Override
@@ -123,8 +110,6 @@ public class CANDriveSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("rightFollowerEncoder", rightFollower.getEncoder().getPosition()); // shouldn't be needed, just here to make sure
         SmartDashboard.putNumber("leftSetPoint", lSetPoint);
         SmartDashboard.putNumber("rightSetPoint", rSetPoint);
-
-
 
     }
 
@@ -150,8 +135,6 @@ public class CANDriveSubsystem extends SubsystemBase {
         });
     }
 
-
-
     public Command driveTank(DoubleSupplier leftSpeed, DoubleSupplier rightSpeed) {
         // setpoints included just for logging it
         // use setpoints to tune encoder units
@@ -159,10 +142,16 @@ public class CANDriveSubsystem extends SubsystemBase {
                 run(() -> updateSetPoints(leftSpeed.getAsDouble(), rightSpeed.getAsDouble())),
                 run(() -> drive.tankDrive(leftSpeed.getAsDouble(), rightSpeed.getAsDouble())));
     }
+
     private void updateSetPoints(double leftSpeed, double rightSpeed) {
         lSetPoint += leftSpeed;
         rSetPoint += rightSpeed;
 
+    }
+
+    public Command resetPIDSetpoints(){
+        return this.runOnce(()->{lSetPoint= leftLeader.getEncoder().getPosition()/ENCODER_UNITS_PER_METER;
+            rSetPoint= rightLeader.getEncoder().getPosition()/ENCODER_UNITS_PER_METER;});
     }
 
     public Command setPIDSetpoints(DoubleSupplier lPoint, DoubleSupplier rPoint) {
@@ -184,13 +173,47 @@ public class CANDriveSubsystem extends SubsystemBase {
     }
 
 
+    public void followTrajectory(Optional<DifferentialSample> samples) {
+        // Get the current pose of the robot
+        DifferentialSample sample = samples.orElse(new choreo.trajectory.DifferentialSample(0,0,0,0,0,0,0,0,0,0,0,0));
+
+        // Get the velocity feedforward specified by the sample
+        ChassisSpeeds ff = sample.getChassisSpeeds();
+
+        // Generate the next speeds for the robot
+        ChassisSpeeds speeds = controller.calculate(
+                ps.getPose(),
+                sample.getPose(),
+                ff.vxMetersPerSecond,
+                ff.omegaRadiansPerSecond
+        );
+
+
+
+
+        // Apply the generated speeds
+        DifferentialDriveWheelSpeeds wheelSpeeds = kinematics.toWheelSpeeds(speeds); //
+        drive.tankDrive(wheelSpeeds.leftMetersPerSecond, wheelSpeeds.rightMetersPerSecond);
+    }
+
+    private boolean isRedAlliance() {
+        return DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue).equals(DriverStation.Alliance.Red);
+    }
+    public void goPath(Optional<Trajectory<DifferentialSample>> trajectory, Timer timer){
+        if (trajectory.isPresent()) {
+            // Sample the trajectory at the current time into the autonomous period
+            Optional<DifferentialSample> sample = trajectory.get().sampleAt(timer.get(), isRedAlliance());
+
+            if (sample.isPresent()) {
+                this.followTrajectory(sample);
+            }
+        }
+
+    }
 
     public void resetOdometry(Pose2d p){
         ps.resetOdometry(p);
     }
-
-
-
 
 
     public void funcDriveAtTargetPose(Pose2d targetPose) {
