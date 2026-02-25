@@ -150,8 +150,10 @@ public class CANDriveSubsystem extends SubsystemBase {
     }
 
     public Command resetPIDSetpoints(){
-        return this.runOnce(()->{lSetPoint= leftLeader.getEncoder().getPosition()/ENCODER_UNITS_PER_METER;
-            rSetPoint= rightLeader.getEncoder().getPosition()/ENCODER_UNITS_PER_METER;});
+        return this.runOnce(() -> {
+            lSetPoint = leftLeader.getEncoder().getPosition()/ENCODER_UNITS_PER_METER;
+            rSetPoint = rightLeader.getEncoder().getPosition()/ENCODER_UNITS_PER_METER;
+        });
     }
 
     public Command setPIDSetpoints(DoubleSupplier lPoint, DoubleSupplier rPoint) {

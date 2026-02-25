@@ -13,7 +13,9 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
+import frc.robot.subsystems.CANDriveSubsystem;
 import frc.robot.subsystems.CANFuelSubsystem;
+import frc.robot.subsystems.PoseSubsystem;
 
 import static frc.robot.Constants.FuelConstants.SHOOTER_WHEELS_MOTOR_ID;
 
@@ -32,6 +34,8 @@ public class Robot extends TimedRobot {
 
   private RobotContainer m_robotContainer;
     private final CANFuelSubsystem fuelSubsystem = new CANFuelSubsystem();
+    private final PoseSubsystem poseSubsystem = new PoseSubsystem();
+    private final CANDriveSubsystem driveSubsystem = new CANDriveSubsystem(poseSubsystem);
   /**
    * This function is run when the robot is first started up and should be used
    * for any
@@ -42,8 +46,8 @@ public class Robot extends TimedRobot {
     // Instantiate our RobotContainer. This will perform all our button bindings,
     // and put our
     // autonomous chooser on the dashboard.
-    m_robotContainer = new RobotContainer(fuelSubsystem);
-
+    m_robotContainer = new RobotContainer(fuelSubsystem, driveSubsystem);
+      driveSubsystem.resetPIDSetpoints();
     // Used to track usage of Kitbot code, please do not remove.
     HAL.report(tResourceType.kResourceType_Framework, 10);
 
@@ -91,6 +95,7 @@ public class Robot extends TimedRobot {
   public void autonomousInit() {
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
     fuelSubsystem.setCoastMode();
+
     // schedule the autonomous command (example)
     if (m_autonomousCommand != null) {
       CommandScheduler.getInstance().schedule(m_autonomousCommand);
