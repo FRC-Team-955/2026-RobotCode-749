@@ -34,7 +34,7 @@ public class Robot extends TimedRobot {
 
   private RobotContainer m_robotContainer;
     private final CANFuelSubsystem fuelSubsystem = new CANFuelSubsystem();
-    private final PoseSubsystem poseSubsystem = new PoseSubsystem();
+    public final PoseSubsystem poseSubsystem = new PoseSubsystem();
     private final CANDriveSubsystem driveSubsystem = new CANDriveSubsystem(poseSubsystem);
   /**
    * This function is run when the robot is first started up and should be used
@@ -46,7 +46,7 @@ public class Robot extends TimedRobot {
     // Instantiate our RobotContainer. This will perform all our button bindings,
     // and put our
     // autonomous chooser on the dashboard.
-    m_robotContainer = new RobotContainer(fuelSubsystem, driveSubsystem);
+    m_robotContainer = new RobotContainer(fuelSubsystem, driveSubsystem, poseSubsystem);
       driveSubsystem.resetPIDSetpoints();
     // Used to track usage of Kitbot code, please do not remove.
     HAL.report(tResourceType.kResourceType_Framework, 10);

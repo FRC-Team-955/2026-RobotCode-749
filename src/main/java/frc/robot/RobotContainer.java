@@ -42,6 +42,7 @@ public class RobotContainer {
     private CANDriveSubsystem driveSubsystem;
     private CANFuelSubsystem ballSubsystem;
     private final CANClimberSubsystem climberSubsystem = new CANClimberSubsystem();
+    private PoseSubsystem poseSubsystem;
 
 
 
@@ -61,12 +62,15 @@ public class RobotContainer {
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
      */
-    public RobotContainer(CANFuelSubsystem fuelSubsystem, CANDriveSubsystem driveSubsystem) {
+    public RobotContainer(CANFuelSubsystem fuelSubsystem, CANDriveSubsystem driveSubsystem, PoseSubsystem poseSubsystem) {
 
     this.ballSubsystem = fuelSubsystem;
     this.driveSubsystem = driveSubsystem;
+    this.poseSubsystem = poseSubsystem;
 
 
+    Pose2d INITIAL_POSE = new Pose2d(); /// <<----------------------- CRITICAL TO BE TUNED!
+    poseSubsystem.resetOdometry(INITIAL_POSE);
 
 
         configureBindings(); //controller bindings
