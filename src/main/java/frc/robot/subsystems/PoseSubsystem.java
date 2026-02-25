@@ -17,6 +17,7 @@ import java.util.function.DoubleSupplier;
 
 
 import com.ctre.phoenix6.hardware.Pigeon2;
+import frc.robot.DSUtil;
 import frc.robot.LimelightHelpers;
 
 public class PoseSubsystem extends SubsystemBase {
@@ -113,14 +114,12 @@ public class PoseSubsystem extends SubsystemBase {
     }
 
 
-    private boolean isRedAlliance() {
-        return DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue).equals(DriverStation.Alliance.Red);
-    }
+
     //update loop event
     @Override
     public void periodic() {
         LimelightHelpers.PoseEstimate limelightMeasurement;
-        if (isRedAlliance()){
+        if (DSUtil.isTestMode() || DSUtil.isRedAlliance()){
              limelightMeasurement= LimelightHelpers.getBotPoseEstimate_wpiRed("");
         }
         else{
