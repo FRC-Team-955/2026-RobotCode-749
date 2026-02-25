@@ -119,7 +119,7 @@ public class PoseSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         LimelightHelpers.PoseEstimate limelightMeasurement;
-        if (DSUtil.isRedAlliance()){
+        if (DSUtil.isTestMode() || DSUtil.isRedAlliance()){
              limelightMeasurement= LimelightHelpers.getBotPoseEstimate_wpiRed("");
         }
         else{

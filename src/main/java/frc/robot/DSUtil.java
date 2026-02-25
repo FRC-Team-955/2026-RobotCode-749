@@ -13,5 +13,9 @@ public class DSUtil {
         return DriverStation.isTeleopEnabled();
     }
 
+    public static boolean isTestMode(){
+        return DriverStation.isTestEnabled();
+    }
+
 
 }
