@@ -145,5 +145,9 @@ public class PoseSubsystem extends SubsystemBase {
 
         OldL = l.getAsDouble();
         OldR = r.getAsDouble();
+
+        DSUtil.FIELD.setRobotPose(m_poseEstimator.getEstimatedPosition());
+        SmartDashboard.putData("Field", DSUtil.FIELD);
+
     }
 }

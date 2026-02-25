@@ -11,6 +11,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -41,9 +42,9 @@ public class RobotContainer {
     private CANDriveSubsystem driveSubsystem;
     private CANFuelSubsystem ballSubsystem;
     private final CANClimberSubsystem climberSubsystem = new CANClimberSubsystem();
-    //object to contain a trajectory
-    private final Optional<Trajectory<DifferentialSample>> trajectory = Choreo.loadTrajectory("test");
-    private final Timer PathTimer = new Timer(); //Timer object used for pathfollowing
+
+
+
 
     // The driver's controller
     private final CommandXboxController driverController = new CommandXboxController(
@@ -66,19 +67,6 @@ public class RobotContainer {
     this.driveSubsystem = driveSubsystem;
 
 
-        // INIT CHOREO
-        if (trajectory.isPresent()) {
-            // Get the initial pose of the trajectory
-            Optional<Pose2d> initialPose = trajectory.get().getInitialPose(isRedAlliance());
-
-            if (initialPose.isPresent()) {
-                // Reset odometry to the start of the trajectory
-                driveSubsystem.resetOdometry(initialPose.get());
-            }
-        }
-
-        // Reset and start the timer when the autonomous period begins
-        PathTimer.restart();
 
 
         configureBindings(); //controller bindings
