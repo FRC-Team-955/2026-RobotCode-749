@@ -306,7 +306,7 @@ public class CANDriveSubsystem extends SubsystemBase {
         drivetrainSim.update(0.02);
         // Update all of our sensors.
 
-        if(m_leftEncoderSim == null){
+        if(m_leftEncoderSim == null || m_rightEncoderSim==null){
             System.out.println("IDIOT. CALL ARIN AND TELL HIM TO GET A BRAIN");
         }
         else {
