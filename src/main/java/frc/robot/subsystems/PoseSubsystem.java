@@ -8,6 +8,8 @@ import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -115,6 +117,8 @@ public class PoseSubsystem extends SubsystemBase {
     }
 
 
+    StructPublisher<Pose2d> publisher = NetworkTableInstance.getDefault()
+            .getStructTopic("Pose", Pose2d.struct).publish();
 
     //update loop event
     @Override
@@ -148,8 +152,7 @@ public class PoseSubsystem extends SubsystemBase {
         OldR = r.getAsDouble();
 
         if(!isSim()) {
-            DSAndFieldUtil.FIELD.setRobotPose(addPose(m_poseEstimator.getEstimatedPosition(), INITIAL_POSE));
-            SmartDashboard.putData("Field", DSAndFieldUtil.FIELD);
+            publisher.set(m_poseEstimator.getEstimatedPosition());
         }
 
 

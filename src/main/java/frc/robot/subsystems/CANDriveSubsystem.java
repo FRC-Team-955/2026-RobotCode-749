@@ -22,11 +22,14 @@ import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.LTVUnicycleController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.RobotController;
@@ -265,6 +268,8 @@ public class CANDriveSubsystem extends SubsystemBase {
 
     private int simOutTs = 100;
     private int counter=0;
+    StructPublisher<Pose2d> publisher = NetworkTableInstance.getDefault()
+            .getStructTopic("SimPose", Pose2d.struct).publish();
 
 
     public void simulationPeriodic() {
@@ -279,8 +284,8 @@ public class CANDriveSubsystem extends SubsystemBase {
         drivetrainSim.update(0.02);
 
 
-        DSAndFieldUtil.FIELD.setRobotPose(drivetrainSim.getPose());
-        SmartDashboard.putData("Field", DSAndFieldUtil.FIELD);
+
+        publisher.set(drivetrainSim.getPose());
 
 
         if(counter==simOutTs) {
