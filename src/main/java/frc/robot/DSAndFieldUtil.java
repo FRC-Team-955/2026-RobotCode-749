@@ -15,7 +15,7 @@ public class DSAndFieldUtil {
         return new Pose2d(a.getX()+b.getX(), a.getY()+b.getY(), new Rotation2d(a.getRotation().getRadians()+b.getRotation().getRadians()));
     }
     public static Pose2d INITIAL_POSE = new Pose2d(4,4,new Rotation2d());
-    public static Pose2d simPose=INITIAL_POSE;
+    public static Pose2d GLOBAL_POSE =INITIAL_POSE;
 
     public static boolean isRedAlliance() {
         return DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue).equals(DriverStation.Alliance.Red);

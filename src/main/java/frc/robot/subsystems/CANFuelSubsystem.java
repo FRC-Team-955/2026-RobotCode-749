@@ -12,9 +12,7 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.SparkMax;
 
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -160,7 +158,7 @@ public class CANFuelSubsystem extends SubsystemBase {
       SmartDashboard.putNumber("Shooter Velocity", -shooterWheels.getVelocity().getValueAsDouble()); // 58 running, ~61(?) for spinup
       SmartDashboard.putNumber("Shooter Encoder", -shooterWheels.getPosition().getValueAsDouble());
 
-      ArrayList<Pose3d> a = SS.SimShot(-SHOOTER_LAUNCH_VOLTAGE, DSAndFieldUtil.simPose,0,0);
+      ArrayList<Pose3d> a = SS.SimShot(-SHOOTER_LAUNCH_VOLTAGE, DSAndFieldUtil.GLOBAL_POSE,0,0);
       arrayPublisher.set( a.toArray(new Pose3d[0]));
   }
 }

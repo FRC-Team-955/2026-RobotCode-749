@@ -4,10 +4,7 @@
 
 package frc.robot.subsystems;
 
-import java.util.Optional;
 import java.util.function.DoubleSupplier;
-
-import choreo.trajectory.*; // dumb all include
 
 
 import com.revrobotics.sim.SparkRelativeEncoderSim;
@@ -22,7 +19,6 @@ import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.LTVUnicycleController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
@@ -30,13 +26,9 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim;
-import edu.wpi.first.wpilibj.simulation.EncoderSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -46,8 +38,6 @@ import frc.robot.DSAndFieldUtil;
 
 import static edu.wpi.first.wpilibj.drive.DifferentialDrive.arcadeDriveIK;
 import static frc.robot.Constants.DriveConstants.*;
-import static frc.robot.DSAndFieldUtil.INITIAL_POSE;
-import static frc.robot.DSAndFieldUtil.addPose;
 
 
 public class CANDriveSubsystem extends SubsystemBase {
@@ -286,7 +276,7 @@ public class CANDriveSubsystem extends SubsystemBase {
 
 
         publisher.set(drivetrainSim.getPose());
-        DSAndFieldUtil.simPose = drivetrainSim.getPose();
+        DSAndFieldUtil.GLOBAL_POSE = drivetrainSim.getPose();
 
 
         if(counter==simOutTs) {

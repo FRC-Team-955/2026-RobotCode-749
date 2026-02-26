@@ -153,6 +153,7 @@ public class PoseSubsystem extends SubsystemBase {
 
         if(!isSim()) {
             publisher.set(m_poseEstimator.getEstimatedPosition());
+            GLOBAL_POSE = m_poseEstimator.getEstimatedPosition();
         }
 
 
