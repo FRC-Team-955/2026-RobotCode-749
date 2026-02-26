@@ -286,6 +286,7 @@ public class CANDriveSubsystem extends SubsystemBase {
 
 
         publisher.set(drivetrainSim.getPose());
+        DSAndFieldUtil.simPose = drivetrainSim.getPose();
 
 
         if(counter==simOutTs) {

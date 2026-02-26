@@ -12,9 +12,19 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.SparkMax;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.DSAndFieldUtil;
+import frc.robot.subsystems.shootersim.ShooterSim;
+
+import java.util.ArrayList;
+
 import static frc.robot.Constants.FuelConstants.*;
 
 @SuppressWarnings("removal") //weird deprecation warning. As all programmers know, suppressing errors is better than fixing them
@@ -22,6 +32,10 @@ public class CANFuelSubsystem extends SubsystemBase {
   private final SparkMax feederRoller;
   private final SparkMax intakeLauncherRoller;
   private final TalonFX shooterWheels;
+
+
+
+  ShooterSim SS = new ShooterSim();
 
     public void setBrakeMode() {
         shooterWheels.setNeutralMode(NeutralModeValue.Brake);
@@ -137,10 +151,16 @@ public class CANFuelSubsystem extends SubsystemBase {
         return (((-shooterWheels.getVelocity().getValueAsDouble())- 29) > -1.2);
     }
 
+
+    StructArrayPublisher<Pose3d> arrayPublisher = NetworkTableInstance.getDefault()
+            .getStructArrayTopic("PathShot", Pose3d.struct).publish();
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
       SmartDashboard.putNumber("Shooter Velocity", -shooterWheels.getVelocity().getValueAsDouble()); // 58 running, ~61(?) for spinup
       SmartDashboard.putNumber("Shooter Encoder", -shooterWheels.getPosition().getValueAsDouble());
+
+      ArrayList<Pose3d> a = SS.SimShot(-SHOOTER_LAUNCH_VOLTAGE, DSAndFieldUtil.simPose,0,0);
+      arrayPublisher.set( a.toArray(new Pose3d[0]));
   }
 }
