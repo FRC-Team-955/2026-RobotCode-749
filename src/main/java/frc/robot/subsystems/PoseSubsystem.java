@@ -19,8 +19,7 @@ import com.ctre.phoenix6.hardware.Pigeon2;
 import frc.robot.DSAndFieldUtil;
 import frc.robot.LimelightHelpers;
 
-import static frc.robot.DSAndFieldUtil.INITIAL_POSE;
-import static frc.robot.DSAndFieldUtil.addPose;
+import static frc.robot.DSAndFieldUtil.*;
 
 public class PoseSubsystem extends SubsystemBase {
     Pigeon2 gyro = new Pigeon2(Constants.DriveConstants.PIGEON_ID, "rio");
@@ -148,8 +147,11 @@ public class PoseSubsystem extends SubsystemBase {
         OldL = l.getAsDouble();
         OldR = r.getAsDouble();
 
-        DSAndFieldUtil.FIELD.setRobotPose(addPose(m_poseEstimator.getEstimatedPosition(),INITIAL_POSE));
-        SmartDashboard.putData("Field", DSAndFieldUtil.FIELD);
+        if(!isSim()) {
+            DSAndFieldUtil.FIELD.setRobotPose(addPose(m_poseEstimator.getEstimatedPosition(), INITIAL_POSE));
+            SmartDashboard.putData("Field", DSAndFieldUtil.FIELD);
+        }
+
 
     }
 }

@@ -39,9 +39,12 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.DSAndFieldUtil;
 
 import static edu.wpi.first.wpilibj.drive.DifferentialDrive.arcadeDriveIK;
 import static frc.robot.Constants.DriveConstants.*;
+import static frc.robot.DSAndFieldUtil.INITIAL_POSE;
+import static frc.robot.DSAndFieldUtil.addPose;
 
 
 public class CANDriveSubsystem extends SubsystemBase {
@@ -66,16 +69,17 @@ public class CANDriveSubsystem extends SubsystemBase {
     DifferentialDrivetrainSim drivetrainSim = new DifferentialDrivetrainSim(
             DCMotor.getNEO(2),       // 2 NEO motors on each side of the drivetrain.
             8.45,                    //
-            7.5,                     // MOI from CAD??
-            30.0,                    // The mass of the robot is 30 kg.
+            27.5,                     // MOI from CAD??
+            70.0,                    // The mass of the robot is 70 kg.
             Units.inchesToMeters(3), // The robot uses 3" radius wheels.
-            DBASE_WIDTH,                  // The track width is 0.7112 meters.
+            DBASE_WIDTH,                  //
             // The standard deviations for measurement noise:
             // x and y:          0.001 m
             // heading:          0.001 rad
             // l and r velocity: 0.1   m/s
             // l and r position: 0.005 m
             VecBuilder.fill(0.001, 0.001, 0.001, 0.1, 0.1, 0.005, 0.005));
+
 
 
     public CANDriveSubsystem(PoseSubsystem ps) {
@@ -259,10 +263,13 @@ public class CANDriveSubsystem extends SubsystemBase {
         return run(()->funcDriveAtTargetPose(target)).until(()->isAtPose(ps.getPose(),target)).finallyDo(() -> drive.tankDrive(0, 0));
     }
 
-    private int simOutTs = 1000;
+    private int simOutTs = 100;
     private int counter=0;
+
+
     public void simulationPeriodic() {
         counter++;
+
         // Set the inputs to the system. Note that we need to convert
         drivetrainSim.setInputs(leftLeader.get() * RobotController.getInputVoltage(),
                 rightLeader.get() * RobotController.getInputVoltage());
@@ -270,6 +277,11 @@ public class CANDriveSubsystem extends SubsystemBase {
         // subsystem in a separate thread or have changed the nominal timestep
         // of TimedRobot, this value needs to match it.
         drivetrainSim.update(0.02);
+
+
+        DSAndFieldUtil.FIELD.setRobotPose(drivetrainSim.getPose());
+        SmartDashboard.putData("Field", DSAndFieldUtil.FIELD);
+
 
         if(counter==simOutTs) {
             System.out.println("Left output: " + leftLeader.get());
