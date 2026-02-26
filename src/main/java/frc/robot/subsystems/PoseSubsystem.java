@@ -8,7 +8,6 @@ import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -17,11 +16,11 @@ import java.util.function.DoubleSupplier;
 
 
 import com.ctre.phoenix6.hardware.Pigeon2;
-import frc.robot.DSUtil;
+import frc.robot.DSAndFieldUtil;
 import frc.robot.LimelightHelpers;
 
-import static frc.robot.DSUtil.INITIAL_POSE;
-import static frc.robot.DSUtil.addPose;
+import static frc.robot.DSAndFieldUtil.INITIAL_POSE;
+import static frc.robot.DSAndFieldUtil.addPose;
 
 public class PoseSubsystem extends SubsystemBase {
     Pigeon2 gyro = new Pigeon2(Constants.DriveConstants.PIGEON_ID, "rio");
@@ -122,7 +121,7 @@ public class PoseSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         LimelightHelpers.PoseEstimate limelightMeasurement;
-        if (DSUtil.isTestMode() || DSUtil.isRedAlliance()){
+        if (DSAndFieldUtil.isTestMode() || DSAndFieldUtil.isRedAlliance()){
              limelightMeasurement= LimelightHelpers.getBotPoseEstimate_wpiRed("");
         }
         else{
@@ -149,8 +148,8 @@ public class PoseSubsystem extends SubsystemBase {
         OldL = l.getAsDouble();
         OldR = r.getAsDouble();
 
-        DSUtil.FIELD.setRobotPose(addPose(m_poseEstimator.getEstimatedPosition(),INITIAL_POSE));
-        SmartDashboard.putData("Field", DSUtil.FIELD);
+        DSAndFieldUtil.FIELD.setRobotPose(addPose(m_poseEstimator.getEstimatedPosition(),INITIAL_POSE));
+        SmartDashboard.putData("Field", DSAndFieldUtil.FIELD);
 
     }
 }

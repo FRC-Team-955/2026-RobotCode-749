@@ -65,11 +65,11 @@ public class CANDriveSubsystem extends SubsystemBase {
 
     DifferentialDrivetrainSim drivetrainSim = new DifferentialDrivetrainSim(
             DCMotor.getNEO(2),       // 2 NEO motors on each side of the drivetrain.
-            7.29,                    // 7.29:1 gearing reduction.
-            7.5,                     // MOI of 7.5 kg m^2 (from CAD model).
-            60.0,                    // The mass of the robot is 60 kg.
+            8.45,                    //
+            7.5,                     // MOI from CAD??
+            30.0,                    // The mass of the robot is 30 kg.
             Units.inchesToMeters(3), // The robot uses 3" radius wheels.
-            0.7112,                  // The track width is 0.7112 meters.
+            DBASE_WIDTH,                  // The track width is 0.7112 meters.
             // The standard deviations for measurement noise:
             // x and y:          0.001 m
             // heading:          0.001 rad
@@ -207,43 +207,9 @@ public class CANDriveSubsystem extends SubsystemBase {
     }
 
 
-    public void followTrajectory(Optional<DifferentialSample> samples) {
-        // Get the current pose of the robot
-        DifferentialSample sample = samples.orElse(new choreo.trajectory.DifferentialSample(0,0,0,0,0,0,0,0,0,0,0,0));
-
-        // Get the velocity feedforward specified by the sample
-        ChassisSpeeds ff = sample.getChassisSpeeds();
-
-        // Generate the next speeds for the robot
-        ChassisSpeeds speeds = controller.calculate(
-                ps.getPose(),
-                sample.getPose(),
-                ff.vxMetersPerSecond,
-                ff.omegaRadiansPerSecond
-        );
 
 
 
-
-        // Apply the generated speeds
-        DifferentialDriveWheelSpeeds wheelSpeeds = kinematics.toWheelSpeeds(speeds); //
-        drive.tankDrive(wheelSpeeds.leftMetersPerSecond, wheelSpeeds.rightMetersPerSecond);
-    }
-
-    private boolean isRedAlliance() {
-        return DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue).equals(DriverStation.Alliance.Red);
-    }
-    public void goPath(Optional<Trajectory<DifferentialSample>> trajectory, Timer timer){
-        if (trajectory.isPresent()) {
-            // Sample the trajectory at the current time into the autonomous period
-            Optional<DifferentialSample> sample = trajectory.get().sampleAt(timer.get(), isRedAlliance());
-
-            if (sample.isPresent()) {
-                this.followTrajectory(sample);
-            }
-        }
-
-    }
 
     public void resetOdometry(Pose2d p){
         ps.resetOdometry(p);
@@ -293,20 +259,24 @@ public class CANDriveSubsystem extends SubsystemBase {
         return run(()->funcDriveAtTargetPose(target)).until(()->isAtPose(ps.getPose(),target)).finallyDo(() -> drive.tankDrive(0, 0));
     }
 
-
+    private int simOutTs = 1000;
+    private int counter=0;
     public void simulationPeriodic() {
+        counter++;
         // Set the inputs to the system. Note that we need to convert
-        // the [-1, 1] PWM signal to voltage by multiplying it by the
-        // robot controller voltage.
         drivetrainSim.setInputs(leftLeader.get() * RobotController.getInputVoltage(),
                 rightLeader.get() * RobotController.getInputVoltage());
         // Advance the model by 20 ms. Note that if you are running this
         // subsystem in a separate thread or have changed the nominal timestep
         // of TimedRobot, this value needs to match it.
         drivetrainSim.update(0.02);
-        System.out.println("Left output: " + leftLeader.get());
-        System.out.println("Right output: " + rightLeader.get());
-        // Update all of our sensors.
+
+        if(counter==simOutTs) {
+            System.out.println("Left output: " + leftLeader.get());
+            System.out.println("Right output: " + rightLeader.get());
+            counter = 0;
+        }
+
 
         if(m_leftEncoderSim == null || m_rightEncoderSim==null){
             System.out.println("IDIOT. CALL ARIN AND TELL HIM TO GET A BRAIN");

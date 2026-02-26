@@ -3,11 +3,12 @@ package frc.robot;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 
 // Just a class to contain annoying functions we dont wanna put everywhere related to game state!
 // Also for stuff to be put on DS, to be accessd all over in the code
-public class DSUtil {
+public class DSAndFieldUtil {
     public static final Field2d FIELD = new Field2d();
     public static Pose2d addPose(Pose2d a, Pose2d b){
         return new Pose2d(a.getX()+b.getX(), a.getY()+b.getY(), new Rotation2d(a.getRotation().getRadians()+b.getRotation().getRadians()));
@@ -24,6 +25,10 @@ public class DSUtil {
 
     public static boolean isTestMode(){
         return DriverStation.isTestEnabled();
+    }
+
+    public static boolean isSim(){
+        return RobotBase.isSimulation();
     }
 
 
