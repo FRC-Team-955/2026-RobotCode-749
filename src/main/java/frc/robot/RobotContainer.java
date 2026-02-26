@@ -124,8 +124,8 @@ public class RobotContainer {
         if (DSAndFieldUtil.isSim()) {
             driveSubsystem.setDefaultCommand(
             driveSubsystem.driveArcade(
-                    () -> driverController.getRawAxis(1) * DRIVE_SCALING,
-                    () -> driverController.getRawAxis(0) * ROTATION_SCALING
+                    () -> -driverController.getRawAxis(1) * DRIVE_SCALING,
+                    () -> -driverController.getRawAxis(0) * ROTATION_SCALING
             ));
         }
         else{
