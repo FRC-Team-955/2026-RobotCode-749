@@ -68,14 +68,14 @@ public class CANDriveSubsystem extends SubsystemBase {
     double lSetPoint;
     double rSetPoint;
 
-
+/// TODO: TUNE THIS
     DifferentialDrivetrainSim drivetrainSim = new DifferentialDrivetrainSim(
             DCMotor.getNEO(2),       // 2 NEO motors on each side of the drivetrain.
             8.45,                    //
             7.5,                     // MOI from CAD??
-            30.0,                    // The mass of the robot is 70 kg.
+            30.0,                    // The mass of the robot is not 30 kg.
             Units.inchesToMeters(3), // The robot uses 3" radius wheels.
-            DBASE_WIDTH,                  //
+            DBASE_WIDTH,                  // what u think it is
             // The standard deviations for measurement noise:
             // x and y:          0.001 m
             // heading:          0.001 rad

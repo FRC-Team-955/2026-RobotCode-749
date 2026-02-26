@@ -60,7 +60,7 @@ public class RobotContainer {
 
 
 
-    poseSubsystem.resetOdometry(INITIAL_POSE);  /// <-------------- tune this one!
+    poseSubsystem.resetOdometry(INITIAL_POSE);  /// TODO: TUNE THIS
 
 
         configureBindings(); //controller bindings
