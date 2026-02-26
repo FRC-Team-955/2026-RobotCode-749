@@ -33,24 +33,30 @@ public final class Autos {
                 ballSubsystem.runOnce(() -> ballSubsystem.stop()));
     }
 
+    public static Command nothingAuto(CANDriveSubsystem driveSubsystem, CANFuelSubsystem ballSubsystem) {
+        return new SequentialCommandGroup(
+          driveSubsystem.resetPIDSetpoints()
+        );
+    }
+
     public static Command PIDAuto(CANDriveSubsystem driveSubsystem, CANFuelSubsystem ballSubsystem) {
         return new SequentialCommandGroup(
-                driveSubsystem.setPIDSetpoints(() -> 1, () -> -1), //???????????? signs????? magnitude?????
-                driveSubsystem.autoDrivePID()
+                driveSubsystem.setPIDSetpoints(() -> -1, () -> -1), // same sign i think
+                driveSubsystem.autoDrivePID(() -> driveSubsystem.leftLeader.getEncoder().getPosition(), () -> driveSubsystem.rightLeader.getEncoder().getPosition())
         );
     }
 
     public static Command PIDRotateHalf(CANDriveSubsystem driveSubsystem, CANFuelSubsystem ballSubsystem) {
         return new SequentialCommandGroup(
                 driveSubsystem.setPIDSetpoints(() -> 0.5, () -> 0.5),
-                driveSubsystem.autoDrivePID()
+                driveSubsystem.autoDrivePID(() -> driveSubsystem.leftLeader.getEncoder().getPosition(), () -> driveSubsystem.rightLeader.getEncoder().getPosition())
         );
     }
 
     public static Command boringAuto(CANDriveSubsystem driveSubsystem, CANFuelSubsystem ballSubsystem) {
         return new SequentialCommandGroup(
                driveSubsystem.setPIDSetpoints(() -> -3, () -> -3),
-          driveSubsystem.autoDrivePID(),
+          driveSubsystem.autoDrivePID(() -> driveSubsystem.leftLeader.getEncoder().getPosition(), () -> driveSubsystem.rightLeader.getEncoder().getPosition()),
           ballSubsystem.spinUpCommand().until(() -> ballSubsystem.isAtSpeed()),
           ballSubsystem.launchCommand().withTimeout(2),
                 ballSubsystem.runOnce(() -> ballSubsystem.stop())

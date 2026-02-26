@@ -47,7 +47,6 @@ public class Robot extends TimedRobot {
     // and put our
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer(fuelSubsystem, driveSubsystem, poseSubsystem);
-      driveSubsystem.resetPIDSetpoints();
     // Used to track usage of Kitbot code, please do not remove.
     HAL.report(tResourceType.kResourceType_Framework, 10);
 
@@ -95,7 +94,7 @@ public class Robot extends TimedRobot {
   public void autonomousInit() {
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
     fuelSubsystem.setCoastMode();
-
+    driveSubsystem.resetPIDSetpoints();
     // schedule the autonomous command (example)
     if (m_autonomousCommand != null) {
       CommandScheduler.getInstance().schedule(m_autonomousCommand);
@@ -110,6 +109,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopInit() {
+      driveSubsystem.resetPIDSetpoints();
     // This makes sure that the autonomous stops running when
     // teleop starts running. If you want the autonomous to
     // continue until interrupted by another command, remove

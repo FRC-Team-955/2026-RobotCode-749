@@ -45,10 +45,10 @@ import static frc.robot.Constants.DriveConstants.*;
 
 
 public class CANDriveSubsystem extends SubsystemBase {
-    private final SparkMax leftLeader;
-    private final SparkMax leftFollower;
-    private final SparkMax rightLeader;
-    private final SparkMax rightFollower;
+    public final SparkMax leftLeader; // maybe other way to do this than make it public
+    public final SparkMax leftFollower; // needs to be public for auto stuff
+    public final SparkMax rightLeader; // so we can give auto a doublesupplier as an input
+    public final SparkMax rightFollower;
 
     private SparkRelativeEncoderSim m_leftEncoderSim;
     private SparkRelativeEncoderSim m_rightEncoderSim;
@@ -183,8 +183,8 @@ public class CANDriveSubsystem extends SubsystemBase {
 
     public Command resetPIDSetpoints(){
         return this.runOnce(() -> {
-            lSetPoint = leftLeader.getEncoder().getPosition()/ENCODER_UNITS_PER_METER;
-            rSetPoint = rightLeader.getEncoder().getPosition()/ENCODER_UNITS_PER_METER;
+            lSetPoint = 0;
+            rSetPoint = 0;
         });
     }
 
@@ -195,13 +195,13 @@ public class CANDriveSubsystem extends SubsystemBase {
         );
     }
 
-    public Command autoDrivePID() {
+    public Command autoDrivePID(DoubleSupplier leftEncoder, DoubleSupplier rightEncoder) {
         return this.run(() -> {
-            drive.tankDrive(MathUtil.clamp(PID_CONSTANT * (lSetPoint - leftLeader.getEncoder().getPosition()/ENCODER_UNITS_PER_METER), -1 * PID_DRIVE_CAP, PID_DRIVE_CAP),
-                    MathUtil.clamp(PID_CONSTANT * (rSetPoint - rightLeader.getEncoder().getPosition()/ENCODER_UNITS_PER_METER), -1 * PID_DRIVE_CAP, PID_DRIVE_CAP));
+            drive.tankDrive(MathUtil.clamp(PID_CONSTANT * (lSetPoint - leftEncoder.getAsDouble()/ENCODER_UNITS_PER_METER), -1 * PID_DRIVE_CAP, PID_DRIVE_CAP),
+                    MathUtil.clamp(PID_CONSTANT * (rSetPoint - rightEncoder.getAsDouble()/ENCODER_UNITS_PER_METER), -1 * PID_DRIVE_CAP, PID_DRIVE_CAP));
         }).until(() -> {
-            double lDiff = Math.abs(leftLeader.getEncoder().getPosition()/ENCODER_UNITS_PER_METER-lSetPoint);
-            double rDiff = Math.abs(rightLeader.getEncoder().getPosition()/ENCODER_UNITS_PER_METER-rSetPoint);
+            double lDiff = Math.abs(leftEncoder.getAsDouble()/ENCODER_UNITS_PER_METER-lSetPoint);
+            double rDiff = Math.abs(rightEncoder.getAsDouble()/ENCODER_UNITS_PER_METER-rSetPoint);
             return lDiff < 0.1 && rDiff < 0.1;
         });
     }
