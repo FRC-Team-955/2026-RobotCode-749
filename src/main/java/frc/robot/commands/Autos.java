@@ -41,6 +41,7 @@ public final class Autos {
 
     public static Command PIDAuto(CANDriveSubsystem driveSubsystem, CANFuelSubsystem ballSubsystem) {
         return new SequentialCommandGroup(
+                driveSubsystem.resetPIDSetpoints(),
                 driveSubsystem.setPIDSetpoints(() -> -1, () -> -1), // same sign i think
                 driveSubsystem.autoDrivePID(() -> driveSubsystem.leftLeader.getEncoder().getPosition(), () -> driveSubsystem.rightLeader.getEncoder().getPosition())
         );
@@ -65,8 +66,11 @@ public final class Autos {
 
     public static Command weakShoot(CANDriveSubsystem driveSubsystem, CANFuelSubsystem ballSubsystem) {
         return new SequentialCommandGroup(
+                driveSubsystem.resetPIDSetpoints(),
+                driveSubsystem.setPIDSetpoints(() -> -0.5, () -> -0.5),
+                driveSubsystem.autoDrivePID(() -> driveSubsystem.leftLeader.getEncoder().getPosition(), () -> driveSubsystem.rightLeader.getEncoder().getPosition()).withTimeout(2),
              ballSubsystem.spinUpWeakCommand().until(() -> ballSubsystem.isAtWeakSpeed()),
-                ballSubsystem.weakLaunchCommand().withTimeout(2),
+                ballSubsystem.weakLaunchCommand().withTimeout(4),
                 ballSubsystem.runOnce(() -> ballSubsystem.stop())
         );
     }
