@@ -166,7 +166,7 @@ public class CANFuelSubsystem extends SubsystemBase {
           System.out.print("SS Sim Shot: ");
           System.out.println(-shooterWheels.getVelocity().getValueAsDouble());
       }
-      ArrayList<Pose3d> a = SS.SimShot(-shooterWheels.getVelocity().getValueAsDouble(), DSAndFieldUtil.GLOBAL_POSE,0,0);
+      ArrayList<Pose3d> a = SS.SimShot(-shooterWheels.getVelocity().getValueAsDouble()+DSAndFieldUtil.GLOBAL_POSE.getX(), DSAndFieldUtil.GLOBAL_POSE,0,0);
       arrayPublisher.set( a.toArray(new Pose3d[0]));
   }
 }
