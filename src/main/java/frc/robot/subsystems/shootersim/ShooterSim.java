@@ -15,12 +15,12 @@ public class ShooterSim {
     InterpolationTable AngularVelocityLaunchAngle = new InterpolationTable();
     public ShooterSim(){
         AngularVelocityToLandingPt.add(0,0);
-        AngularVelocityToLandingPt.add(40,2.2);
-        AngularVelocityToLandingPt.add(58,3.9); //meters!
+        AngularVelocityToLandingPt.add(40,2.72); //107 in
+        AngularVelocityToLandingPt.add(58,4.06); //meters!  160 in
 
         AngularVelocityLaunchAngle.add(0,Math.PI/2);
-        AngularVelocityLaunchAngle.add(40,Math.PI/2-Math.PI/5);
-        AngularVelocityLaunchAngle.add(58,Math.PI/2-Math.PI/7);
+        AngularVelocityLaunchAngle.add(40,Math.PI/2-Math.toRadians(30)); //29/31 deg
+        AngularVelocityLaunchAngle.add(58,Math.PI/2-Math.toRadians(24)); //23/25 deg off vertical?!
     }
 
 

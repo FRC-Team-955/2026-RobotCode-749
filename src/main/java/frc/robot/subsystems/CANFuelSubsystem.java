@@ -162,8 +162,13 @@ public class CANFuelSubsystem extends SubsystemBase {
       SmartDashboard.putNumber("Shooter Velocity", -shooterWheels.getVelocity().getValueAsDouble()); // 58 running, ~61(?) for spinup
       SmartDashboard.putNumber("Shooter Encoder", -shooterWheels.getPosition().getValueAsDouble());
 
-
-      ArrayList<Pose3d> a = SS.SimShot(68, DSAndFieldUtil.GLOBAL_POSE,ROBOT_VX,ROBOT_VY);
-      arrayPublisher.set( a.toArray(new Pose3d[0]));
+      if (!isSim()) {
+          ArrayList<Pose3d> a = SS.SimShot(Math.abs(shooterWheels.getVelocity().getValueAsDouble()), DSAndFieldUtil.GLOBAL_POSE, ROBOT_VX, ROBOT_VY);
+          arrayPublisher.set(a.toArray(new Pose3d[0]));
+      }
+      else{
+          ArrayList<Pose3d> a = SS.SimShot(68, DSAndFieldUtil.GLOBAL_POSE, ROBOT_VX, ROBOT_VY);
+          arrayPublisher.set(a.toArray(new Pose3d[0]));
+      }
   }
 }
