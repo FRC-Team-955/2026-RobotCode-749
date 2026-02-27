@@ -10,17 +10,17 @@ public class ShooterSim {
     private double SHOOTER_X = 0.5; //offset from middle of robot
     private double SHOOTER_Y = 0;
     private double SHOOTER_Z = 0.4;
-    private double SHOOTER_LAUNCH_THETA = Math.PI/2 - Math.toRadians(4); //Radians from horiz!
-    InterpolationTable AngularVelocityToLandingPt = new InterpolationTable(); // this thing is meant to track angular velocity vs landing point!
-    InterpolationTable AngularVelocityLaunchAngle = new InterpolationTable();
+
+    InterpolationTable AngularVelocityToLandingPt = new InterpolationTable(); // track angular velocity -> landing point!
+    InterpolationTable AngularVelocityLaunchAngle = new InterpolationTable(); // track angular velocity -> launch angle
     public ShooterSim(){
         AngularVelocityToLandingPt.add(0,0);
         AngularVelocityToLandingPt.add(40,2.72); //107 in
         AngularVelocityToLandingPt.add(58,4.06); //meters!  160 in
 
         AngularVelocityLaunchAngle.add(0,Math.PI/2);
-        AngularVelocityLaunchAngle.add(40,Math.PI/2-Math.toRadians(30)); //29/31 deg
-        AngularVelocityLaunchAngle.add(58,Math.PI/2-Math.toRadians(24)); //23/25 deg off vertical?!
+        AngularVelocityLaunchAngle.add(40,Math.PI/2-Math.toRadians(30)); //
+        AngularVelocityLaunchAngle.add(58,Math.PI/2-Math.toRadians(24)); //23/25 deg off vertical
     }
 
 
