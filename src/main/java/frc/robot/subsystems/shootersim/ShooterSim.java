@@ -38,7 +38,7 @@ public class ShooterSim {
 
 
         // Voltage to horizontal range along shot
-        double b = x + Table.getLinear(voltage); // b = x + range along shot direction
+        double b = x + Table.getPoly(voltage); // b = x + range along shot direction
 
         // Precompute launch velocity from derived formula
         double dx = b - x;
