@@ -8,7 +8,8 @@ import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -17,8 +18,10 @@ import java.util.function.DoubleSupplier;
 
 
 import com.ctre.phoenix6.hardware.Pigeon2;
-import frc.robot.DSUtil;
+import frc.robot.DSAndFieldUtil;
 import frc.robot.LimelightHelpers;
+
+import static frc.robot.DSAndFieldUtil.*;
 
 public class PoseSubsystem extends SubsystemBase {
     Pigeon2 gyro = new Pigeon2(Constants.DriveConstants.PIGEON_ID, "rio");
@@ -114,12 +117,14 @@ public class PoseSubsystem extends SubsystemBase {
     }
 
 
+    StructPublisher<Pose2d> publisher = NetworkTableInstance.getDefault()
+            .getStructTopic("Pose", Pose2d.struct).publish();
 
     //update loop event
     @Override
     public void periodic() {
         LimelightHelpers.PoseEstimate limelightMeasurement;
-        if (DSUtil.isTestMode() || DSUtil.isRedAlliance()){
+        if (DSAndFieldUtil.isTestMode() || DSAndFieldUtil.isRedAlliance()){
              limelightMeasurement= LimelightHelpers.getBotPoseEstimate_wpiRed("");
         }
         else{
@@ -146,8 +151,23 @@ public class PoseSubsystem extends SubsystemBase {
         OldL = l.getAsDouble();
         OldR = r.getAsDouble();
 
-        DSUtil.FIELD.setRobotPose(m_poseEstimator.getEstimatedPosition());
-        SmartDashboard.putData("Field", DSUtil.FIELD);
+        if(!isSim()) {
+            publisher.set(m_poseEstimator.getEstimatedPosition());
+            GLOBAL_POSE = m_poseEstimator.getEstimatedPosition();
+
+
+            double vel = ((r.getAsDouble()-OldR)/Constants.DriveConstants.ENCODER_UNITS_PER_METER+(l.getAsDouble()-OldL)/Constants.DriveConstants.ENCODER_UNITS_PER_METER)/0.04; //TEST THISSSSS
+            DSAndFieldUtil.ROBOT_VX = vel*Math.cos(DSAndFieldUtil.GLOBAL_POSE.getRotation().getRadians());
+            DSAndFieldUtil.ROBOT_VY = vel*Math.sin(DSAndFieldUtil.GLOBAL_POSE.getRotation().getRadians());
+
+        }
+
+
+
+
+
+
+
 
     }
 }

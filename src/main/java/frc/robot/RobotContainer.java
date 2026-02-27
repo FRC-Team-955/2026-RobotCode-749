@@ -4,14 +4,7 @@
 
 package frc.robot;
 
-import choreo.Choreo;
-import choreo.trajectory.DifferentialSample;
-import choreo.trajectory.Trajectory;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -19,16 +12,13 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
 
 import static frc.robot.Constants.OperatorConstants.*;
-import static frc.robot.Constants.FuelConstants.*;
-import static frc.robot.DSUtil.isRedAlliance;
+import static frc.robot.DSAndFieldUtil.INITIAL_POSE;
 
 import frc.robot.commands.Autos;
 import frc.robot.subsystems.CANClimberSubsystem;
 import frc.robot.subsystems.CANDriveSubsystem;
 import frc.robot.subsystems.CANFuelSubsystem;
 import frc.robot.subsystems.PoseSubsystem;
-
-import java.util.Optional;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -69,8 +59,8 @@ public class RobotContainer {
     this.poseSubsystem = poseSubsystem;
 
 
-    Pose2d INITIAL_POSE = new Pose2d(); /// <<----------------------- CRITICAL TO BE TUNED!
-    poseSubsystem.resetOdometry(INITIAL_POSE);
+
+    poseSubsystem.resetOdometry(INITIAL_POSE);  /// TODO: TUNE THIS
 
 
         configureBindings(); //controller bindings
@@ -129,11 +119,22 @@ public class RobotContainer {
         // value). The X-axis is also inverted so a positive value (stick to the right)
         // results in clockwise rotation (front of the robot turning right). Both axes
         // are also scaled down so the rotation is more easily controllable.
-        driveSubsystem.setDefaultCommand(
 
-                driveSubsystem.driveArcade(
-                        () -> driverController.getLeftY() * DRIVE_SCALING,
-                        () -> driverController.getRightX() * ROTATION_SCALING));
+
+
+        if (DSAndFieldUtil.isSim()) {
+            driveSubsystem.setDefaultCommand(
+            driveSubsystem.driveArcade(
+                    () -> -driverController.getRawAxis(1) * DRIVE_SCALING,
+                    () -> -driverController.getRawAxis(0) * ROTATION_SCALING
+            ));
+        }
+        else{
+            driveSubsystem.setDefaultCommand(
+            driveSubsystem.driveArcade(
+                    () -> driverController.getLeftY() * DRIVE_SCALING,
+                    () -> driverController.getRightX() * ROTATION_SCALING));
+        }
 
 
 /*

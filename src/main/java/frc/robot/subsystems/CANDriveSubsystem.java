@@ -4,10 +4,7 @@
 
 package frc.robot.subsystems;
 
-import java.util.Optional;
 import java.util.function.DoubleSupplier;
-
-import choreo.trajectory.*; // dumb all include
 
 
 import com.revrobotics.sim.SparkRelativeEncoderSim;
@@ -27,21 +24,21 @@ import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Encoder;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim;
-import edu.wpi.first.wpilibj.simulation.EncoderSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.DSAndFieldUtil;
 
 import static edu.wpi.first.wpilibj.drive.DifferentialDrive.arcadeDriveIK;
 import static frc.robot.Constants.DriveConstants.*;
+import static frc.robot.DSAndFieldUtil.isSim;
 
 
 public class CANDriveSubsystem extends SubsystemBase {
@@ -62,20 +59,21 @@ public class CANDriveSubsystem extends SubsystemBase {
     double lSetPoint;
     double rSetPoint;
 
-
+/// TODO: TUNE THIS
     DifferentialDrivetrainSim drivetrainSim = new DifferentialDrivetrainSim(
             DCMotor.getNEO(2),       // 2 NEO motors on each side of the drivetrain.
-            7.29,                    // 7.29:1 gearing reduction.
-            7.5,                     // MOI of 7.5 kg m^2 (from CAD model).
-            60.0,                    // The mass of the robot is 60 kg.
+            8.45,                    //
+            4,                     // MOI from CAD??
+            29.76,                    // The mass of the robot is not 30 kg.
             Units.inchesToMeters(3), // The robot uses 3" radius wheels.
-            0.7112,                  // The track width is 0.7112 meters.
+            DBASE_WIDTH,                  // what u think it is
             // The standard deviations for measurement noise:
             // x and y:          0.001 m
             // heading:          0.001 rad
             // l and r velocity: 0.1   m/s
             // l and r position: 0.005 m
-            VecBuilder.fill(0.001, 0.001, 0.001, 0.1, 0.1, 0.005, 0.005));
+            VecBuilder.fill(0.00001, 0.00001, 0.001, 0.01, 0.01, 0.005, 0.005)); //smaller number makes sim tweak out less
+
 
 
     public CANDriveSubsystem(PoseSubsystem ps) {
@@ -142,6 +140,7 @@ public class CANDriveSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("rightFollowerEncoder", rightFollower.getEncoder().getPosition()); // shouldn't be needed, just here to make sure
         SmartDashboard.putNumber("leftSetPoint", lSetPoint);
         SmartDashboard.putNumber("rightSetPoint", rSetPoint);
+
 
     }
 
@@ -220,43 +219,9 @@ public class CANDriveSubsystem extends SubsystemBase {
     }
 
 
-    public void followTrajectory(Optional<DifferentialSample> samples) {
-        // Get the current pose of the robot
-        DifferentialSample sample = samples.orElse(new choreo.trajectory.DifferentialSample(0,0,0,0,0,0,0,0,0,0,0,0));
-
-        // Get the velocity feedforward specified by the sample
-        ChassisSpeeds ff = sample.getChassisSpeeds();
-
-        // Generate the next speeds for the robot
-        ChassisSpeeds speeds = controller.calculate(
-                ps.getPose(),
-                sample.getPose(),
-                ff.vxMetersPerSecond,
-                ff.omegaRadiansPerSecond
-        );
 
 
 
-
-        // Apply the generated speeds
-        DifferentialDriveWheelSpeeds wheelSpeeds = kinematics.toWheelSpeeds(speeds); //
-        drive.tankDrive(wheelSpeeds.leftMetersPerSecond, wheelSpeeds.rightMetersPerSecond);
-    }
-
-    private boolean isRedAlliance() {
-        return DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue).equals(DriverStation.Alliance.Red);
-    }
-    public void goPath(Optional<Trajectory<DifferentialSample>> trajectory, Timer timer){
-        if (trajectory.isPresent()) {
-            // Sample the trajectory at the current time into the autonomous period
-            Optional<DifferentialSample> sample = trajectory.get().sampleAt(timer.get(), isRedAlliance());
-
-            if (sample.isPresent()) {
-                this.followTrajectory(sample);
-            }
-        }
-
-    }
 
     public void resetOdometry(Pose2d p){
         ps.resetOdometry(p);
@@ -306,27 +271,50 @@ public class CANDriveSubsystem extends SubsystemBase {
         return run(()->funcDriveAtTargetPose(target)).until(()->isAtPose(ps.getPose(),target)).finallyDo(() -> drive.tankDrive(0, 0));
     }
 
+    private int simOutTs = 100;
+    private int counter=0;
+    StructPublisher<Pose2d> publisher = NetworkTableInstance.getDefault()
+            .getStructTopic("SimPose", Pose2d.struct).publish();
+
 
     public void simulationPeriodic() {
+        counter++;
+
         // Set the inputs to the system. Note that we need to convert
-        // the [-1, 1] PWM signal to voltage by multiplying it by the
-        // robot controller voltage.
         drivetrainSim.setInputs(leftLeader.get() * RobotController.getInputVoltage(),
                 rightLeader.get() * RobotController.getInputVoltage());
         // Advance the model by 20 ms. Note that if you are running this
         // subsystem in a separate thread or have changed the nominal timestep
         // of TimedRobot, this value needs to match it.
         drivetrainSim.update(0.02);
-        // Update all of our sensors.
 
-        if(m_leftEncoderSim == null){
+
+
+        publisher.set(drivetrainSim.getPose());
+        DSAndFieldUtil.GLOBAL_POSE = drivetrainSim.getPose();
+        if(isSim()) {
+            double vel = (drivetrainSim.getRightVelocityMetersPerSecond()+drivetrainSim.getLeftVelocityMetersPerSecond())/2;
+            DSAndFieldUtil.ROBOT_VX = vel*Math.cos(DSAndFieldUtil.GLOBAL_POSE.getRotation().getRadians());
+            DSAndFieldUtil.ROBOT_VY = vel*Math.sin(DSAndFieldUtil.GLOBAL_POSE.getRotation().getRadians());
+        }
+
+
+
+        if(counter==simOutTs) {
+            System.out.println("Left output: " + leftLeader.get());
+            System.out.println("Right output: " + rightLeader.get());
+            counter = 0;
+        }
+
+
+        if(m_leftEncoderSim == null || m_rightEncoderSim==null){
             System.out.println("IDIOT. CALL ARIN AND TELL HIM TO GET A BRAIN");
         }
         else {
-            m_leftEncoderSim.setPosition(drivetrainSim.getLeftPositionMeters());
-            m_leftEncoderSim.setVelocity(drivetrainSim.getLeftVelocityMetersPerSecond());
-            m_rightEncoderSim.setPosition(drivetrainSim.getRightPositionMeters());
-            m_rightEncoderSim.setVelocity(drivetrainSim.getRightVelocityMetersPerSecond());
+            m_leftEncoderSim.setPosition(drivetrainSim.getLeftPositionMeters()*ENCODER_UNITS_PER_METER);
+            m_leftEncoderSim.setVelocity(drivetrainSim.getLeftVelocityMetersPerSecond()*ENCODER_UNITS_PER_METER);
+            m_rightEncoderSim.setPosition(drivetrainSim.getRightPositionMeters()*ENCODER_UNITS_PER_METER);
+            m_rightEncoderSim.setVelocity(drivetrainSim.getRightVelocityMetersPerSecond()*ENCODER_UNITS_PER_METER);
         }
     }
 
