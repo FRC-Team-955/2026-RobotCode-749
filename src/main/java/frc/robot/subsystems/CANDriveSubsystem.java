@@ -38,6 +38,7 @@ import frc.robot.DSAndFieldUtil;
 
 import static edu.wpi.first.wpilibj.drive.DifferentialDrive.arcadeDriveIK;
 import static frc.robot.Constants.DriveConstants.*;
+import static frc.robot.DSAndFieldUtil.isSim;
 
 
 public class CANDriveSubsystem extends SubsystemBase {
@@ -139,6 +140,7 @@ public class CANDriveSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("rightFollowerEncoder", rightFollower.getEncoder().getPosition()); // shouldn't be needed, just here to make sure
         SmartDashboard.putNumber("leftSetPoint", lSetPoint);
         SmartDashboard.putNumber("rightSetPoint", rSetPoint);
+
 
     }
 
@@ -277,6 +279,12 @@ public class CANDriveSubsystem extends SubsystemBase {
 
         publisher.set(drivetrainSim.getPose());
         DSAndFieldUtil.GLOBAL_POSE = drivetrainSim.getPose();
+        if(isSim()) {
+            double vel = (drivetrainSim.getRightVelocityMetersPerSecond()+drivetrainSim.getLeftVelocityMetersPerSecond())/2;
+            DSAndFieldUtil.ROBOT_VX = vel*Math.cos(DSAndFieldUtil.GLOBAL_POSE.getRotation().getRadians());
+            DSAndFieldUtil.ROBOT_VY = vel*Math.sin(DSAndFieldUtil.GLOBAL_POSE.getRotation().getRadians());
+        }
+
 
 
         if(counter==simOutTs) {

@@ -16,6 +16,8 @@ public class DSAndFieldUtil {
     }
     public static Pose2d INITIAL_POSE = new Pose2d(4,4,new Rotation2d());
     public static Pose2d GLOBAL_POSE =INITIAL_POSE;
+    public static double ROBOT_VX=0;
+    public static double ROBOT_VY = 0;
 
     public static boolean isRedAlliance() {
         return DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue).equals(DriverStation.Alliance.Red);
