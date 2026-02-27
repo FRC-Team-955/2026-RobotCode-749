@@ -7,9 +7,9 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import java.util.ArrayList;
 
 public class ShooterSim {
-    private double SHOOTER_X = 0.5; //offset from middle of robot
+    private double SHOOTER_X = 0.347; //meters offset from middle of robot?
     private double SHOOTER_Y = 0;
-    private double SHOOTER_Z = 0.4;
+    private double SHOOTER_Z = 0.43;
 
     InterpolationTable AngularVelocityToLandingPt = new InterpolationTable(); // track angular velocity -> landing point!
     InterpolationTable AngularVelocityLaunchAngle = new InterpolationTable(); // track angular velocity -> launch angle
@@ -26,8 +26,8 @@ public class ShooterSim {
 
     public ArrayList<Pose3d> SimShot(double angV, Pose2d robotPose, double robot_vx, double robot_vy){
         ///  yup I did the math https://artofproblemsolving.com/texer/fofuwvgw
-        double dt = 0.031415; // I felt like it, OK?!
-        double g = 9.81;
+        double dt = 0.02; // 
+        double g = 9.81; //m/s^2
         ArrayList<Pose3d> Poses = new ArrayList<Pose3d>();
 
         double alpha = robotPose.getRotation().getRadians();
