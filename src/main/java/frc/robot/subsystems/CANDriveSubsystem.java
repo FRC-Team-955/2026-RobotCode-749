@@ -45,10 +45,10 @@ import static frc.robot.Constants.DriveConstants.*;
 
 
 public class CANDriveSubsystem extends SubsystemBase {
-    public final SparkMax leftLeader; // maybe other way to do this than make it public
-    public final SparkMax leftFollower; // needs to be public for auto stuff
-    public final SparkMax rightLeader; // so we can give auto a doublesupplier as an input
-    public final SparkMax rightFollower;
+    private final SparkMax leftLeader;
+    private final SparkMax leftFollower;
+    private final SparkMax rightLeader;
+    private final SparkMax rightFollower;
 
     private SparkRelativeEncoderSim m_leftEncoderSim;
     private SparkRelativeEncoderSim m_rightEncoderSim;
@@ -191,6 +191,14 @@ public class CANDriveSubsystem extends SubsystemBase {
             lSetPoint = leftLeader.getEncoder().getPosition()/ENCODER_UNITS_PER_METER;
             rSetPoint = rightLeader.getEncoder().getPosition()/ENCODER_UNITS_PER_METER;
         });
+    }
+
+    public DoubleSupplier giveLeftEncoder() {
+        return () -> leftLeader.getEncoder().getPosition();
+    }
+
+    public DoubleSupplier giveRightEncoder() {
+        return () -> rightLeader.getEncoder().getPosition();
     }
 
     public Command setPIDSetpoints(DoubleSupplier lPoint, DoubleSupplier rPoint) {
