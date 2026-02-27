@@ -19,8 +19,8 @@ public class ShooterSim {
         AngularVelocityToLandingPt.add(58,3.9); //meters!
 
         AngularVelocityLaunchAngle.add(0,Math.PI/2);
-        AngularVelocityLaunchAngle.add(40,Math.PI/2-Math.PI/6);
-        AngularVelocityLaunchAngle.add(58,Math.PI/2-Math.PI/9);
+        AngularVelocityLaunchAngle.add(40,Math.PI/2-Math.PI/5);
+        AngularVelocityLaunchAngle.add(58,Math.PI/2-Math.PI/7);
     }
 
 
