@@ -296,6 +296,9 @@ public class CANDriveSubsystem extends SubsystemBase {
             double vel = (drivetrainSim.getRightVelocityMetersPerSecond()+drivetrainSim.getLeftVelocityMetersPerSecond())/2;
             DSAndFieldUtil.ROBOT_VX = vel*Math.cos(DSAndFieldUtil.GLOBAL_POSE.getRotation().getRadians());
             DSAndFieldUtil.ROBOT_VY = vel*Math.sin(DSAndFieldUtil.GLOBAL_POSE.getRotation().getRadians());
+
+            System.out.print("SIM VX: ");
+            System.out.println(DSAndFieldUtil.ROBOT_VX);
         }
 
 
