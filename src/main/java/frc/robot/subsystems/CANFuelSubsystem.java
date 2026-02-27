@@ -24,6 +24,7 @@ import frc.robot.subsystems.shootersim.ShooterSim;
 import java.util.ArrayList;
 
 import static frc.robot.Constants.FuelConstants.*;
+import static frc.robot.DSAndFieldUtil.isSim;
 
 @SuppressWarnings("removal") //weird deprecation warning. As all programmers know, suppressing errors is better than fixing them
 public class CANFuelSubsystem extends SubsystemBase {
@@ -97,6 +98,9 @@ public class CANFuelSubsystem extends SubsystemBase {
     intakeLauncherRoller
         .setVoltage(SmartDashboard.getNumber("Launching launcher roller value", LAUNCHING_LAUNCHER_VOLTAGE));
       shooterWheels.setVoltage(SHOOTER_LAUNCH_VOLTAGE); ///brake mode makes this stop
+      if(isSim()){
+          System.out.println("ARIN IS NOT DUMB");
+      }
   }
 
     public void weakLaunch() {
@@ -158,7 +162,11 @@ public class CANFuelSubsystem extends SubsystemBase {
       SmartDashboard.putNumber("Shooter Velocity", -shooterWheels.getVelocity().getValueAsDouble()); // 58 running, ~61(?) for spinup
       SmartDashboard.putNumber("Shooter Encoder", -shooterWheels.getPosition().getValueAsDouble());
 
-      ArrayList<Pose3d> a = SS.SimShot(-SHOOTER_LAUNCH_VOLTAGE, DSAndFieldUtil.GLOBAL_POSE,0,0);
+      if(isSim()) {
+          System.out.print("SS Sim Shot: ");
+          System.out.println(-shooterWheels.getVelocity().getValueAsDouble());
+      }
+      ArrayList<Pose3d> a = SS.SimShot(-shooterWheels.getVelocity().getValueAsDouble(), DSAndFieldUtil.GLOBAL_POSE,0,0);
       arrayPublisher.set( a.toArray(new Pose3d[0]));
   }
 }
