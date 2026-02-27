@@ -10,15 +10,21 @@ public class ShooterSim {
     private double SHOOTER_X = 0.5; //offset from middle of robot
     private double SHOOTER_Y = 0;
     private double SHOOTER_Z = 0.4;
-    private double SHOOTER_LAUNCH_THETA = 2*Math.PI/5; //Radians from horiz!
-    InterpolationTable Table = new InterpolationTable(); // this thing is meant to track angular velocity vs landing point!
+    private double SHOOTER_LAUNCH_THETA = Math.PI/2 - Math.toRadians(4); //Radians from horiz!
+    InterpolationTable AngularVelocityToLandingPt = new InterpolationTable(); // this thing is meant to track angular velocity vs landing point!
+    InterpolationTable AngularVelocityLaunchAngle = new InterpolationTable();
     public ShooterSim(){
-        Table.add(0,0);
-        Table.add(60,15); //meters
+        AngularVelocityToLandingPt.add(0,0);
+        AngularVelocityToLandingPt.add(40,2.2);
+        AngularVelocityToLandingPt.add(58,3.9); //meters!
+
+        AngularVelocityLaunchAngle.add(0,Math.PI/2);
+        AngularVelocityLaunchAngle.add(40,Math.PI/2-Math.PI/6);
+        AngularVelocityLaunchAngle.add(58,Math.PI/2-Math.PI/9);
     }
 
 
-    public ArrayList<Pose3d> SimShot(double voltage, Pose2d robotPose, double robot_vx, double robot_vy){
+    public ArrayList<Pose3d> SimShot(double angV, Pose2d robotPose, double robot_vx, double robot_vy){
         ///  yup I did the math https://artofproblemsolving.com/texer/fofuwvgw
         double dt = 0.031415; // I felt like it, OK?!
         double g = 9.81;
@@ -34,11 +40,11 @@ public class ShooterSim {
         double x = robotPose.getX() + shooterOffsetX;
         double y = robotPose.getY() + shooterOffsetY;
         double h = SHOOTER_Z;
-        double theta = SHOOTER_LAUNCH_THETA;
+        double theta = AngularVelocityLaunchAngle.getPoly(angV);
 
 
         // Voltage to horizontal range along shot
-        double b = x + Table.getPoly(voltage); // b = x + range along shot direction
+        double b = x + AngularVelocityToLandingPt.getPoly(angV); // b = x + range along shot direction
 
         // Precompute launch velocity from derived formula
         double dx = b - x;
