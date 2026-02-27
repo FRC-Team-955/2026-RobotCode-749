@@ -210,12 +210,12 @@ public class CANDriveSubsystem extends SubsystemBase {
 
     public Command autoDrivePID(DoubleSupplier leftEncoder, DoubleSupplier rightEncoder) {
         return this.run(() -> {
-            drive.tankDrive(MathUtil.clamp(PID_CONSTANT * (lSetPoint - leftEncoder.getAsDouble()/ENCODER_UNITS_PER_METER), -1 * PID_DRIVE_CAP, PID_DRIVE_CAP),
-                    MathUtil.clamp(PID_CONSTANT * (rSetPoint - rightEncoder.getAsDouble()/ENCODER_UNITS_PER_METER), -1 * PID_DRIVE_CAP, PID_DRIVE_CAP));
+            drive.tankDrive(limit.calculate(MathUtil.clamp(PID_CONSTANT * (lSetPoint - leftEncoder.getAsDouble()/ENCODER_UNITS_PER_METER), -1 * PID_DRIVE_CAP, PID_DRIVE_CAP)),
+                    limit.calculate(MathUtil.clamp(PID_CONSTANT * (rSetPoint - rightEncoder.getAsDouble()/ENCODER_UNITS_PER_METER), -1 * PID_DRIVE_CAP, PID_DRIVE_CAP)));
         }).until(() -> {
             double lDiff = Math.abs(leftEncoder.getAsDouble()/ENCODER_UNITS_PER_METER-lSetPoint);
             double rDiff = Math.abs(rightEncoder.getAsDouble()/ENCODER_UNITS_PER_METER-rSetPoint);
-            return lDiff < 0.05 && rDiff < 0.05;
+            return lDiff < 0.1 && rDiff < 0.1;
         });
     }
 
