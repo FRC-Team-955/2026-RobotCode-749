@@ -155,12 +155,18 @@ public class PoseSubsystem extends SubsystemBase {
             publisher.set(m_poseEstimator.getEstimatedPosition());
             GLOBAL_POSE = m_poseEstimator.getEstimatedPosition();
 
-        }
-        if(isSim()) {
-            double vel = ((r.getAsDouble()-OldR)+l.getAsDouble()-OldL)/0.04; //TEST THISSSSS
+
+            double vel = ((r.getAsDouble()-OldR)/Constants.DriveConstants.ENCODER_UNITS_PER_METER+(l.getAsDouble()-OldL)/Constants.DriveConstants.ENCODER_UNITS_PER_METER)/0.04; //TEST THISSSSS
             DSAndFieldUtil.ROBOT_VX = vel*Math.cos(DSAndFieldUtil.GLOBAL_POSE.getRotation().getRadians());
             DSAndFieldUtil.ROBOT_VY = vel*Math.sin(DSAndFieldUtil.GLOBAL_POSE.getRotation().getRadians());
+
         }
+
+
+
+
+
+
 
 
     }

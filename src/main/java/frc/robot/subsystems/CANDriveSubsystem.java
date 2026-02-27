@@ -72,7 +72,7 @@ public class CANDriveSubsystem extends SubsystemBase {
             // heading:          0.001 rad
             // l and r velocity: 0.1   m/s
             // l and r position: 0.005 m
-            VecBuilder.fill(0.001, 0.001, 0.001, 0.1, 0.1, 0.005, 0.005));
+            VecBuilder.fill(0.00001, 0.00001, 0.001, 0.01, 0.01, 0.005, 0.005));
 
 
 
