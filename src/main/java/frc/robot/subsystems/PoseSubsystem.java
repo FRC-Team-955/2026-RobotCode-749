@@ -148,8 +148,7 @@ public class PoseSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("EPOS_dRE", r.getAsDouble()-OldR);
 
 
-        OldL = l.getAsDouble();
-        OldR = r.getAsDouble();
+
 
         if(!isSim()) {
             publisher.set(m_poseEstimator.getEstimatedPosition());
@@ -159,8 +158,13 @@ public class PoseSubsystem extends SubsystemBase {
             double vel = ((r.getAsDouble()-OldR)/Constants.DriveConstants.ENCODER_UNITS_PER_METER+(l.getAsDouble()-OldL)/Constants.DriveConstants.ENCODER_UNITS_PER_METER)/0.04; //TEST THISSSSS
             DSAndFieldUtil.ROBOT_VX = vel*Math.cos(DSAndFieldUtil.GLOBAL_POSE.getRotation().getRadians());
             DSAndFieldUtil.ROBOT_VY = vel*Math.sin(DSAndFieldUtil.GLOBAL_POSE.getRotation().getRadians());
+            System.out.print("VX: ");
+            System.out.println(DSAndFieldUtil.ROBOT_VX);
 
         }
+
+        OldL = l.getAsDouble();
+        OldR = r.getAsDouble();
 
 
 
