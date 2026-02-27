@@ -64,7 +64,7 @@ public class CANDriveSubsystem extends SubsystemBase {
             DCMotor.getNEO(2),       // 2 NEO motors on each side of the drivetrain.
             8.45,                    //
             4,                     // MOI from CAD??
-            30.0,                    // The mass of the robot is not 30 kg.
+            29.76,                    // The mass of the robot is not 30 kg.
             Units.inchesToMeters(3), // The robot uses 3" radius wheels.
             DBASE_WIDTH,                  // what u think it is
             // The standard deviations for measurement noise:
@@ -72,7 +72,7 @@ public class CANDriveSubsystem extends SubsystemBase {
             // heading:          0.001 rad
             // l and r velocity: 0.1   m/s
             // l and r position: 0.005 m
-            VecBuilder.fill(0.00001, 0.00001, 0.001, 0.01, 0.01, 0.005, 0.005));
+            VecBuilder.fill(0.00001, 0.00001, 0.001, 0.01, 0.01, 0.005, 0.005)); //smaller number makes sim tweak out less
 
 
 
