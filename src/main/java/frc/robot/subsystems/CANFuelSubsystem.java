@@ -184,15 +184,15 @@ public class CANFuelSubsystem extends SubsystemBase {
           if(SS.poseHit(GLOBAL_POSE,targetList)<0){
               badPosePotenitally =true;
           }
-          ArrayList<Pose3d> a;
+          ArrayList<Pose3d> trajectory;
           if (!isSim()) {
-              a = SS.SimShot(Math.abs(shooterWheels.getVelocity().getValueAsDouble()), RobotState.GLOBAL_POSE, ROBOT_VX, ROBOT_VY);
-              arrayPublisher.set(a.toArray(new Pose3d[0]));
+              trajectory = SS.SimShot(Math.abs(shooterWheels.getVelocity().getValueAsDouble()), RobotState.GLOBAL_POSE, ROBOT_VX, ROBOT_VY);
+              arrayPublisher.set(trajectory.toArray(new Pose3d[0]));
           } else {
-              double cV = SS.getShooterVel(GLOBAL_POSE, ROBOT_VX, ROBOT_VY, targetList);
-              if (cV < 0) {
+              double bestGuessVelocity = SS.getShooterVel(GLOBAL_POSE, ROBOT_VX, ROBOT_VY, targetList);
+              if (bestGuessVelocity < 0) {
                   System.out.print("No shot can be made. Details: ");
-                  a = new ArrayList<Pose3d>();
+                  trajectory = new ArrayList<Pose3d>();
                   if(badPosePotenitally) {
                       System.out.println("BAD LOCATION! The current robot (x,y) cannot hit a shot.");
                   }
@@ -202,10 +202,10 @@ public class CANFuelSubsystem extends SubsystemBase {
 
               } else {
                   System.out.print("HIT! Target AngV: ");
-                  System.out.println(cV);
-                  a = SS.SimShot(cV, RobotState.GLOBAL_POSE, ROBOT_VX, ROBOT_VY);
+                  System.out.println(bestGuessVelocity);
+                  trajectory = SS.SimShot(bestGuessVelocity, RobotState.GLOBAL_POSE, ROBOT_VX, ROBOT_VY);
               }
-              arrayPublisher.set(a.toArray(new Pose3d[0]));
+              arrayPublisher.set(trajectory.toArray(new Pose3d[0]));
 
           }
           tarrayPublisher.set(targetList.toArray(new Pose3d[0]));
