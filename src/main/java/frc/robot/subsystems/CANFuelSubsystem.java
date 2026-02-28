@@ -179,10 +179,10 @@ public class CANFuelSubsystem extends SubsystemBase {
     // This method will be called once per scheduler run
       SmartDashboard.putNumber("Shooter Velocity", -shooterWheels.getVelocity().getValueAsDouble()); // 58 running, ~61(?) for spinup
       SmartDashboard.putNumber("Shooter Encoder", -shooterWheels.getPosition().getValueAsDouble());
-        boolean badPose = false;
+        boolean badPosePotenitally = false;
       if(counter == calculateEvery) {
           if(SS.poseHit(GLOBAL_POSE,targetList)<0){
-              badPose=true;
+              badPosePotenitally =true;
           }
           ArrayList<Pose3d> a;
           if (!isSim()) {
@@ -193,11 +193,11 @@ public class CANFuelSubsystem extends SubsystemBase {
               if (cV < 0) {
                   System.out.print("No shot can be made. Details: ");
                   a = new ArrayList<Pose3d>();
-                  if(badPose) {
+                  if(badPosePotenitally) {
                       System.out.println("BAD LOCATION! The current robot (x,y) cannot hit a shot.");
                   }
                   else{
-                      System.out.print("BAD ANGLE! Current angle: "); System.out.println(GLOBAL_POSE.getRotation().getRadians());System.out.print(" Angle to hub needed: ");System.out.println(SS.toFaceHub().getRadians());
+                      System.out.print("BAD ANGLE! Current angle: "); System.out.print(GLOBAL_POSE.getRotation().getRadians());System.out.print(" Angle to hub needed: ");System.out.println(SS.toFaceHub().getRadians());
                   }
 
               } else {
