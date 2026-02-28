@@ -4,7 +4,6 @@
 
 package frc.robot;
 
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -12,7 +11,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
 
 import static frc.robot.Constants.OperatorConstants.*;
-import static frc.robot.DSAndFieldUtil.INITIAL_POSE;
+import static frc.robot.RobotState.INITIAL_POSE;
 
 import frc.robot.commands.Autos;
 import frc.robot.subsystems.CANClimberSubsystem;
@@ -122,7 +121,7 @@ public class RobotContainer {
 
 
 
-        if (DSAndFieldUtil.isSim()) {
+        if (RobotState.isSim()) {
             driveSubsystem.setDefaultCommand(
             driveSubsystem.driveArcade(
                     () -> -driverController.getRawAxis(1) * DRIVE_SCALING,

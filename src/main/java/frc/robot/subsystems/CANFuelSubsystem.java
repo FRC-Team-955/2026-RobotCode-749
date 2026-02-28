@@ -13,18 +13,19 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.SparkMax;
 
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.DSAndFieldUtil;
+import frc.robot.RobotState;
 import frc.robot.subsystems.shootersim.ShooterSim;
 
 import java.util.ArrayList;
 
 import static frc.robot.Constants.FuelConstants.*;
-import static frc.robot.DSAndFieldUtil.*;
+import static frc.robot.RobotState.*;
 
 @SuppressWarnings("removal") //weird deprecation warning. As all programmers know, suppressing errors is better than fixing them
 public class CANFuelSubsystem extends SubsystemBase {
@@ -35,6 +36,7 @@ public class CANFuelSubsystem extends SubsystemBase {
 
 
   ShooterSim SS = new ShooterSim();
+    ArrayList<Pose3d> targetList = new ArrayList<>();
 
     public void setBrakeMode() {
         shooterWheels.setNeutralMode(NeutralModeValue.Brake);
@@ -44,6 +46,16 @@ public class CANFuelSubsystem extends SubsystemBase {
     }
   /** Creates a new CANBallSubsystem. */
   public CANFuelSubsystem() {
+
+      targetList.add(new Pose3d(4.01,4.03,1.8288,new Rotation3d()));
+      targetList.add(new Pose3d(4.319,3.505,1.8288,new Rotation3d()));
+      targetList.add(new Pose3d(4.928,3.508,1.8288,new Rotation3d()));
+      targetList.add(new Pose3d(5.230,4.038,1.8288,new Rotation3d()));
+      targetList.add(new Pose3d(4.922,4.565,1.8288,new Rotation3d()));
+      targetList.add(new Pose3d(4.312,4.561,1.8288,new Rotation3d()));
+      targetList.add(new Pose3d(4.01,4.03,1.8288,new Rotation3d()));
+
+
     // create brushLESS motors for each of the motors on the launcher mechanism
     intakeLauncherRoller = new SparkMax(INTAKE_LAUNCHER_MOTOR_ID, MotorType.kBrushless);
     feederRoller = new SparkMax(FEEDER_MOTOR_ID, MotorType.kBrushless);
@@ -155,20 +167,70 @@ public class CANFuelSubsystem extends SubsystemBase {
 
 
     StructArrayPublisher<Pose3d> arrayPublisher = NetworkTableInstance.getDefault()
-            .getStructArrayTopic("PathShot", Pose3d.struct).publish();
+            .getStructArrayTopic("CurrentPathShotORBestInSIM", Pose3d.struct).publish();
+    StructArrayPublisher<Pose3d> tarrayPublisher = NetworkTableInstance.getDefault()
+            .getStructArrayTopic("TargetOutline", Pose3d.struct).publish();
+    int counter = 0;
+    int calculateEvery = 5; //10x a second
+
   @Override
   public void periodic() {
+      counter++;
     // This method will be called once per scheduler run
       SmartDashboard.putNumber("Shooter Velocity", -shooterWheels.getVelocity().getValueAsDouble()); // 58 running, ~61(?) for spinup
       SmartDashboard.putNumber("Shooter Encoder", -shooterWheels.getPosition().getValueAsDouble());
+        boolean badPosePotenitally = false;
+      if(counter == calculateEvery) {
+          if(SS.poseHit(GLOBAL_POSE,targetList)<0){
+              badPosePotenitally =true;
+          }
+          ArrayList<Pose3d> trajectory;
+          if (!isSim()) {
+              trajectory = SS.SimShot(Math.abs(shooterWheels.getVelocity().getValueAsDouble()), RobotState.GLOBAL_POSE, ROBOT_VX, ROBOT_VY);
+              if(SS.IsHit(trajectory,targetList)){
+                  System.out.println("CURRENT SHOT HITS!");
+              }
+              else{
+                  System.out.println("Current shot misses");
+              }
+              arrayPublisher.set(trajectory.toArray(new Pose3d[0]));
+              double bestGuessVelocity = SS.getShooterVel(GLOBAL_POSE, ROBOT_VX, ROBOT_VY, targetList);
+              if (bestGuessVelocity < 0) {
+                  System.out.print("No shot can be made. Details: ");
+                  if(badPosePotenitally) {
+                      System.out.println("BAD LOCATION! The current robot (x,y) cannot hit a shot.");
+                  }
+                  else{
+                      System.out.print("BAD ANGLE! Current angle: "); System.out.print(GLOBAL_POSE.getRotation().getRadians());System.out.print(" Angle to hub needed: ");System.out.println(SS.toFaceHub().getRadians());
+                  }
 
-      if (!isSim()) {
-          ArrayList<Pose3d> a = SS.SimShot(Math.abs(shooterWheels.getVelocity().getValueAsDouble()), DSAndFieldUtil.GLOBAL_POSE, ROBOT_VX, ROBOT_VY);
-          arrayPublisher.set(a.toArray(new Pose3d[0]));
+              } else {
+                  System.out.print("Can Hit With AngV: ");
+                  System.out.println(bestGuessVelocity);
+              }
+          } else { //if simulation, just use best possible
+              double bestGuessVelocity = SS.getShooterVel(GLOBAL_POSE, ROBOT_VX, ROBOT_VY, targetList);
+              if (bestGuessVelocity < 0) {
+                  System.out.print("No shot can be made. Details: ");
+                  trajectory = new ArrayList<Pose3d>();
+                  if(badPosePotenitally) {
+                      System.out.println("BAD LOCATION! The current robot (x,y) cannot hit a shot.");
+                  }
+                  else{
+                      System.out.print("BAD ANGLE! Current angle: "); System.out.print(GLOBAL_POSE.getRotation().getRadians());System.out.print(" Angle to hub needed: ");System.out.println(SS.toFaceHub().getRadians());
+                  }
+
+              } else {
+                  System.out.print("HIT! Target AngV: ");
+                  System.out.println(bestGuessVelocity);
+                  trajectory = SS.SimShot(bestGuessVelocity, RobotState.GLOBAL_POSE, ROBOT_VX, ROBOT_VY);
+              }
+              arrayPublisher.set(trajectory.toArray(new Pose3d[0]));
+
+          }
+          tarrayPublisher.set(targetList.toArray(new Pose3d[0]));
+          counter = 0;
       }
-      else{
-          ArrayList<Pose3d> a = SS.SimShot(68, DSAndFieldUtil.GLOBAL_POSE, ROBOT_VX, ROBOT_VY);
-          arrayPublisher.set(a.toArray(new Pose3d[0]));
-      }
+
   }
 }

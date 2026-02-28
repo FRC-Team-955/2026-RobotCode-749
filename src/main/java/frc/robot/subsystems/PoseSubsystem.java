@@ -18,10 +18,10 @@ import java.util.function.DoubleSupplier;
 
 
 import com.ctre.phoenix6.hardware.Pigeon2;
-import frc.robot.DSAndFieldUtil;
+import frc.robot.RobotState;
 import frc.robot.LimelightHelpers;
 
-import static frc.robot.DSAndFieldUtil.*;
+import static frc.robot.RobotState.*;
 
 public class PoseSubsystem extends SubsystemBase {
     Pigeon2 gyro = new Pigeon2(Constants.DriveConstants.PIGEON_ID, "rio");
@@ -120,11 +120,12 @@ public class PoseSubsystem extends SubsystemBase {
     StructPublisher<Pose2d> publisher = NetworkTableInstance.getDefault()
             .getStructTopic("Pose", Pose2d.struct).publish();
 
+
     //update loop event
     @Override
     public void periodic() {
         LimelightHelpers.PoseEstimate limelightMeasurement;
-        if (DSAndFieldUtil.isTestMode() || DSAndFieldUtil.isRedAlliance()){
+        if (RobotState.isTestMode() || RobotState.isRedAlliance()){
              limelightMeasurement= LimelightHelpers.getBotPoseEstimate_wpiRed("");
         }
         else{
@@ -154,12 +155,6 @@ public class PoseSubsystem extends SubsystemBase {
             publisher.set(m_poseEstimator.getEstimatedPosition());
             GLOBAL_POSE = m_poseEstimator.getEstimatedPosition();
 
-
-            double vel = ((r.getAsDouble()-OldR)/Constants.DriveConstants.ENCODER_UNITS_PER_METER+(l.getAsDouble()-OldL)/Constants.DriveConstants.ENCODER_UNITS_PER_METER)/0.04; //TEST THISSSSS. RN goes to 0.1
-            DSAndFieldUtil.ROBOT_VX = vel*Math.cos(DSAndFieldUtil.GLOBAL_POSE.getRotation().getRadians());
-            DSAndFieldUtil.ROBOT_VY = vel*Math.sin(DSAndFieldUtil.GLOBAL_POSE.getRotation().getRadians());
-            System.out.print("VX: ");
-            System.out.println(DSAndFieldUtil.ROBOT_VX);
 
         }
 

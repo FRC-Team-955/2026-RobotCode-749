@@ -34,11 +34,12 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.robot.DSAndFieldUtil;
+import frc.robot.RobotState;
 
 import static edu.wpi.first.wpilibj.drive.DifferentialDrive.arcadeDriveIK;
 import static frc.robot.Constants.DriveConstants.*;
-import static frc.robot.DSAndFieldUtil.isSim;
+import static frc.robot.RobotState.GLOBAL_POSE;
+import static frc.robot.RobotState.INITIAL_POSE;
 
 
 public class CANDriveSubsystem extends SubsystemBase {
@@ -78,6 +79,7 @@ public class CANDriveSubsystem extends SubsystemBase {
 
     public CANDriveSubsystem(PoseSubsystem ps) {
         this.ps = ps;
+        drivetrainSim.setPose(INITIAL_POSE);
         // create brushed motors for drive
         leftLeader = new SparkMax(LEFT_LEADER_ID, MotorType.kBrushless);
         leftFollower = new SparkMax(LEFT_FOLLOWER_ID, MotorType.kBrushless);
@@ -140,6 +142,41 @@ public class CANDriveSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("rightFollowerEncoder", rightFollower.getEncoder().getPosition()); // shouldn't be needed, just here to make sure
         SmartDashboard.putNumber("leftSetPoint", lSetPoint);
         SmartDashboard.putNumber("rightSetPoint", rSetPoint);
+
+
+        ///  SIM AND NON-SIM GLOBAL VELOCITIES
+         {
+
+            // SparkMax encoder velocity is RPM by default
+            double leftRPM = leftLeader.getEncoder().getVelocity();
+            double rightRPM = rightLeader.getEncoder().getVelocity();
+
+            // Convert RPM -> meters/sec
+            double wheelCircumference =
+                    2 * Math.PI * Units.inchesToMeters(3); // 3" radius
+
+            double leftMPS =
+                    (leftRPM / 60.0) * wheelCircumference *8.45 *(2.4/2.9); // coefficient for friction
+
+            double rightMPS =
+                    (rightRPM / 60.0) * wheelCircumference *8.45 *(2.4/2.9);
+
+            DifferentialDriveWheelSpeeds wheelSpeeds =
+                    new DifferentialDriveWheelSpeeds(leftMPS, rightMPS);
+
+            ChassisSpeeds robotSpeeds =
+                    kinematics.toChassisSpeeds(wheelSpeeds);
+
+            ChassisSpeeds fieldRelative =
+                    ChassisSpeeds.fromRobotRelativeSpeeds(
+                            robotSpeeds,
+                            GLOBAL_POSE.getRotation()
+                    );
+
+            RobotState.ROBOT_VX = fieldRelative.vxMetersPerSecond;
+            RobotState.ROBOT_VY = fieldRelative.vyMetersPerSecond;
+
+        }
 
 
     }
@@ -271,14 +308,13 @@ public class CANDriveSubsystem extends SubsystemBase {
         return run(()->funcDriveAtTargetPose(target)).until(()->isAtPose(ps.getPose(),target)).finallyDo(() -> drive.tankDrive(0, 0));
     }
 
-    private int simOutTs = 100;
-    private int counter=0;
+
     StructPublisher<Pose2d> publisher = NetworkTableInstance.getDefault()
             .getStructTopic("SimPose", Pose2d.struct).publish();
 
 
     public void simulationPeriodic() {
-        counter++;
+
 
         // Set the inputs to the system. Note that we need to convert
         drivetrainSim.setInputs(leftLeader.get() * RobotController.getInputVoltage(),
@@ -291,23 +327,13 @@ public class CANDriveSubsystem extends SubsystemBase {
 
 
         publisher.set(drivetrainSim.getPose());
-        DSAndFieldUtil.GLOBAL_POSE = drivetrainSim.getPose();
-        if(isSim()) {
-            double vel = (drivetrainSim.getRightVelocityMetersPerSecond()+drivetrainSim.getLeftVelocityMetersPerSecond())/2;
-            DSAndFieldUtil.ROBOT_VX = vel*Math.cos(DSAndFieldUtil.GLOBAL_POSE.getRotation().getRadians());
-            DSAndFieldUtil.ROBOT_VY = vel*Math.sin(DSAndFieldUtil.GLOBAL_POSE.getRotation().getRadians());
-
-            System.out.print("SIM VX: ");
-            System.out.println(DSAndFieldUtil.ROBOT_VX);
-        }
+        RobotState.GLOBAL_POSE = drivetrainSim.getPose();
 
 
 
-        if(counter==simOutTs) {
-            System.out.println("Left output: " + leftLeader.get());
-            System.out.println("Right output: " + rightLeader.get());
-            counter = 0;
-        }
+
+
+
 
 
         if(m_leftEncoderSim == null || m_rightEncoderSim==null){
