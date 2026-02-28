@@ -158,7 +158,7 @@ return Poses;
     public double getShooterVel(Pose2d robotPose, double robot_vx, double robot_vy, ArrayList<Pose3d> target){
         ArrayList<Pose3d> test;
         ArrayList<Double> cVs= new ArrayList<Double>();
-        for(double cV = 20; cV<100; cV+=0.1){
+        for(double cV = 20; cV<100; cV+=0.9){ // THIS (Delta cV) CANT BE LOW OR IT LOOP OVERRUNS SINCE ROBORIOS ARE CRAPPY
             test = SimShot(cV,  robotPose,  robot_vx,  robot_vy);
             if(IsHit(test,target)){
                 cVs.add(cV);

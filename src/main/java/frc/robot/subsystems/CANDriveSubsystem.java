@@ -173,7 +173,7 @@ public class CANDriveSubsystem extends SubsystemBase {
                             GLOBAL_POSE.getRotation()
                     );
 
-            RobotState.ROBOT_VX = fieldRelative.vxMetersPerSecond;
+            RobotState.ROBOT_VX = fieldRelative.vxMetersPerSecond; // WHYYY IS THIS NOT THE SAME IN SIM AS IN REAL LIFE?????
             RobotState.ROBOT_VY = fieldRelative.vyMetersPerSecond;
 
         }
