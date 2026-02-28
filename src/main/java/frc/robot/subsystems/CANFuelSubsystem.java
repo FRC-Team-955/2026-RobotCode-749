@@ -198,15 +198,15 @@ public class CANFuelSubsystem extends SubsystemBase {
               if (bestGuessVelocity < 0) {
                   System.out.print("No shot can be made. Details: ");
                   if(badPosePotenitally) {
-                      System.out.println("BAD LOCATION! The current robot (x,y) cannot hit a shot.");
+                      System.out.println("BAD POSE: BAD LOCATION! The current robot (x,y) cannot hit a shot.");
                   }
                   else{
-                      System.out.print("BAD ANGLE! Current angle: "); System.out.print(GLOBAL_POSE.getRotation().getRadians());System.out.print(" Angle to hub needed: ");System.out.println(SS.toFaceHub().getRadians());
+                      System.out.print("BAD POSE: BAD ANGLE! Current angle: "); System.out.print(GLOBAL_POSE.getRotation().getRadians());System.out.print(" Angle to hub needed: ");System.out.println(SS.toFaceHub().getRadians());
                   }
 
               } else {
-                  System.out.print("Can Hit With AngV: ");
-                  System.out.println(bestGuessVelocity);
+                  System.out.print("GOOD POSE! Can Hit With AngV: ");
+                  System.out.print(bestGuessVelocity); System.out.print(" (Currently at: ");System.out.print(Math.abs(shooterWheels.getVelocity().getValueAsDouble())); System.out.println(" )");
               }
           } else { //if simulation, just use best possible
               double bestGuessVelocity = SS.getShooterVel(GLOBAL_POSE, ROBOT_VX, ROBOT_VY, targetList);
