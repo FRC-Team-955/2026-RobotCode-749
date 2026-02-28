@@ -179,8 +179,11 @@ public class CANFuelSubsystem extends SubsystemBase {
     // This method will be called once per scheduler run
       SmartDashboard.putNumber("Shooter Velocity", -shooterWheels.getVelocity().getValueAsDouble()); // 58 running, ~61(?) for spinup
       SmartDashboard.putNumber("Shooter Encoder", -shooterWheels.getPosition().getValueAsDouble());
-
+        boolean badPose = false;
       if(counter == calculateEvery) {
+          if(SS.poseHit(GLOBAL_POSE,targetList)<0){
+              badPose=true;
+          }
           ArrayList<Pose3d> a;
           if (!isSim()) {
               a = SS.SimShot(Math.abs(shooterWheels.getVelocity().getValueAsDouble()), RobotState.GLOBAL_POSE, ROBOT_VX, ROBOT_VY);
@@ -188,10 +191,15 @@ public class CANFuelSubsystem extends SubsystemBase {
           } else {
               double cV = SS.getShooterVel(GLOBAL_POSE, ROBOT_VX, ROBOT_VY, targetList);
               if (cV < 0) {
-                  System.out.print("No shot can be made. ");
+                  System.out.print("No shot can be made. Details: ");
                   a = new ArrayList<Pose3d>();
-                  System.out.print("Either bad position or angle. Want angle: ");
-                  System.out.println(SS.toFaceHub().getRadians());
+                  if(badPose) {
+                      System.out.println("BAD LOCATION! The current robot (x,y) cannot hit a shot.");
+                  }
+                  else{
+                      System.out.print("BAD ANGLE! Current angle: "); System.out.println(GLOBAL_POSE.getRotation().getRadians());System.out.print(" Angle to hub needed: ");System.out.println(SS.toFaceHub().getRadians());
+                  }
+
               } else {
                   System.out.print("HIT! Target AngV: ");
                   System.out.println(cV);

@@ -174,4 +174,9 @@ return Poses;
         }
         return -1;
     }
+
+    public double poseHit(Pose2d robotPoseT,  ArrayList<Pose3d> target){
+        Pose2d robotPose = new Pose2d(robotPoseT.getTranslation(),toFaceHub());
+        return getShooterVel(robotPose,0,0,target);
+    }
 }
