@@ -170,20 +170,39 @@ public class CANFuelSubsystem extends SubsystemBase {
             .getStructArrayTopic("PathShot", Pose3d.struct).publish();
     StructArrayPublisher<Pose3d> tarrayPublisher = NetworkTableInstance.getDefault()
             .getStructArrayTopic("TargetOutline", Pose3d.struct).publish();
+    int counter = 0;
+    int calculateEvery = 25; //twice a second
+
   @Override
   public void periodic() {
+      counter++;
     // This method will be called once per scheduler run
       SmartDashboard.putNumber("Shooter Velocity", -shooterWheels.getVelocity().getValueAsDouble()); // 58 running, ~61(?) for spinup
       SmartDashboard.putNumber("Shooter Encoder", -shooterWheels.getPosition().getValueAsDouble());
 
-      if (!isSim()) {
-          ArrayList<Pose3d> a = SS.SimShot(Math.abs(shooterWheels.getVelocity().getValueAsDouble()), RobotState.GLOBAL_POSE, ROBOT_VX, ROBOT_VY);
-          arrayPublisher.set(a.toArray(new Pose3d[0]));
+      if(counter == calculateEvery) {
+          ArrayList<Pose3d> a;
+          if (!isSim()) {
+              a = SS.SimShot(Math.abs(shooterWheels.getVelocity().getValueAsDouble()), RobotState.GLOBAL_POSE, ROBOT_VX, ROBOT_VY);
+              arrayPublisher.set(a.toArray(new Pose3d[0]));
+          } else {
+              double cV = SS.getShooterVel(GLOBAL_POSE, ROBOT_VX, ROBOT_VY, targetList);
+              if (cV < 0) {
+                  System.out.print("No shot can be made. ");
+                  a = new ArrayList<Pose3d>();
+                  System.out.print("Either bad position or angle. Want angle: ");
+                  System.out.println(SS.toFaceHub().getRadians());
+              } else {
+                  System.out.print("HIT! Target AngV: ");
+                  System.out.println(cV);
+                  a = SS.SimShot(cV, RobotState.GLOBAL_POSE, ROBOT_VX, ROBOT_VY);
+              }
+              arrayPublisher.set(a.toArray(new Pose3d[0]));
+
+          }
+          tarrayPublisher.set(targetList.toArray(new Pose3d[0]));
+          counter = 0;
       }
-      else{
-          ArrayList<Pose3d> a = SS.SimShot(58.0, RobotState.GLOBAL_POSE, ROBOT_VX, ROBOT_VY);
-          arrayPublisher.set(a.toArray(new Pose3d[0]));
-      }
-      tarrayPublisher.set(targetList.toArray(new Pose3d[0]));
+
   }
 }
