@@ -20,6 +20,7 @@ public class ShooterSim {
         AngularVelocityToLandingPt.add(0,0);
         AngularVelocityToLandingPt.add(40,2.72); //107 in
         AngularVelocityToLandingPt.add(58,4.06); //meters!  160 in
+        AngularVelocityToLandingPt.add(70,4.66); // THIS ISNT TUNED!
 
         AngularVelocityLaunchAngle.add(0,Math.PI/2);
         AngularVelocityLaunchAngle.add(40,Math.PI/2-Math.toRadians(30)); //
