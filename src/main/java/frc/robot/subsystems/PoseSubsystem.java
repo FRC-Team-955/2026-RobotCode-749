@@ -155,12 +155,6 @@ public class PoseSubsystem extends SubsystemBase {
             GLOBAL_POSE = m_poseEstimator.getEstimatedPosition();
 
 
-            double vel = ((r.getAsDouble()-OldR)/Constants.DriveConstants.ENCODER_UNITS_PER_METER+(l.getAsDouble()-OldL)/Constants.DriveConstants.ENCODER_UNITS_PER_METER)/0.04; //TEST THISSSSS. RN goes to 0.1
-            DSAndFieldUtil.ROBOT_VX = vel*Math.cos(DSAndFieldUtil.GLOBAL_POSE.getRotation().getRadians());
-            DSAndFieldUtil.ROBOT_VY = vel*Math.sin(DSAndFieldUtil.GLOBAL_POSE.getRotation().getRadians());
-            System.out.print("VX: ");
-            System.out.println(DSAndFieldUtil.ROBOT_VX);
-
         }
 
         OldL = l.getAsDouble();
