@@ -39,6 +39,7 @@ import frc.robot.RobotState;
 import static edu.wpi.first.wpilibj.drive.DifferentialDrive.arcadeDriveIK;
 import static frc.robot.Constants.DriveConstants.*;
 import static frc.robot.RobotState.GLOBAL_POSE;
+import static frc.robot.RobotState.INITIAL_POSE;
 
 
 public class CANDriveSubsystem extends SubsystemBase {
@@ -78,6 +79,7 @@ public class CANDriveSubsystem extends SubsystemBase {
 
     public CANDriveSubsystem(PoseSubsystem ps) {
         this.ps = ps;
+        drivetrainSim.setPose(INITIAL_POSE);
         // create brushed motors for drive
         leftLeader = new SparkMax(LEFT_LEADER_ID, MotorType.kBrushless);
         leftFollower = new SparkMax(LEFT_FOLLOWER_ID, MotorType.kBrushless);

@@ -167,7 +167,7 @@ public class CANFuelSubsystem extends SubsystemBase {
           arrayPublisher.set(a.toArray(new Pose3d[0]));
       }
       else{
-          ArrayList<Pose3d> a = SS.SimShot(68, RobotState.GLOBAL_POSE, ROBOT_VX, ROBOT_VY);
+          ArrayList<Pose3d> a = SS.SimShot(58.0, RobotState.GLOBAL_POSE, ROBOT_VX, ROBOT_VY);
           arrayPublisher.set(a.toArray(new Pose3d[0]));
       }
   }
