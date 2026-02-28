@@ -50,8 +50,8 @@ public final class Autos {
     public static Command PIDRotateHalf(CANDriveSubsystem driveSubsystem, CANFuelSubsystem ballSubsystem) {
         return new SequentialCommandGroup(
                 driveSubsystem.resetPIDSetpoints(),
-                driveSubsystem.setPIDSetpoints(() -> 0, () -> -0.5),
-                driveSubsystem.autoDrivePID(driveSubsystem.giveLeftEncoder(), driveSubsystem.giveRightEncoder()).withTimeout(1),
+                driveSubsystem.setPIDSetpoints(() -> -1, () -> 0),
+                driveSubsystem.autoDrivePID(driveSubsystem.giveLeftEncoder(), driveSubsystem.giveRightEncoder()).withTimeout(3),
                 ballSubsystem.spinUpWeakCommand().until(() -> ballSubsystem.isAtWeakSpeed()),
                 ballSubsystem.weakLaunchCommand().withTimeout(4),
                 ballSubsystem.runOnce(() -> ballSubsystem.stop())
