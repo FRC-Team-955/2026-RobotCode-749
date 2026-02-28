@@ -171,7 +171,7 @@ public class CANFuelSubsystem extends SubsystemBase {
     StructArrayPublisher<Pose3d> tarrayPublisher = NetworkTableInstance.getDefault()
             .getStructArrayTopic("TargetOutline", Pose3d.struct).publish();
     int counter = 0;
-    int calculateEvery = 12; //4x a second
+    int calculateEvery = 5; //10x a second
 
   @Override
   public void periodic() {
