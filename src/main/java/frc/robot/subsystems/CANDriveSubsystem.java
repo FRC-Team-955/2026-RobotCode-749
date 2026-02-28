@@ -34,12 +34,11 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.robot.DSAndFieldUtil;
+import frc.robot.RobotState;
 
 import static edu.wpi.first.wpilibj.drive.DifferentialDrive.arcadeDriveIK;
 import static frc.robot.Constants.DriveConstants.*;
-import static frc.robot.DSAndFieldUtil.GLOBAL_POSE;
-import static frc.robot.DSAndFieldUtil.isSim;
+import static frc.robot.RobotState.GLOBAL_POSE;
 
 
 public class CANDriveSubsystem extends SubsystemBase {
@@ -142,6 +141,8 @@ public class CANDriveSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("leftSetPoint", lSetPoint);
         SmartDashboard.putNumber("rightSetPoint", rSetPoint);
 
+
+        ///  SIM AND NON-SIM GLOBAL VELOCITIES
          {
 
             // SparkMax encoder velocity is RPM by default
@@ -170,10 +171,9 @@ public class CANDriveSubsystem extends SubsystemBase {
                             GLOBAL_POSE.getRotation()
                     );
 
-            DSAndFieldUtil.ROBOT_VX = fieldRelative.vxMetersPerSecond;
-            DSAndFieldUtil.ROBOT_VY = fieldRelative.vyMetersPerSecond;
-            System.out.print("DD VX: ");
-            System.out.println(DSAndFieldUtil.ROBOT_VX);
+            RobotState.ROBOT_VX = fieldRelative.vxMetersPerSecond;
+            RobotState.ROBOT_VY = fieldRelative.vyMetersPerSecond;
+
         }
 
 
@@ -325,7 +325,7 @@ public class CANDriveSubsystem extends SubsystemBase {
 
 
         publisher.set(drivetrainSim.getPose());
-        DSAndFieldUtil.GLOBAL_POSE = drivetrainSim.getPose();
+        RobotState.GLOBAL_POSE = drivetrainSim.getPose();
 
 
 

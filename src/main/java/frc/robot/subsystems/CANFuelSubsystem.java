@@ -18,13 +18,13 @@ import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.DSAndFieldUtil;
+import frc.robot.RobotState;
 import frc.robot.subsystems.shootersim.ShooterSim;
 
 import java.util.ArrayList;
 
 import static frc.robot.Constants.FuelConstants.*;
-import static frc.robot.DSAndFieldUtil.*;
+import static frc.robot.RobotState.*;
 
 @SuppressWarnings("removal") //weird deprecation warning. As all programmers know, suppressing errors is better than fixing them
 public class CANFuelSubsystem extends SubsystemBase {
@@ -163,11 +163,11 @@ public class CANFuelSubsystem extends SubsystemBase {
       SmartDashboard.putNumber("Shooter Encoder", -shooterWheels.getPosition().getValueAsDouble());
 
       if (!isSim()) {
-          ArrayList<Pose3d> a = SS.SimShot(Math.abs(shooterWheels.getVelocity().getValueAsDouble()), DSAndFieldUtil.GLOBAL_POSE, ROBOT_VX, ROBOT_VY);
+          ArrayList<Pose3d> a = SS.SimShot(Math.abs(shooterWheels.getVelocity().getValueAsDouble()), RobotState.GLOBAL_POSE, ROBOT_VX, ROBOT_VY);
           arrayPublisher.set(a.toArray(new Pose3d[0]));
       }
       else{
-          ArrayList<Pose3d> a = SS.SimShot(68, DSAndFieldUtil.GLOBAL_POSE, ROBOT_VX, ROBOT_VY);
+          ArrayList<Pose3d> a = SS.SimShot(68, RobotState.GLOBAL_POSE, ROBOT_VX, ROBOT_VY);
           arrayPublisher.set(a.toArray(new Pose3d[0]));
       }
   }

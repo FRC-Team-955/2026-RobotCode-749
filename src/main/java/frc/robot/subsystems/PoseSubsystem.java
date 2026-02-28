@@ -18,10 +18,10 @@ import java.util.function.DoubleSupplier;
 
 
 import com.ctre.phoenix6.hardware.Pigeon2;
-import frc.robot.DSAndFieldUtil;
+import frc.robot.RobotState;
 import frc.robot.LimelightHelpers;
 
-import static frc.robot.DSAndFieldUtil.*;
+import static frc.robot.RobotState.*;
 
 public class PoseSubsystem extends SubsystemBase {
     Pigeon2 gyro = new Pigeon2(Constants.DriveConstants.PIGEON_ID, "rio");
@@ -124,7 +124,7 @@ public class PoseSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         LimelightHelpers.PoseEstimate limelightMeasurement;
-        if (DSAndFieldUtil.isTestMode() || DSAndFieldUtil.isRedAlliance()){
+        if (RobotState.isTestMode() || RobotState.isRedAlliance()){
              limelightMeasurement= LimelightHelpers.getBotPoseEstimate_wpiRed("");
         }
         else{

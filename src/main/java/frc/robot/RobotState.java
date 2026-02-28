@@ -8,7 +8,7 @@ import edu.wpi.first.wpilibj.RobotBase;
 
 // Just a class to contain annoying functions we dont wanna put everywhere related to game state!
 // Also for stuff to be put on DS, to be accessd all over in the code
-public class DSAndFieldUtil {
+public class RobotState {
 
 
     public static Pose2d addPose(Pose2d a, Pose2d b){
