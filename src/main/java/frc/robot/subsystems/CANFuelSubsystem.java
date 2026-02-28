@@ -13,6 +13,7 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.SparkMax;
 
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -35,6 +36,7 @@ public class CANFuelSubsystem extends SubsystemBase {
 
 
   ShooterSim SS = new ShooterSim();
+    ArrayList<Pose3d> targetList = new ArrayList<>();
 
     public void setBrakeMode() {
         shooterWheels.setNeutralMode(NeutralModeValue.Brake);
@@ -44,6 +46,16 @@ public class CANFuelSubsystem extends SubsystemBase {
     }
   /** Creates a new CANBallSubsystem. */
   public CANFuelSubsystem() {
+
+      targetList.add(new Pose3d(4.01,4.03,1.8288,new Rotation3d()));
+      targetList.add(new Pose3d(4.319,3.505,1.8288,new Rotation3d()));
+      targetList.add(new Pose3d(4.928,3.508,1.8288,new Rotation3d()));
+      targetList.add(new Pose3d(5.230,4.038,1.8288,new Rotation3d()));
+      targetList.add(new Pose3d(4.922,4.565,1.8288,new Rotation3d()));
+      targetList.add(new Pose3d(4.312,4.561,1.8288,new Rotation3d()));
+      targetList.add(new Pose3d(4.01,4.03,1.8288,new Rotation3d()));
+
+
     // create brushLESS motors for each of the motors on the launcher mechanism
     intakeLauncherRoller = new SparkMax(INTAKE_LAUNCHER_MOTOR_ID, MotorType.kBrushless);
     feederRoller = new SparkMax(FEEDER_MOTOR_ID, MotorType.kBrushless);
@@ -156,6 +168,8 @@ public class CANFuelSubsystem extends SubsystemBase {
 
     StructArrayPublisher<Pose3d> arrayPublisher = NetworkTableInstance.getDefault()
             .getStructArrayTopic("PathShot", Pose3d.struct).publish();
+    StructArrayPublisher<Pose3d> tarrayPublisher = NetworkTableInstance.getDefault()
+            .getStructArrayTopic("TargetOutline", Pose3d.struct).publish();
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
@@ -170,5 +184,6 @@ public class CANFuelSubsystem extends SubsystemBase {
           ArrayList<Pose3d> a = SS.SimShot(58.0, RobotState.GLOBAL_POSE, ROBOT_VX, ROBOT_VY);
           arrayPublisher.set(a.toArray(new Pose3d[0]));
       }
+      tarrayPublisher.set(targetList.toArray(new Pose3d[0]));
   }
 }

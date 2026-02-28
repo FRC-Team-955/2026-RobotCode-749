@@ -72,4 +72,18 @@ public class ShooterSim {
         }
 return Poses;
     }
+
+    public boolean IsHit(ArrayList<Pose3d> Shot){
+        Pose3d candidate;
+        double x,y,z;
+        for(int i = 0; i<Shot.size();i++){
+            candidate = Shot.get(i);
+             x = candidate.getX();
+             y = candidate.getY();
+             z = candidate.getZ();
+
+
+        }
+        return false;
+    }
 }

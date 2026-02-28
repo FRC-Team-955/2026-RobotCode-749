@@ -120,6 +120,7 @@ public class PoseSubsystem extends SubsystemBase {
     StructPublisher<Pose2d> publisher = NetworkTableInstance.getDefault()
             .getStructTopic("Pose", Pose2d.struct).publish();
 
+
     //update loop event
     @Override
     public void periodic() {

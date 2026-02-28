@@ -14,7 +14,7 @@ public class RobotState {
     public static Pose2d addPose(Pose2d a, Pose2d b){
         return new Pose2d(a.getX()+b.getX(), a.getY()+b.getY(), new Rotation2d(a.getRotation().getRadians()+b.getRotation().getRadians()));
     }
-    public static Pose2d INITIAL_POSE = new Pose2d(4,4,new Rotation2d());
+    public static Pose2d INITIAL_POSE = new Pose2d(3.6,4,new Rotation2d());
     public static Pose2d GLOBAL_POSE =INITIAL_POSE;
     public static double ROBOT_VX=0;
     public static double ROBOT_VY = 0;
