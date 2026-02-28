@@ -73,15 +73,13 @@ public class ShooterSim {
 return Poses;
     }
 
-    public boolean IsHit(ArrayList<Pose3d> Shot){
+    public boolean IsHit(ArrayList<Pose3d> Shot, ArrayList<Pose3d>TargetPolygon){
         Pose3d candidate;
         double x,y,z;
         for(int i = 0; i<Shot.size();i++){
             candidate = Shot.get(i);
-             x = candidate.getX();
-             y = candidate.getY();
-             z = candidate.getZ();
 
+            // test if trajectory goes through the TargetPolygon, form: (x1,y1,z1),(x2,y2,z2)...(x1,y1,z1)
 
         }
         return false;
