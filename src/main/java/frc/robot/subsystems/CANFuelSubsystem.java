@@ -167,7 +167,7 @@ public class CANFuelSubsystem extends SubsystemBase {
 
 
     StructArrayPublisher<Pose3d> arrayPublisher = NetworkTableInstance.getDefault()
-            .getStructArrayTopic("PathShot", Pose3d.struct).publish();
+            .getStructArrayTopic("CurrentPathShotORBestInSIM", Pose3d.struct).publish();
     StructArrayPublisher<Pose3d> tarrayPublisher = NetworkTableInstance.getDefault()
             .getStructArrayTopic("TargetOutline", Pose3d.struct).publish();
     int counter = 0;
@@ -187,8 +187,28 @@ public class CANFuelSubsystem extends SubsystemBase {
           ArrayList<Pose3d> trajectory;
           if (!isSim()) {
               trajectory = SS.SimShot(Math.abs(shooterWheels.getVelocity().getValueAsDouble()), RobotState.GLOBAL_POSE, ROBOT_VX, ROBOT_VY);
+              if(SS.IsHit(trajectory,targetList)){
+                  System.out.println("CURRENT SHOT HITS!");
+              }
+              else{
+                  System.out.println("Current shot misses");
+              }
               arrayPublisher.set(trajectory.toArray(new Pose3d[0]));
-          } else {
+              double bestGuessVelocity = SS.getShooterVel(GLOBAL_POSE, ROBOT_VX, ROBOT_VY, targetList);
+              if (bestGuessVelocity < 0) {
+                  System.out.print("No shot can be made. Details: ");
+                  if(badPosePotenitally) {
+                      System.out.println("BAD LOCATION! The current robot (x,y) cannot hit a shot.");
+                  }
+                  else{
+                      System.out.print("BAD ANGLE! Current angle: "); System.out.print(GLOBAL_POSE.getRotation().getRadians());System.out.print(" Angle to hub needed: ");System.out.println(SS.toFaceHub().getRadians());
+                  }
+
+              } else {
+                  System.out.print("Can Hit With AngV: ");
+                  System.out.println(bestGuessVelocity);
+              }
+          } else { //if simulation, just use best possible
               double bestGuessVelocity = SS.getShooterVel(GLOBAL_POSE, ROBOT_VX, ROBOT_VY, targetList);
               if (bestGuessVelocity < 0) {
                   System.out.print("No shot can be made. Details: ");
