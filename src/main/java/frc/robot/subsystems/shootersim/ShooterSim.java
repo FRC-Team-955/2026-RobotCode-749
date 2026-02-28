@@ -7,9 +7,9 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import java.util.ArrayList;
 
 public class ShooterSim {
-    private double SHOOTER_X = 0.347; //meters offset from middle of robot?
+    private double SHOOTER_X = 0.22; //meters offset from middle of robot
     private double SHOOTER_Y = 0;
-    private double SHOOTER_Z = 0.43;
+    private double SHOOTER_Z = 0.49; //19.3 inches
 
     InterpolationTable AngularVelocityToLandingPt = new InterpolationTable(); // track angular velocity -> landing point!
     InterpolationTable AngularVelocityLaunchAngle = new InterpolationTable(); // track angular velocity -> launch angle
