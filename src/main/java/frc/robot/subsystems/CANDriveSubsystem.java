@@ -61,8 +61,8 @@ public class CANDriveSubsystem extends SubsystemBase {
     double lSetPoint;
     double rSetPoint;
 
-    public final PIDController leftPID = new PIDController(1, 0, 0);
-    public final PIDController rightPID = new PIDController(1, 0, 0);
+    public final PIDController leftPID = new PIDController(KP, KI, KD);
+    public final PIDController rightPID = new PIDController(KP, KI, KD);
 
 /// TODO: TUNE THIS
     DifferentialDrivetrainSim drivetrainSim = new DifferentialDrivetrainSim(
