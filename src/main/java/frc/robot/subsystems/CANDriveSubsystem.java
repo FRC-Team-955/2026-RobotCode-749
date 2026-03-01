@@ -197,7 +197,6 @@ public class CANDriveSubsystem extends SubsystemBase {
 
         }
 
-
     }
 
     public void logMotors(DoubleSupplier xSpeed, DoubleSupplier zRotation, boolean squareInputs) {
