@@ -51,6 +51,16 @@ public final class Autos {
         );
     }
 
+    public static Command rBumpShoot(CANDriveSubsystem driveSubsystem, CANFuelSubsystem ballSubsystem) {
+        return new SequentialCommandGroup(
+                driveSubsystem.setPIDSetpoints(() -> 0, () -> -1),
+                driveSubsystem.autoDrivePID(driveSubsystem.giveLeftEncoder(), driveSubsystem.giveRightEncoder()).withTimeout(3),
+                ballSubsystem.spinUpCommand().until(() -> ballSubsystem.isAtSpeed(50)),
+                ballSubsystem.launchCommand(() -> -6.6).withTimeout(4),
+                ballSubsystem.runOnce(() -> ballSubsystem.stop())
+        );
+    }
+
     public static Command boringAuto(CANDriveSubsystem driveSubsystem, CANFuelSubsystem ballSubsystem) {
         return new SequentialCommandGroup(
                driveSubsystem.setPIDSetpoints(() -> -3, () -> -3),
