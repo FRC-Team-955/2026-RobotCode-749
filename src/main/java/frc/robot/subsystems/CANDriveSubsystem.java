@@ -180,8 +180,8 @@ public class CANDriveSubsystem extends SubsystemBase {
 
 
             if(!isSim()){
-                RobotState.ROBOT_VX = fieldRelative.vxMetersPerSecond; //
-                RobotState.ROBOT_VY = fieldRelative.vyMetersPerSecond;
+                RobotState.ROBOT_VX = -fieldRelative.vxMetersPerSecond; //
+                RobotState.ROBOT_VY = -fieldRelative.vyMetersPerSecond;
             }
             else{
                 RobotState.ROBOT_VX = fieldRelative.vxMetersPerSecond; //

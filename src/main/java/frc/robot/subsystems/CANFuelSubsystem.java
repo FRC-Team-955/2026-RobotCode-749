@@ -186,6 +186,7 @@ public class CANFuelSubsystem extends SubsystemBase {
           }
           ArrayList<Pose3d> trajectory;
           System.out.print("ROBOT VX: "); System.out.println(ROBOT_VX);
+          System.out.print("ROBOT VY: "); System.out.println(ROBOT_VY);
           if (!isSim()) {
 
               trajectory = SS.SimShot(Math.abs(shooterWheels.getVelocity().getValueAsDouble()), RobotState.GLOBAL_POSE, ROBOT_VX, ROBOT_VY);
