@@ -71,6 +71,7 @@ public class RobotContainer {
         autoChooser.setDefaultOption("Example Auto", Autos.exampleAuto(driveSubsystem, ballSubsystem));
         autoChooser.addOption("Right Bump Shoot", Autos.rBumpShoot(driveSubsystem, ballSubsystem));
         autoChooser.addOption("Left Bump Shoot", Autos.lBumpShoot(driveSubsystem, ballSubsystem));
+        autoChooser.addOption("Center Weak Shoot", Autos.centerShoot(driveSubsystem, ballSubsystem));
         autoChooser.addOption("PID 1m Auto", Autos.PIDAuto(driveSubsystem, ballSubsystem));
         autoChooser.addOption("PID rotate bashy", Autos.PIDRotateHalf(driveSubsystem, ballSubsystem));
         autoChooser.addOption("go back then shoot", Autos.boringAuto(driveSubsystem, ballSubsystem));
