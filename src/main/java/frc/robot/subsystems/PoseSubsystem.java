@@ -101,8 +101,8 @@ public class PoseSubsystem extends SubsystemBase {
 
     // uh set source?
     public void setSource(DoubleSupplier leftencoder, DoubleSupplier rightencoder){
-        l = (()->{ return -leftencoder.getAsDouble()/Constants.DriveConstants.ENCODER_UNITS_PER_METER;});
-        r=(()->{ return -rightencoder.getAsDouble()/Constants.DriveConstants.ENCODER_UNITS_PER_METER;});
+        l = (()->{ return -leftencoder.getAsDouble();});
+        r=(()->{ return -rightencoder.getAsDouble();});
         OldL = l.getAsDouble();
         OldR=r.getAsDouble();
         m_poseEstimator =

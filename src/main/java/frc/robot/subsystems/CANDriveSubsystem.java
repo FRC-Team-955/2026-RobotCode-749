@@ -109,11 +109,20 @@ public class CANDriveSubsystem extends SubsystemBase {
         SparkMaxConfig config = new SparkMaxConfig();
         config.voltageCompensation(12);
         config.smartCurrentLimit(DRIVE_MOTOR_CURRENT_LIMIT);
+        double wheelCircumference = 2 * Math.PI * Units.inchesToMeters(3);
+        double gearRatio = 8.45;
 
         // Set configuration to follow each leader and then apply it to corresponding
         // follower. Resetting in case a new controller is swapped
         // in and persisting in case of a controller reset due to breaker trip
         config.follow(leftLeader);
+        config.encoder.positionConversionFactor(
+                wheelCircumference / gearRatio
+        );
+
+        config.encoder.velocityConversionFactor(
+                wheelCircumference / gearRatio / 60.0
+        );
 
         leftFollower.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         config.follow(rightLeader);
@@ -129,16 +138,19 @@ public class CANDriveSubsystem extends SubsystemBase {
 
         //INIT ARINS CODE
         ps.setSource(()->leftLeader.getEncoder().getPosition(), ()->rightLeader.getEncoder().getPosition());
+
+
+
     }
 
     @Override
     public void periodic() {
         //logging
         SmartDashboard.putNumber("leftLeaderEncoder", leftLeader.getEncoder().getPosition());
-        SmartDashboard.putNumber("llEncoderMeters", leftLeader.getEncoder().getPosition()/ENCODER_UNITS_PER_METER);
+        SmartDashboard.putNumber("llEncoderMeters", leftLeader.getEncoder().getPosition());
         SmartDashboard.putNumber("leftFollowerEncoder", leftFollower.getEncoder().getPosition()); // shouldn't be needed, just here to make sure (actually maybe it goes the opposite direction idk)
         SmartDashboard.putNumber("rightLeaderEncoder", rightLeader.getEncoder().getPosition());
-        SmartDashboard.putNumber("rlEncoderMeters", rightLeader.getEncoder().getPosition()/ENCODER_UNITS_PER_METER);
+        SmartDashboard.putNumber("rlEncoderMeters", rightLeader.getEncoder().getPosition());
         SmartDashboard.putNumber("rightFollowerEncoder", rightFollower.getEncoder().getPosition()); // shouldn't be needed, just here to make sure
         SmartDashboard.putNumber("leftSetPoint", lSetPoint);
         SmartDashboard.putNumber("rightSetPoint", rSetPoint);
@@ -148,18 +160,11 @@ public class CANDriveSubsystem extends SubsystemBase {
          {
 
             // SparkMax encoder velocity is RPM by default
-            double leftRPM = leftLeader.getEncoder().getVelocity();
-            double rightRPM = rightLeader.getEncoder().getVelocity();
+            double leftMPS = leftLeader.getEncoder().getVelocity();
+            double rightMPS = rightLeader.getEncoder().getVelocity();
 
-            // Convert RPM -> meters/sec
-            double wheelCircumference =
-                    2 * Math.PI * Units.inchesToMeters(3); // 3" radius
 
-            double leftMPS =
-                    (leftRPM / 60.0) * wheelCircumference *8.45 *(2.4/2.9); // coefficient for friction
 
-            double rightMPS =
-                    (rightRPM / 60.0) * wheelCircumference *8.45 *(2.4/2.9);
 
             DifferentialDriveWheelSpeeds wheelSpeeds =
                     new DifferentialDriveWheelSpeeds(leftMPS, rightMPS);
@@ -173,7 +178,7 @@ public class CANDriveSubsystem extends SubsystemBase {
                             GLOBAL_POSE.getRotation()
                     );
 
-            RobotState.ROBOT_VX = fieldRelative.vxMetersPerSecond; // WHYYY IS THIS NOT THE SAME IN SIM AS IN REAL LIFE?????
+            RobotState.ROBOT_VX = fieldRelative.vxMetersPerSecond; // WHYYY IS THIS NOT THE SAME IN SIM AS IN REAL LIFE????? In sim its ~2.5 max; but irl going to well over 100!?
             RobotState.ROBOT_VY = fieldRelative.vyMetersPerSecond;
 
         }
@@ -218,14 +223,14 @@ public class CANDriveSubsystem extends SubsystemBase {
     }
 
     public void resetSetPoints() {
-        lSetPoint = leftLeader.getEncoder().getPosition()/ENCODER_UNITS_PER_METER;
-        rSetPoint = rightLeader.getEncoder().getPosition()/ENCODER_UNITS_PER_METER;
+        lSetPoint = leftLeader.getEncoder().getPosition();
+        rSetPoint = rightLeader.getEncoder().getPosition();
     }
 
     public Command resetPIDSetpoints(){
         return this.runOnce(() -> {
-            lSetPoint = leftLeader.getEncoder().getPosition()/ENCODER_UNITS_PER_METER;
-            rSetPoint = rightLeader.getEncoder().getPosition()/ENCODER_UNITS_PER_METER;
+            lSetPoint = leftLeader.getEncoder().getPosition();
+            rSetPoint = rightLeader.getEncoder().getPosition();
         });
     }
 
@@ -246,11 +251,11 @@ public class CANDriveSubsystem extends SubsystemBase {
 
     public Command autoDrivePID(DoubleSupplier leftEncoder, DoubleSupplier rightEncoder) {
         return this.run(() -> {
-            drive.tankDrive(MathUtil.clamp(PID_CONSTANT * (lSetPoint - leftEncoder.getAsDouble()/ENCODER_UNITS_PER_METER), -1 * PID_DRIVE_CAP, PID_DRIVE_CAP),
-                    MathUtil.clamp(PID_CONSTANT * (rSetPoint - rightEncoder.getAsDouble()/ENCODER_UNITS_PER_METER), -1 * PID_DRIVE_CAP, PID_DRIVE_CAP));
+            drive.tankDrive(MathUtil.clamp(PID_CONSTANT * (lSetPoint - leftEncoder.getAsDouble()), -1 * PID_DRIVE_CAP, PID_DRIVE_CAP),
+                    MathUtil.clamp(PID_CONSTANT * (rSetPoint - rightEncoder.getAsDouble()), -1 * PID_DRIVE_CAP, PID_DRIVE_CAP));
         }).until(() -> {
-            double lDiff = Math.abs(leftEncoder.getAsDouble()/ENCODER_UNITS_PER_METER-lSetPoint);
-            double rDiff = Math.abs(rightEncoder.getAsDouble()/ENCODER_UNITS_PER_METER-rSetPoint);
+            double lDiff = Math.abs(leftEncoder.getAsDouble()-lSetPoint);
+            double rDiff = Math.abs(rightEncoder.getAsDouble()-rSetPoint);
             return lDiff < 0.1 && rDiff < 0.1;
         });
     }
@@ -340,10 +345,10 @@ public class CANDriveSubsystem extends SubsystemBase {
             System.out.println("IDIOT. CALL ARIN AND TELL HIM TO GET A BRAIN");
         }
         else {
-            m_leftEncoderSim.setPosition(drivetrainSim.getLeftPositionMeters()*ENCODER_UNITS_PER_METER);
-            m_leftEncoderSim.setVelocity(drivetrainSim.getLeftVelocityMetersPerSecond()*ENCODER_UNITS_PER_METER);
-            m_rightEncoderSim.setPosition(drivetrainSim.getRightPositionMeters()*ENCODER_UNITS_PER_METER);
-            m_rightEncoderSim.setVelocity(drivetrainSim.getRightVelocityMetersPerSecond()*ENCODER_UNITS_PER_METER);
+            m_leftEncoderSim.setPosition(drivetrainSim.getLeftPositionMeters());
+            m_leftEncoderSim.setVelocity(drivetrainSim.getLeftVelocityMetersPerSecond());
+            m_rightEncoderSim.setPosition(drivetrainSim.getRightPositionMeters());
+            m_rightEncoderSim.setVelocity(drivetrainSim.getRightVelocityMetersPerSecond());
         }
     }
 
