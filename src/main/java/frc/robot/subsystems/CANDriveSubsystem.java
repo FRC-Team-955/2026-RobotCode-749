@@ -38,8 +38,7 @@ import frc.robot.RobotState;
 
 import static edu.wpi.first.wpilibj.drive.DifferentialDrive.arcadeDriveIK;
 import static frc.robot.Constants.DriveConstants.*;
-import static frc.robot.RobotState.GLOBAL_POSE;
-import static frc.robot.RobotState.INITIAL_POSE;
+import static frc.robot.RobotState.*;
 
 
 public class CANDriveSubsystem extends SubsystemBase {
@@ -178,8 +177,16 @@ public class CANDriveSubsystem extends SubsystemBase {
                             GLOBAL_POSE.getRotation()
                     );
 
-            RobotState.ROBOT_VX = fieldRelative.vxMetersPerSecond; // WHYYY IS THIS NOT THE SAME IN SIM AS IN REAL LIFE????? In sim its ~2.5 max; but irl going to well over 100!?
-            RobotState.ROBOT_VY = fieldRelative.vyMetersPerSecond;
+
+
+            if(!isSim()){
+                RobotState.ROBOT_VX = -fieldRelative.vxMetersPerSecond; //
+                RobotState.ROBOT_VY = -fieldRelative.vyMetersPerSecond;
+            }
+            else{
+                RobotState.ROBOT_VX = fieldRelative.vxMetersPerSecond; //
+                RobotState.ROBOT_VY = fieldRelative.vyMetersPerSecond;
+            }
 
         }
 
