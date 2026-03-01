@@ -23,6 +23,7 @@ import frc.robot.RobotState;
 import frc.robot.subsystems.shootersim.ShooterSim;
 
 import java.util.ArrayList;
+import java.util.function.DoubleSupplier;
 
 import static frc.robot.Constants.FuelConstants.*;
 import static frc.robot.RobotState.*;
@@ -105,23 +106,15 @@ public class CANFuelSubsystem extends SubsystemBase {
   }
 
   // A method to set the rollers to values for launching.
-  public void launch() {
+  public void launch(DoubleSupplier voltage) {
     feederRoller.setVoltage(SmartDashboard.getNumber("Launching feeder roller value", LAUNCHING_FEEDER_VOLTAGE));
     intakeLauncherRoller
         .setVoltage(SmartDashboard.getNumber("Launching launcher roller value", LAUNCHING_LAUNCHER_VOLTAGE));
-      shooterWheels.setVoltage(SHOOTER_LAUNCH_VOLTAGE); ///brake mode makes this stop
+      shooterWheels.setVoltage(voltage.getAsDouble()); ///brake mode makes this stop
       if(isSim()){
           System.out.println("ARIN IS NOT DUMB");
       }
   }
-
-    public void weakLaunch() {
-        feederRoller.setVoltage(SmartDashboard.getNumber("Launching feeder roller value", LAUNCHING_FEEDER_VOLTAGE));
-        intakeLauncherRoller
-                .setVoltage(SmartDashboard.getNumber("Launching launcher roller value", LAUNCHING_LAUNCHER_VOLTAGE));
-        shooterWheels.setVoltage(SHOOTER_WEAK_LAUNCH_VOLTAGE); ///brake mode makes this stop
-    }
-
 
   // A method to stop the rollers
   public void stop() {
@@ -143,27 +136,18 @@ public class CANFuelSubsystem extends SubsystemBase {
   // A command factory to turn the spinUp method into a command that requires this
   // subsystem
   public Command spinUpCommand() {
-    return this.run(() -> spinUp(SHOOTER_SPIN_UP_VOLTAGE));
+      return this.run(() -> spinUp(SHOOTER_SPIN_UP_VOLTAGE));
   }
-    public Command spinUpWeakCommand() {
-        return this.run(() -> spinUp(SHOOTER_SPIN_UP_VOLTAGE));
-    }
 
   // A command factory to turn the launch method into a command that requires this
   // subsystem
-  public Command launchCommand() {
-    return this.run(() -> launch());
+  public Command launchCommand(DoubleSupplier voltage) {
+      return this.run(() -> launch(voltage));
   }
-    public Command weakLaunchCommand() {
-        return this.run(() -> weakLaunch());
-    }
 
-  public boolean isAtSpeed(){
-      return (((-shooterWheels.getVelocity().getValueAsDouble())- 58) > -1.2);
+  public boolean isAtSpeed(double speed){
+      return (((-shooterWheels.getVelocity().getValueAsDouble())- speed) > -1.2);
   }
-    public boolean isAtWeakSpeed(){
-        return (((-shooterWheels.getVelocity().getValueAsDouble())- 29) > -1.2);
-    }
 
 
     StructArrayPublisher<Pose3d> arrayPublisher = NetworkTableInstance.getDefault()

@@ -9,6 +9,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import frc.robot.Constants;
 import frc.robot.subsystems.CANFuelSubsystem;
 import frc.robot.subsystems.CANDriveSubsystem;
 
@@ -25,8 +26,8 @@ public final class Autos {
                 driveSubsystem.driveArcade(() -> 0, () -> 0),
                 // Spin up the launcher for 1 second and then launch balls for 9 seconds, for a
                 // total of 10 seconds
-                ballSubsystem.spinUpCommand().until(()->ballSubsystem.isAtSpeed()),
-                ballSubsystem.launchCommand().withTimeout(2),
+                ballSubsystem.spinUpCommand().until(()->ballSubsystem.isAtSpeed(Constants.FuelConstants.SHOOTER_STRONG_SPEED)),
+                ballSubsystem.launchCommand(() -> Constants.FuelConstants.SHOOTER_LAUNCH_VOLTAGE).withTimeout(2),
                 // ballSubsystem.spinUpCommand().withTimeout(1), // longer spinup time for more consistency?
                 // ballSubsystem.launchCommand().withTimeout(9),  // might not need
                 // Stop running the launcher
@@ -44,8 +45,8 @@ public final class Autos {
         return new SequentialCommandGroup(
                 driveSubsystem.setPIDSetpoints(() -> -1, () -> 0),
                 driveSubsystem.autoDrivePID(driveSubsystem.giveLeftEncoder(), driveSubsystem.giveRightEncoder()).withTimeout(3),
-                ballSubsystem.spinUpWeakCommand().until(() -> ballSubsystem.isAtWeakSpeed()),
-                ballSubsystem.weakLaunchCommand().withTimeout(4),
+                ballSubsystem.spinUpCommand().until(() -> ballSubsystem.isAtSpeed(Constants.FuelConstants.SHOOTER_WEAK_SPEED)),
+                ballSubsystem.launchCommand(() -> Constants.FuelConstants.SHOOTER_WEAK_LAUNCH_VOLTAGE).withTimeout(4),
                 ballSubsystem.runOnce(() -> ballSubsystem.stop())
         );
     }
@@ -54,8 +55,8 @@ public final class Autos {
         return new SequentialCommandGroup(
                driveSubsystem.setPIDSetpoints(() -> -3, () -> -3),
           driveSubsystem.autoDrivePID(driveSubsystem.giveLeftEncoder(), driveSubsystem.giveRightEncoder()),
-          ballSubsystem.spinUpCommand().until(() -> ballSubsystem.isAtSpeed()),
-          ballSubsystem.launchCommand().withTimeout(2),
+          ballSubsystem.spinUpCommand().until(() -> ballSubsystem.isAtSpeed(Constants.FuelConstants.SHOOTER_STRONG_SPEED)),
+          ballSubsystem.launchCommand(() -> Constants.FuelConstants.SHOOTER_LAUNCH_VOLTAGE).withTimeout(2),
                 ballSubsystem.runOnce(() -> ballSubsystem.stop())
         );
     }
@@ -64,8 +65,8 @@ public final class Autos {
         return new SequentialCommandGroup(
                 driveSubsystem.setPIDSetpoints(() -> -0.5, () -> -0.5),
                 driveSubsystem.autoDrivePID(driveSubsystem.giveLeftEncoder(), driveSubsystem.giveRightEncoder()).withTimeout(2),
-             ballSubsystem.spinUpWeakCommand().until(() -> ballSubsystem.isAtWeakSpeed()),
-                ballSubsystem.weakLaunchCommand().withTimeout(4),
+             ballSubsystem.spinUpCommand().until(() -> ballSubsystem.isAtSpeed(Constants.FuelConstants.SHOOTER_WEAK_SPEED)),
+                ballSubsystem.launchCommand(() -> Constants.FuelConstants.SHOOTER_WEAK_LAUNCH_VOLTAGE).withTimeout(4),
                 ballSubsystem.runOnce(() -> ballSubsystem.stop())
         );
     }

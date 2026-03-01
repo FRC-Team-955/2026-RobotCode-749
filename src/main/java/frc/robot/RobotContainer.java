@@ -87,13 +87,13 @@ public class RobotContainer {
         // While the right bumper on the operator controller is held, spin up for 1
         // second, then launch fuel. When the button is released, stop.
         operatorController.rightBumper()
-                .whileTrue(ballSubsystem.spinUpCommand().until(()->ballSubsystem.isAtSpeed())
-                        .andThen(ballSubsystem.launchCommand())
+                .whileTrue(ballSubsystem.spinUpCommand().until(()->ballSubsystem.isAtSpeed(Constants.FuelConstants.SHOOTER_STRONG_SPEED))
+                        .andThen(ballSubsystem.launchCommand(() -> Constants.FuelConstants.SHOOTER_LAUNCH_VOLTAGE))
                         .finallyDo(() -> ballSubsystem.stop()));
 
         operatorController.y()
-                .whileTrue(ballSubsystem.spinUpWeakCommand().until(()->ballSubsystem.isAtWeakSpeed())
-                        .andThen(ballSubsystem.weakLaunchCommand())
+                .whileTrue(ballSubsystem.spinUpCommand().until(()->ballSubsystem.isAtSpeed(Constants.FuelConstants.SHOOTER_WEAK_SPEED))
+                        .andThen(ballSubsystem.launchCommand(() -> Constants.FuelConstants.SHOOTER_WEAK_LAUNCH_VOLTAGE))
                         .finallyDo(() -> ballSubsystem.stop()));
 
         // While the A button is held on the operator controller, eject fuel back out
