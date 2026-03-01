@@ -74,7 +74,6 @@ public class RobotContainer {
         autoChooser.addOption("go back then shoot", Autos.boringAuto(driveSubsystem, ballSubsystem));
         autoChooser.addOption("weak shoot", Autos.weakShoot(driveSubsystem, ballSubsystem));
         autoChooser.addOption("go forward and right", Autos.ArinsPIDAuto(driveSubsystem));
-        autoChooser.addOption("do nothing auto", Autos.nothingAuto(driveSubsystem, ballSubsystem));
     }
 
 

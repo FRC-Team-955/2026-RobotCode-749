@@ -33,15 +33,8 @@ public final class Autos {
                 ballSubsystem.runOnce(() -> ballSubsystem.stop()));
     }
 
-    public static Command nothingAuto(CANDriveSubsystem driveSubsystem, CANFuelSubsystem ballSubsystem) {
-        return new SequentialCommandGroup(
-          driveSubsystem.resetPIDSetpoints()
-        );
-    }
-
     public static Command PIDAuto(CANDriveSubsystem driveSubsystem, CANFuelSubsystem ballSubsystem) {
         return new SequentialCommandGroup(
-                driveSubsystem.resetPIDSetpoints(),
                 driveSubsystem.setPIDSetpoints(() -> -1, () -> -1), // same sign i think
                 driveSubsystem.autoDrivePID(driveSubsystem.giveLeftEncoder(), driveSubsystem.giveRightEncoder())
         );
@@ -49,7 +42,6 @@ public final class Autos {
 
     public static Command PIDRotateHalf(CANDriveSubsystem driveSubsystem, CANFuelSubsystem ballSubsystem) {
         return new SequentialCommandGroup(
-                driveSubsystem.resetPIDSetpoints(),
                 driveSubsystem.setPIDSetpoints(() -> -1, () -> 0),
                 driveSubsystem.autoDrivePID(driveSubsystem.giveLeftEncoder(), driveSubsystem.giveRightEncoder()).withTimeout(3),
                 ballSubsystem.spinUpWeakCommand().until(() -> ballSubsystem.isAtWeakSpeed()),
@@ -70,7 +62,6 @@ public final class Autos {
 
     public static Command weakShoot(CANDriveSubsystem driveSubsystem, CANFuelSubsystem ballSubsystem) {
         return new SequentialCommandGroup(
-                driveSubsystem.resetPIDSetpoints(),
                 driveSubsystem.setPIDSetpoints(() -> -0.5, () -> -0.5),
                 driveSubsystem.autoDrivePID(driveSubsystem.giveLeftEncoder(), driveSubsystem.giveRightEncoder()).withTimeout(2),
              ballSubsystem.spinUpWeakCommand().until(() -> ballSubsystem.isAtWeakSpeed()),

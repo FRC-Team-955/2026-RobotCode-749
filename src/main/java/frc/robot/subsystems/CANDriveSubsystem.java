@@ -17,6 +17,7 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.LTVUnicycleController;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -56,8 +57,12 @@ public class CANDriveSubsystem extends SubsystemBase {
 
     private final SlewRateLimiter limit = new SlewRateLimiter(10 * Constants.DriveConstants.SAFE_SPEED_CAP);
     DifferentialDriveKinematics kinematics = new DifferentialDriveKinematics(DBASE_WIDTH);
+
     double lSetPoint;
     double rSetPoint;
+
+    public final PIDController leftPID = new PIDController(1, 0, 0);
+    public final PIDController rightPID = new PIDController(1, 0, 0);
 
 /// TODO: TUNE THIS
     DifferentialDrivetrainSim drivetrainSim = new DifferentialDrivetrainSim(
@@ -153,6 +158,8 @@ public class CANDriveSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("rightFollowerEncoder", rightFollower.getEncoder().getPosition()); // shouldn't be needed, just here to make sure
         SmartDashboard.putNumber("leftSetPoint", lSetPoint);
         SmartDashboard.putNumber("rightSetPoint", rSetPoint);
+        SmartDashboard.putNumber("lPIDPoint", leftPID.getSetpoint());
+        SmartDashboard.putNumber("rPIDPoint", rightPID.getSetpoint());
 
 
         ///  SIM AND NON-SIM GLOBAL VELOCITIES
@@ -215,30 +222,21 @@ public class CANDriveSubsystem extends SubsystemBase {
         });
     }
 
-    public Command driveTank(DoubleSupplier leftSpeed, DoubleSupplier rightSpeed) {
-        // setpoints included just for logging it
-        // use setpoints to tune encoder units
-        return new SequentialCommandGroup( // THIS WILL NOT WORK (look at drivearcade)
-                run(() -> updateSetPoints(leftSpeed.getAsDouble(), rightSpeed.getAsDouble())),
-                run(() -> drive.tankDrive(leftSpeed.getAsDouble(), rightSpeed.getAsDouble())));
-    }
-
     private void updateSetPoints(double leftSpeed, double rightSpeed) {
         lSetPoint += leftSpeed;
         rSetPoint += rightSpeed;
+        leftPID.setSetpoint(leftPID.getSetpoint()+leftSpeed);
+        rightPID.setSetpoint(rightPID.getSetpoint()+rightSpeed);
 
     }
 
     public void resetSetPoints() {
         lSetPoint = leftLeader.getEncoder().getPosition();
         rSetPoint = rightLeader.getEncoder().getPosition();
-    }
-
-    public Command resetPIDSetpoints(){
-        return this.runOnce(() -> {
-            lSetPoint = leftLeader.getEncoder().getPosition();
-            rSetPoint = rightLeader.getEncoder().getPosition();
-        });
+        leftPID.setSetpoint(leftLeader.getEncoder().getPosition());
+        leftPID.setTolerance(0.05);
+        rightPID.setSetpoint(rightLeader.getEncoder().getPosition());
+        rightPID.setTolerance(0.05);
     }
 
     public DoubleSupplier giveLeftEncoder() {
@@ -258,12 +256,10 @@ public class CANDriveSubsystem extends SubsystemBase {
 
     public Command autoDrivePID(DoubleSupplier leftEncoder, DoubleSupplier rightEncoder) {
         return this.run(() -> {
-            drive.tankDrive(MathUtil.clamp(PID_CONSTANT * (lSetPoint - leftEncoder.getAsDouble()), -1 * PID_DRIVE_CAP, PID_DRIVE_CAP),
-                    MathUtil.clamp(PID_CONSTANT * (rSetPoint - rightEncoder.getAsDouble()), -1 * PID_DRIVE_CAP, PID_DRIVE_CAP));
+            drive.tankDrive(MathUtil.clamp(leftPID.calculate(leftEncoder.getAsDouble()), -1 * PID_DRIVE_CAP, PID_DRIVE_CAP),
+                    MathUtil.clamp(rightPID.calculate(rightEncoder.getAsDouble()), -1 * PID_DRIVE_CAP, PID_DRIVE_CAP));
         }).until(() -> {
-            double lDiff = Math.abs(leftEncoder.getAsDouble()-lSetPoint);
-            double rDiff = Math.abs(rightEncoder.getAsDouble()-rSetPoint);
-            return lDiff < 0.1 && rDiff < 0.1;
+            return Math.abs(leftPID.getError()) < 0.1 && Math.abs(rightPID.getError()) < 0.1;
         });
     }
 
