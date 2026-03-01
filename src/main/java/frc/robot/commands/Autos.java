@@ -53,10 +53,20 @@ public final class Autos {
 
     public static Command rBumpShoot(CANDriveSubsystem driveSubsystem, CANFuelSubsystem ballSubsystem) {
         return new SequentialCommandGroup(
-                driveSubsystem.setPIDSetpoints(() -> 0, () -> -1),
+                driveSubsystem.setPIDSetpoints(() -> 0, () -> -0.67),
                 driveSubsystem.autoDrivePID(driveSubsystem.giveLeftEncoder(), driveSubsystem.giveRightEncoder()).withTimeout(3),
-                ballSubsystem.spinUpCommand().until(() -> ballSubsystem.isAtSpeed(50)),
-                ballSubsystem.launchCommand(() -> -6.6).withTimeout(4),
+                ballSubsystem.spinUpCommand().until(() -> ballSubsystem.isAtSpeed(48)),
+                ballSubsystem.launchCommand(() -> -6.63).withTimeout(4),
+                ballSubsystem.runOnce(() -> ballSubsystem.stop())
+        );
+    }
+
+    public static Command lBumpShoot(CANDriveSubsystem driveSubsystem, CANFuelSubsystem ballSubsystem) {
+        return new SequentialCommandGroup(
+                driveSubsystem.setPIDSetpoints(() -> -0.67, () -> 0),
+                driveSubsystem.autoDrivePID(driveSubsystem.giveLeftEncoder(), driveSubsystem.giveRightEncoder()).withTimeout(3),
+                ballSubsystem.spinUpCommand().until(() -> ballSubsystem.isAtSpeed(48)),
+                ballSubsystem.launchCommand(() -> -6.63).withTimeout(4),
                 ballSubsystem.runOnce(() -> ballSubsystem.stop())
         );
     }
