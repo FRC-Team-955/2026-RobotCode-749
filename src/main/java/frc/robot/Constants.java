@@ -50,7 +50,7 @@ public final class  Constants {
   public static final class FuelConstants {
     // Motor controller IDs for Fuel Mechanism motors
     public static final int FEEDER_MOTOR_ID = 6; // checked
-    public static final int INTAKE_LAUNCHER_MOTOR_ID = 1;
+    public static final int INTAKE_LAUNCHER_MOTOR_ID = 67;
     public static final int SHOOTER_WHEELS_MOTOR_ID = 11;
 
     // Current limit and nominal voltage for fuel mechanism motors.
@@ -74,7 +74,7 @@ public final class  Constants {
       public static final double SHOOTER_WEAK_SPEED = 40;
   }
     public static class ClimbConstants {
-      public static final int CLIMBER_ID = 67;
+      public static final int CLIMBER_ID = 1;
       public static final double GEAR_RATIO = 1/35;
       public static final double MAX_OUTPUT = 12;
       public static final double TOP_SETPOINT = 0.3; //METERS

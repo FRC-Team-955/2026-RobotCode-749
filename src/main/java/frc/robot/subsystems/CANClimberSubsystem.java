@@ -28,6 +28,17 @@ public class CANClimberSubsystem extends SubsystemBase {
 
     }
 
+    public void stop() {
+        climber.set(0);
+    }
+
+    public void goUp() {
+        climber.set(4);
+    }
+
+    public void goDown() {
+        climber.set(-4);
+    }
 
     private double getPos(){
         return climberEncoder.getPosition() * Constants.ClimbConstants.GEAR_RATIO /Constants.DriveConstants.ENCODER_UNITS_PER_METER;
@@ -64,6 +75,7 @@ public class CANClimberSubsystem extends SubsystemBase {
 
     @Override
         public void periodic() {
-            SmartDashboard.putNumber("climber", getPos());
+        SmartDashboard.putNumber("climber", getPos());
+        SmartDashboard.putNumber("Climber Encoder", climberEncoder.getPosition());
     }
 }

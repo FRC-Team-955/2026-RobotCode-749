@@ -82,6 +82,12 @@ public class RobotContainer {
 
     private void configureBindings() {
 
+        driverController.rightBumper()
+                        .whileTrue(climberSubsystem.runEnd(() -> climberSubsystem.goUp(), () -> climberSubsystem.stop()));
+
+        driverController.leftBumper()
+                        .whileTrue(climberSubsystem.runEnd(() -> climberSubsystem.goDown(), () -> climberSubsystem.stop()));
+
         // While the left bumper on operator controller is held, intake Fuel
         operatorController.leftBumper()
                 .whileTrue(ballSubsystem.runEnd(() -> ballSubsystem.intake(), () -> ballSubsystem.stop()));
