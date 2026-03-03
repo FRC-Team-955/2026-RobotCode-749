@@ -6,11 +6,13 @@ import com.revrobotics.spark.SparkLowLevel;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
+import java.util.function.DoubleSupplier;
 
 
 public class CANClimberSubsystem extends SubsystemBase {
@@ -18,6 +20,7 @@ public class CANClimberSubsystem extends SubsystemBase {
 
     private final RelativeEncoder climberEncoder;
 
+    public double topEncoderValue;
 
     public CANClimberSubsystem() {
         climber = new SparkMax(Constants.ClimbConstants.CLIMBER_ID, SparkLowLevel.MotorType.kBrushless);
@@ -28,16 +31,29 @@ public class CANClimberSubsystem extends SubsystemBase {
 
     }
 
+    public void setClimberZero() {
+        topEncoderValue = climberEncoder.getPosition() + 5;
+    }
+
     public void stop() {
         climber.set(0);
     }
 
     public void goUp() {
-        climber.set(4);
+        if (climberEncoder.getPosition() < topEncoderValue) {
+            climber.set(4 - 4*(1- MathUtil.clamp((topEncoderValue-climberEncoder.getPosition())/5, 0, 1)));
+        } else {
+            climber.set(0);
+        }
+
     }
 
     public void goDown() {
-        climber.set(-4);
+        if (climberEncoder.getPosition() > topEncoderValue-Constants.ClimbConstants.ENCODER_CAP) {
+            climber.set(-4);
+        } else {
+            climber.set(0);
+        }
     }
 
     private double getPos(){
@@ -77,5 +93,6 @@ public class CANClimberSubsystem extends SubsystemBase {
         public void periodic() {
         SmartDashboard.putNumber("climber", getPos());
         SmartDashboard.putNumber("Climber Encoder", climberEncoder.getPosition());
+        SmartDashboard.putNumber("Climber bottom point", topEncoderValue);
     }
 }

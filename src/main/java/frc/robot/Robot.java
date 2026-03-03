@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
+import frc.robot.subsystems.CANClimberSubsystem;
 import frc.robot.subsystems.CANDriveSubsystem;
 import frc.robot.subsystems.CANFuelSubsystem;
 import frc.robot.subsystems.PoseSubsystem;
@@ -36,6 +37,7 @@ public class Robot extends TimedRobot {
     private final CANFuelSubsystem fuelSubsystem = new CANFuelSubsystem();
     public final PoseSubsystem poseSubsystem = new PoseSubsystem();
     private final CANDriveSubsystem driveSubsystem = new CANDriveSubsystem(poseSubsystem);
+    public final CANClimberSubsystem climberSubsystem = new CANClimberSubsystem();
   /**
    * This function is run when the robot is first started up and should be used
    * for any
@@ -46,7 +48,7 @@ public class Robot extends TimedRobot {
     // Instantiate our RobotContainer. This will perform all our button bindings,
     // and put our
     // autonomous chooser on the dashboard.
-    m_robotContainer = new RobotContainer(fuelSubsystem, driveSubsystem, poseSubsystem);
+    m_robotContainer = new RobotContainer(fuelSubsystem, driveSubsystem, poseSubsystem, climberSubsystem);
     // Used to track usage of Kitbot code, please do not remove.
     HAL.report(tResourceType.kResourceType_Framework, 10);
 
@@ -95,6 +97,7 @@ public class Robot extends TimedRobot {
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
     fuelSubsystem.setCoastMode();
     driveSubsystem.resetSetPoints();
+    climberSubsystem.setClimberZero();
     // schedule the autonomous command (example)
     if (m_autonomousCommand != null) {
       CommandScheduler.getInstance().schedule(m_autonomousCommand);

@@ -30,7 +30,7 @@ public class RobotContainer {
     // The robot's subsystems
     private CANDriveSubsystem driveSubsystem;
     private CANFuelSubsystem ballSubsystem;
-    private final CANClimberSubsystem climberSubsystem = new CANClimberSubsystem();
+    private CANClimberSubsystem climberSubsystem;
     private PoseSubsystem poseSubsystem;
 
 
@@ -51,11 +51,12 @@ public class RobotContainer {
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
      */
-    public RobotContainer(CANFuelSubsystem fuelSubsystem, CANDriveSubsystem driveSubsystem, PoseSubsystem poseSubsystem) {
+    public RobotContainer(CANFuelSubsystem fuelSubsystem, CANDriveSubsystem driveSubsystem, PoseSubsystem poseSubsystem, CANClimberSubsystem climbersubsystem) {
 
     this.ballSubsystem = fuelSubsystem;
     this.driveSubsystem = driveSubsystem;
     this.poseSubsystem = poseSubsystem;
+    this.climberSubsystem = climbersubsystem;
 
 
 
@@ -81,6 +82,9 @@ public class RobotContainer {
 
 
     private void configureBindings() {
+
+        driverController.a()
+                        .onTrue(climberSubsystem.runOnce(() -> climberSubsystem.setClimberZero()));
 
         driverController.rightBumper()
                         .whileTrue(climberSubsystem.runEnd(() -> climberSubsystem.goUp(), () -> climberSubsystem.stop()));
@@ -133,14 +137,16 @@ public class RobotContainer {
             driveSubsystem.setDefaultCommand(
             driveSubsystem.driveArcade(
                     () -> -driverController.getRawAxis(1) * DRIVE_SCALING,
-                    () -> -driverController.getRawAxis(0) * ROTATION_SCALING
+                    () -> -driverController.getRawAxis(0) * ROTATION_SCALING,
+                    () -> driverController.getRightTriggerAxis() // im sorry idk what to put here arin
             ));
         }
         else{
             driveSubsystem.setDefaultCommand(
             driveSubsystem.driveArcade(
                     () -> driverController.getLeftY() * DRIVE_SCALING,
-                    () -> driverController.getRightX() * ROTATION_SCALING));
+                    () -> driverController.getRightX() * ROTATION_SCALING,
+                    () -> driverController.getRightTriggerAxis()));
         }
 
 
