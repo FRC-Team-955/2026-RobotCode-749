@@ -79,7 +79,7 @@ public final class  Constants {
       public static final int CLIMBER_ID = 1;
       public static final double GEAR_RATIO = 1/35;
       public static final double MAX_OUTPUT = 12;
-      public static final double ENCODER_CAP = 50; // in encoder ticks
+      public static final double ENCODER_CAP = 150; // in encoder ticks, NEEDS to be tuned (im guessing 150 but its a wild guess)
       public static final double TOP_SETPOINT = 0.3; //METERS
         public static final double BOTTOM_SETPOINT = 0.0; //METERS
         public static final double kP = 1.0; ////// THIS NEEDS TUNING!!!!!!!!!!!!!!!!!!!!

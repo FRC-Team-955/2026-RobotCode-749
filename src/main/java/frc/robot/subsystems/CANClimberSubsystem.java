@@ -32,7 +32,7 @@ public class CANClimberSubsystem extends SubsystemBase {
     }
 
     public void setClimberZero() {
-        topEncoderValue = climberEncoder.getPosition() + 5;
+        topEncoderValue = climberEncoder.getPosition() + 5; // the +5 is to allow us to be able to manually change the top point
     }
 
     public void stop() {
@@ -41,16 +41,17 @@ public class CANClimberSubsystem extends SubsystemBase {
 
     public void goUp() {
         if (climberEncoder.getPosition() < topEncoderValue) {
-            climber.set(4 - 4*(1- MathUtil.clamp((topEncoderValue-climberEncoder.getPosition())/10, 0, 1)));
+            climber.set(4*MathUtil.clamp((topEncoderValue-climberEncoder.getPosition())/10, 0, 1));
         } else {
             climber.set(0);
         }
-
+        // (topEncoderValue-climberEncoder.getPosition())/10 will divide the difference so whenever it gets within 10 encoder ticks it
+        // will start to slow down because when divided by 10 it will give you a value less than 1 (same goes for below function)
     }
 
     public void goDown() {
-        if (climberEncoder.getPosition() > topEncoderValue-Constants.ClimbConstants.ENCODER_CAP) {
-            climber.set(-4);
+        if (climberEncoder.getPosition() > topEncoderValue-Constants.ClimbConstants.ENCODER_CAP) { // ENCODER_CAP needs to be tuned
+            climber.set(-4*Math.abs(MathUtil.clamp((topEncoderValue-climberEncoder.getPosition())/10, -1, 0)));
         } else {
             climber.set(0);
         }
