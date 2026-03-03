@@ -16,9 +16,11 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import frc.robot.RobotState;
 import frc.robot.subsystems.shootersim.ShooterSim;
 
@@ -33,6 +35,8 @@ public class CANFuelSubsystem extends SubsystemBase {
   private final SparkMax feederRoller;
   private final SparkMax intakeLauncherRoller;
   private final TalonFX shooterWheels;
+  private boolean runFeederAutoAim = false;
+  private double hitVelocity = -1;
 
 
 
@@ -87,6 +91,8 @@ public class CANFuelSubsystem extends SubsystemBase {
     launcherConfig.inverted(true);
     launcherConfig.smartCurrentLimit(LAUNCHER_MOTOR_CURRENT_LIMIT);
     intakeLauncherRoller.configure(launcherConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+
+
   }
 
   // A method to set the rollers to values for intaking
@@ -114,6 +120,29 @@ public class CANFuelSubsystem extends SubsystemBase {
       if(isSim()){
           System.out.println("ARIN IS NOT DUMB");
       }
+  }
+
+  public void funcShootAtTarget(){
+      if(runFeederAutoAim){
+          feederRoller.set(LAUNCHING_FEEDER_VOLTAGE);
+      }
+      else{
+          feederRoller.set(0);
+      }
+      double current = -shooterWheels.getVelocity().getValueAsDouble();
+      double error = hitVelocity - current;
+
+      double output = error * Constants.FuelConstants.kP;
+
+      output = Math.max(
+              -10.6,
+              Math.min(10.6, output)
+      );
+
+      shooterWheels.set(-output);
+  }
+  public Command shootAtTarget(){
+      return run(()->funcShootAtTarget());
   }
 
   // A method to stop the rollers
@@ -155,17 +184,21 @@ public class CANFuelSubsystem extends SubsystemBase {
     StructArrayPublisher<Pose3d> tarrayPublisher = NetworkTableInstance.getDefault()
             .getStructArrayTopic("TargetOutline", Pose3d.struct).publish();
     int counter = 0;
-    int calculateEvery = 5; //10x a second
+    int calculateEvery = 15; //3.3x a second
+
 
   @Override
   public void periodic() {
+
+
       counter++;
     // This method will be called once per scheduler run
       SmartDashboard.putNumber("Shooter Velocity", -shooterWheels.getVelocity().getValueAsDouble()); // 58 running, ~61(?) for spinup
       SmartDashboard.putNumber("Shooter Encoder", -shooterWheels.getPosition().getValueAsDouble());
         boolean badPosePotenitally = false;
       if(counter == calculateEvery) {
-          if(SS.poseHit(GLOBAL_POSE,targetList)<0){
+          double candidateCV = SS.poseHit(GLOBAL_POSE,targetList);
+          if(candidateCV<0){
               badPosePotenitally =true;
           }
           ArrayList<Pose3d> trajectory;
@@ -176,9 +209,12 @@ public class CANFuelSubsystem extends SubsystemBase {
               trajectory = SS.SimShot(Math.abs(shooterWheels.getVelocity().getValueAsDouble()), RobotState.GLOBAL_POSE, ROBOT_VX, ROBOT_VY);
               if(SS.IsHit(trajectory,targetList)){
                   System.out.println("CURRENT SHOT HITS!");
+                  runFeederAutoAim = true;
               }
               else{
+
                   System.out.println("Current shot misses");
+                  runFeederAutoAim = false;
               }
               arrayPublisher.set(trajectory.toArray(new Pose3d[0]));
               double bestGuessVelocity = SS.getShooterVel(GLOBAL_POSE, ROBOT_VX, ROBOT_VY, targetList);
@@ -194,6 +230,7 @@ public class CANFuelSubsystem extends SubsystemBase {
               } else {
                   System.out.print("GOOD POSE! Can Hit With AngV: ");
                   System.out.print(bestGuessVelocity); System.out.print(" (Currently at: ");System.out.print(Math.abs(shooterWheels.getVelocity().getValueAsDouble())); System.out.println(" )");
+                  hitVelocity =  bestGuessVelocity; //POSITIVE
               }
           } else { //if simulation, just use best possible
               double bestGuessVelocity = SS.getShooterVel(GLOBAL_POSE, ROBOT_VX, ROBOT_VY, targetList);
