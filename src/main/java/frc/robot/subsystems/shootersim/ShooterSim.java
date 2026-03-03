@@ -20,7 +20,7 @@ public class ShooterSim {
         AngularVelocityToLandingPt.add(0,0);
         AngularVelocityToLandingPt.add(40,2.72); //107 in
         AngularVelocityToLandingPt.add(58,4.06); //meters!  160 in
-        AngularVelocityToLandingPt.add(70,4.66); // THIS ISNT TUNED!
+        AngularVelocityToLandingPt.add(70,4.78); // THIS ISNT TUNED!
 
         AngularVelocityLaunchAngle.add(0,Math.PI/2);
         AngularVelocityLaunchAngle.add(40,Math.PI/2-Math.toRadians(30)); //
@@ -158,7 +158,7 @@ return Poses;
     public double getShooterVel(Pose2d robotPose, double robot_vx, double robot_vy, ArrayList<Pose3d> target){
         ArrayList<Pose3d> test;
         ArrayList<Double> cVs= new ArrayList<Double>();
-        for(double cV = 20; cV<100; cV+=0.9){ // THIS (Delta cV) CANT BE LOW OR IT LOOP OVERRUNS SINCE ROBORIOS ARE CRAPPY
+        for(double cV = 20; cV<100; cV+=0.85){ // THIS (Delta cV) CANT BE LOW OR IT LOOP OVERRUNS SINCE ROBORIOS ARE CRAPPY
             test = SimShot(cV,  robotPose,  robot_vx,  robot_vy);
             if(IsHit(test,target)){
                 cVs.add(cV);
