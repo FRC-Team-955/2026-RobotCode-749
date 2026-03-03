@@ -16,6 +16,7 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -90,6 +91,8 @@ public class CANFuelSubsystem extends SubsystemBase {
     launcherConfig.inverted(true);
     launcherConfig.smartCurrentLimit(LAUNCHER_MOTOR_CURRENT_LIMIT);
     intakeLauncherRoller.configure(launcherConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+
+
   }
 
   // A method to set the rollers to values for intaking
@@ -183,15 +186,19 @@ public class CANFuelSubsystem extends SubsystemBase {
     int counter = 0;
     int calculateEvery = 15; //3.3x a second
 
+
   @Override
   public void periodic() {
+
+
       counter++;
     // This method will be called once per scheduler run
       SmartDashboard.putNumber("Shooter Velocity", -shooterWheels.getVelocity().getValueAsDouble()); // 58 running, ~61(?) for spinup
       SmartDashboard.putNumber("Shooter Encoder", -shooterWheels.getPosition().getValueAsDouble());
         boolean badPosePotenitally = false;
       if(counter == calculateEvery) {
-          if(SS.poseHit(GLOBAL_POSE,targetList)<0){
+          double candidateCV = SS.poseHit(GLOBAL_POSE,targetList);
+          if(candidateCV<0){
               badPosePotenitally =true;
           }
           ArrayList<Pose3d> trajectory;
