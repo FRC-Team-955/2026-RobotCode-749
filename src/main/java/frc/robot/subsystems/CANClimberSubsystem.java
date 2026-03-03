@@ -41,7 +41,7 @@ public class CANClimberSubsystem extends SubsystemBase {
 
     public void goUp() {
         if (climberEncoder.getPosition() < topEncoderValue) {
-            climber.set(4 - 4*(1- MathUtil.clamp((topEncoderValue-climberEncoder.getPosition())/5, 0, 1)));
+            climber.set(4 - 4*(1- MathUtil.clamp((topEncoderValue-climberEncoder.getPosition())/10, 0, 1)));
         } else {
             climber.set(0);
         }
