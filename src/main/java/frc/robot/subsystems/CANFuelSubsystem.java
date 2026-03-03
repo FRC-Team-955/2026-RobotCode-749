@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.revrobotics.spark.SparkBase.PersistMode;
@@ -33,7 +34,7 @@ import static frc.robot.RobotState.*;
 @SuppressWarnings("removal") //weird deprecation warning. As all programmers know, suppressing errors is better than fixing them
 public class CANFuelSubsystem extends SubsystemBase {
   private final SparkMax feederRoller;
-  private final SparkMax intakeLauncherRoller;
+  private final TalonFX intakeLauncherRoller;
   private final TalonFX shooterWheels;
   private boolean runFeederAutoAim = false;
   private double hitVelocity = -1;
@@ -62,7 +63,7 @@ public class CANFuelSubsystem extends SubsystemBase {
 
 
     // create brushLESS motors for each of the motors on the launcher mechanism
-    intakeLauncherRoller = new SparkMax(INTAKE_LAUNCHER_MOTOR_ID, MotorType.kBrushless);
+    intakeLauncherRoller = new TalonFX(INTAKE_LAUNCHER_MOTOR_ID);
     feederRoller = new SparkMax(FEEDER_MOTOR_ID, MotorType.kBrushless);
     shooterWheels = new TalonFX(SHOOTER_WHEELS_MOTOR_ID,"rio");
 
@@ -87,10 +88,8 @@ public class CANFuelSubsystem extends SubsystemBase {
     // create the configuration for the launcher roller, set a current limit, set
     // the motor to inverted so that positive values are used for both intaking and
     // launching, and apply the config to the controller
-    SparkMaxConfig launcherConfig = new SparkMaxConfig();
-    launcherConfig.inverted(true);
-    launcherConfig.smartCurrentLimit(LAUNCHER_MOTOR_CURRENT_LIMIT);
-    intakeLauncherRoller.configure(launcherConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    TalonFXConfiguration launcherConfig = new TalonFXConfiguration();
+    intakeLauncherRoller.getConfigurator().apply(launcherConfig);
 
 
   }
