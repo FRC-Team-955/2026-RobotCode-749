@@ -129,6 +129,9 @@ public class CANFuelSubsystem extends SubsystemBase {
       else{
           feederRoller.set(0);
       }
+      if(hitVelocity<0){
+          return;
+      }
       double current = -shooterWheels.getVelocity().getValueAsDouble();
       double error = hitVelocity - current;
 
@@ -226,7 +229,7 @@ public class CANFuelSubsystem extends SubsystemBase {
                   else{
                       System.out.print("BAD POSE: BAD ANGLE! Current angle: "); System.out.print(GLOBAL_POSE.getRotation().getRadians());System.out.print(" Angle to hub needed: ");System.out.println(SS.toFaceHub().getRadians());
                   }
-
+                    hitVelocity = -1;
               } else {
                   System.out.print("GOOD POSE! Can Hit With AngV: ");
                   System.out.print(bestGuessVelocity); System.out.print(" (Currently at: ");System.out.print(Math.abs(shooterWheels.getVelocity().getValueAsDouble())); System.out.println(" )");
