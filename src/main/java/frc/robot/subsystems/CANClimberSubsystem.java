@@ -14,6 +14,9 @@ import frc.robot.Constants;
 
 import java.util.function.DoubleSupplier;
 
+import static frc.robot.Constants.ClimbConstants.BOTTOM_POSITION;
+import static frc.robot.Constants.ClimbConstants.TOP_POSITION;
+
 
 public class CANClimberSubsystem extends SubsystemBase {
     private final SparkMax climber;
@@ -40,7 +43,7 @@ public class CANClimberSubsystem extends SubsystemBase {
     }
 
     public void goUp() {
-        if (climberEncoder.getPosition() < -93) {//climberEncoder.getPosition() < topEncoderValue
+        if (climberEncoder.getPosition() < TOP_POSITION) {//climberEncoder.getPosition() < topEncoderValue
             //climber.set(4*MathUtil.clamp((topEncoderValue-climberEncoder.getPosition())/10, 0, 1));
             climber.set(4);
         } else {
@@ -51,7 +54,7 @@ public class CANClimberSubsystem extends SubsystemBase {
     }
 
     public void goDown() {
-        if (climberEncoder.getPosition() > -207) { // ENCODER_CAP needs to be tuned: climberEncoder.getPosition() > topEncoderValue-Constants.ClimbConstants.ENCODER_CAP
+        if (climberEncoder.getPosition() > BOTTOM_POSITION) { // ENCODER_CAP needs to be tuned: climberEncoder.getPosition() > topEncoderValue-Constants.ClimbConstants.ENCODER_CAP
             //climber.set(-4*Math.abs(MathUtil.clamp((topEncoderValue-climberEncoder.getPosition())/10, -1, 0)));
             climber.set(-4);
         } else {
