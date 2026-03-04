@@ -40,7 +40,7 @@ public class CANClimberSubsystem extends SubsystemBase {
     }
 
     public void goUp() {
-        if (true) {//climberEncoder.getPosition() < topEncoderValue
+        if (climberEncoder.getPosition() < -93) {//climberEncoder.getPosition() < topEncoderValue
             //climber.set(4*MathUtil.clamp((topEncoderValue-climberEncoder.getPosition())/10, 0, 1));
             climber.set(4);
         } else {
@@ -51,7 +51,7 @@ public class CANClimberSubsystem extends SubsystemBase {
     }
 
     public void goDown() {
-        if (true) { // ENCODER_CAP needs to be tuned: climberEncoder.getPosition() > topEncoderValue-Constants.ClimbConstants.ENCODER_CAP
+        if (climberEncoder.getPosition() > -207) { // ENCODER_CAP needs to be tuned: climberEncoder.getPosition() > topEncoderValue-Constants.ClimbConstants.ENCODER_CAP
             //climber.set(-4*Math.abs(MathUtil.clamp((topEncoderValue-climberEncoder.getPosition())/10, -1, 0)));
             climber.set(-4);
         } else {
@@ -98,5 +98,7 @@ public class CANClimberSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("Climber Encoder", climberEncoder.getPosition());
         SmartDashboard.putNumber("Climber bottom point", topEncoderValue);
         System.out.print("CLIMBER ENC: "); System.out.println(climberEncoder.getPosition());
+        // TOP -93
+        // BOTTOM -207
     }
 }
