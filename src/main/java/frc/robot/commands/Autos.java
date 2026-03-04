@@ -102,8 +102,18 @@ public final class Autos {
     }
 
 
-    public static Command ArinsPIDAuto(CANDriveSubsystem ds){
-        return ds.driveAtTargetPose(new Pose2d(3,3,new Rotation2d()));
+    public static Command ArinsAutoV2(CANDriveSubsystem ds, CANFuelSubsystem fs){
+        return new SequentialCommandGroup(
+                ds.driveAtTargetPose(new Pose2d(2,4, new Rotation2d(Math.PI) )),
+                fs.shootAtTarget().withTimeout(5),
+                fs.runOnce(()->fs.stop()),
+                ds.driveAtTargetPose(new Pose2d(3.633,5.01, Rotation2d.kZero)),
+                fs.runOnce(()->fs.stop())
+                //ds.driveAtTargetPose(new Pose2d(3.533,5.15, new Rotation2d(0)))
+
+
+
+        );
     }
 
   /*

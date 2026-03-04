@@ -71,7 +71,7 @@ public class RobotContainer {
         // Set the options to show up in the Dashboard for selecting auto modes. If you
         // add additional auto modes you can add additional lines here with
         // autoChooser.addOption
-        autoChooser.setDefaultOption("Example Auto", Autos.exampleAuto(driveSubsystem, ballSubsystem));
+        autoChooser.setDefaultOption("AUTO TEST LOOP", Autos.ArinsAutoV2(driveSubsystem, ballSubsystem));
         autoChooser.addOption("Right Bump Shoot", Autos.rBumpShoot(driveSubsystem, ballSubsystem));
         autoChooser.addOption("Left Bump Shoot", Autos.lBumpShoot(driveSubsystem, ballSubsystem));
         autoChooser.addOption("Center Weak Shoot", Autos.centerShoot(driveSubsystem, ballSubsystem));
@@ -79,7 +79,7 @@ public class RobotContainer {
         autoChooser.addOption("PID rotate bashy", Autos.PIDRotateHalf(driveSubsystem, ballSubsystem));
         autoChooser.addOption("go back then shoot", Autos.boringAuto(driveSubsystem, ballSubsystem));
         autoChooser.addOption("weak shoot", Autos.weakShoot(driveSubsystem, ballSubsystem));
-        autoChooser.addOption("go forward and right", Autos.ArinsPIDAuto(driveSubsystem));
+        autoChooser.addOption("AUTO TEST LOOP", Autos.ArinsAutoV2(driveSubsystem, ballSubsystem));
     }
 
 
@@ -138,13 +138,13 @@ public class RobotContainer {
 
 
         if (RobotState.isSim()) {
-            /*driveSubsystem.setDefaultCommand(
+            driveSubsystem.setDefaultCommand(
             driveSubsystem.driveArcade(
                     () -> -driverController.getRawAxis(1) * DRIVE_SCALING,
                     () -> -driverController.getRawAxis(0) * ROTATION_SCALING,
                     () -> driverController.getRightTriggerAxis() // im sorry idk what to put here arin
-            ));*/
-            driveSubsystem.setDefaultCommand(driveSubsystem.driveAtTargetPose(new Pose2d(1,1,new Rotation2d())));
+            ));
+            //driveSubsystem.setDefaultCommand(driveSubsystem.driveAtTargetPose(new Pose2d(1,1,new Rotation2d())));
         }
         else{
             driveSubsystem.setDefaultCommand(

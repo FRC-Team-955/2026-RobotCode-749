@@ -312,7 +312,7 @@ public class CANDriveSubsystem extends SubsystemBase {
 
 
 
-        double turn = angleToTarget * 1.6;
+        double turn = angleToTarget * 1.3;
 
         // If heavily misaligned, reduce forward instead of hard stopping
         double alignmentScale = MathUtil.clamp(
@@ -326,6 +326,12 @@ public class CANDriveSubsystem extends SubsystemBase {
         turn = MathUtil.clamp(turn, -0.6, 0.6);
 
         drive.arcadeDrive(forward, turn);
+        if(!isAtPose(GLOBAL_POSE,targetPose)){
+            System.out.println("NOT THERE YET!");
+        }
+        else{
+            System.out.println("MADE IT!");
+        }
     }
 
     private boolean isAtPose(Pose2d current, Pose2d target) {
@@ -336,11 +342,24 @@ public class CANDriveSubsystem extends SubsystemBase {
         double angleError =
                 current.getRotation().minus(target.getRotation()).getRadians();
 
-        return dist < 0.25 && Math.abs(angleError) < Math.toRadians(5);
+        return (dist < 0.20) && (Math.abs(angleError) < Math.toRadians(2.0));
+    }
+
+    private int atPoseTicks = 0;
+    private final int REQUIRED_TICKS = 12; //
+
+    private boolean isSettledAtPose(Pose2d current, Pose2d target){
+        if (isAtPose(current, target)) {
+            atPoseTicks++;
+            return atPoseTicks >= REQUIRED_TICKS;
+        } else {
+            atPoseTicks = 0;
+            return false;
+        }
     }
 
     public Command driveAtTargetPose(Pose2d target){
-        return run(()->funcDriveAtTargetPose(target)).until(()->isAtPose(GLOBAL_POSE,target)).finallyDo(() -> drive.tankDrive(0, 0));
+        return run(()->funcDriveAtTargetPose(target)).until(()->isSettledAtPose(GLOBAL_POSE,target)).finallyDo(() -> drive.tankDrive(0, 0));
     }
 
 
