@@ -74,7 +74,7 @@ public class CANClimberSubsystem extends SubsystemBase {
 
         climber.set(output);
     }
-
+/*
     public Command goToTop() {
 
         return run(() -> goTo(Constants.ClimbConstants.TOP_SETPOINT))
@@ -87,7 +87,7 @@ public class CANClimberSubsystem extends SubsystemBase {
         return run(() -> goTo(Constants.ClimbConstants.BOTTOM_SETPOINT))
                 .until(() -> Math.abs(getPos() - Constants.ClimbConstants.BOTTOM_SETPOINT) < 0.01)
                 .finallyDo(() -> climber.set(0));
-    }
+    }*/
 
 
     @Override

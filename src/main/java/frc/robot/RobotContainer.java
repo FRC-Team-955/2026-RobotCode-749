@@ -116,8 +116,8 @@ public class RobotContainer {
         operatorController.a()
                 .whileTrue(ballSubsystem.runEnd(() -> ballSubsystem.eject(), () -> ballSubsystem.stop()));
 
-        operatorController.x().onTrue(climberSubsystem.goToTop());
-        operatorController.b().onTrue(climberSubsystem.goToBottom());
+        //operatorController.x().onTrue(climberSubsystem.goToTop());
+        //operatorController.b().onTrue(climberSubsystem.goToBottom());
 
 
 
