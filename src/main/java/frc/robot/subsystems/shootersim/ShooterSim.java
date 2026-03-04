@@ -18,9 +18,9 @@ public class ShooterSim {
     InterpolationTable AngularVelocityLaunchAngle = new InterpolationTable(); // track angular velocity -> launch angle
     public ShooterSim(){
         AngularVelocityToLandingPt.add(0,0);
-        AngularVelocityToLandingPt.add(40,2.72); //107 in
-        AngularVelocityToLandingPt.add(58,4.06); //meters!  160 in
-        AngularVelocityToLandingPt.add(70,4.78); // THIS ISNT TUNED!
+        AngularVelocityToLandingPt.add(40,2.48); //107 in
+        AngularVelocityToLandingPt.add(58,3.86); //meters!  160 in
+        AngularVelocityToLandingPt.add(70,4.58); // THIS ISNT TUNED!
 
         AngularVelocityLaunchAngle.add(0,Math.PI/2);
         AngularVelocityLaunchAngle.add(40,Math.PI/2-Math.toRadians(30)); //
