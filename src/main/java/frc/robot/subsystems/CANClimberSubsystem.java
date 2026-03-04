@@ -41,7 +41,8 @@ public class CANClimberSubsystem extends SubsystemBase {
 
     public void goUp() {
         if (true) {//climberEncoder.getPosition() < topEncoderValue
-            climber.set(4*MathUtil.clamp((topEncoderValue-climberEncoder.getPosition())/10, 0, 1));
+            //climber.set(4*MathUtil.clamp((topEncoderValue-climberEncoder.getPosition())/10, 0, 1));
+            climber.set(4);
         } else {
             climber.set(0);
         }
@@ -51,7 +52,8 @@ public class CANClimberSubsystem extends SubsystemBase {
 
     public void goDown() {
         if (true) { // ENCODER_CAP needs to be tuned: climberEncoder.getPosition() > topEncoderValue-Constants.ClimbConstants.ENCODER_CAP
-            climber.set(-4*Math.abs(MathUtil.clamp((topEncoderValue-climberEncoder.getPosition())/10, -1, 0)));
+            //climber.set(-4*Math.abs(MathUtil.clamp((topEncoderValue-climberEncoder.getPosition())/10, -1, 0)));
+            climber.set(-4);
         } else {
             climber.set(0);
         }
