@@ -275,29 +275,57 @@ public class CANDriveSubsystem extends SubsystemBase {
     public void funcDriveAtTargetPose(Pose2d targetPose) {
         if (targetPose == null) return;
 
-        Pose2d currentPose = ps.getPose();
+        Pose2d current = GLOBAL_POSE;
 
-        // LTV controller computes chassis speeds
-        ChassisSpeeds speeds = controller.calculate(
-                currentPose,
-                targetPose,
-                0.0, // desired linear velocity
-                0.0  // desired angular velocity
+        double dx = targetPose.getX() - current.getX();
+        double dy = targetPose.getY() - current.getY();
+
+        double distance = Math.hypot(dx, dy);
+
+        double currentAngle = current.getRotation().getRadians();
+        double targetAngle = Math.atan2(dy, dx);
+
+        double angleToTarget = MathUtil.angleModulus(targetAngle - currentAngle);
+        double finalHeadingError = MathUtil.angleModulus(
+                targetPose.getRotation().getRadians() - currentAngle);
+
+
+        if (distance < 0.15) {
+
+            double turn = finalHeadingError * 2.1;
+
+            // soften near zero
+            turn = MathUtil.clamp(turn, -0.45, 0.45);
+
+            drive.arcadeDrive(0, turn);
+            return;
+        }
+
+
+
+        //  slowdown near target
+        double forward = 1.6 * distance;
+        forward = Math.min(forward, 0.8);
+
+        // Smooth ramp down near target
+        forward *= MathUtil.clamp(distance / 0.7, 0.25, 1.0);
+
+
+
+        double turn = angleToTarget * 1.6;
+
+        // If heavily misaligned, reduce forward instead of hard stopping
+        double alignmentScale = MathUtil.clamp(
+                1.0 - (Math.abs(angleToTarget) / Math.PI),
+                0.2,
+                1.0
         );
 
-        // Convert to wheel speeds
-        DifferentialDriveWheelSpeeds wheelSpeeds =
-                kinematics.toWheelSpeeds(speeds);
+        forward *= alignmentScale;
 
+        turn = MathUtil.clamp(turn, -0.6, 0.6);
 
-
-        drive.tankDrive(
-                wheelSpeeds.leftMetersPerSecond/3 ,
-                wheelSpeeds.rightMetersPerSecond/3
-        );
-
-
-
+        drive.arcadeDrive(forward, turn);
     }
 
     private boolean isAtPose(Pose2d current, Pose2d target) {
@@ -308,16 +336,15 @@ public class CANDriveSubsystem extends SubsystemBase {
         double angleError =
                 current.getRotation().minus(target.getRotation()).getRadians();
 
-        return dist < 0.05 && Math.abs(angleError) < Math.toRadians(3);
+        return dist < 0.25 && Math.abs(angleError) < Math.toRadians(5);
     }
 
     public Command driveAtTargetPose(Pose2d target){
-        return run(()->funcDriveAtTargetPose(target)).until(()->isAtPose(ps.getPose(),target)).finallyDo(() -> drive.tankDrive(0, 0));
+        return run(()->funcDriveAtTargetPose(target)).until(()->isAtPose(GLOBAL_POSE,target)).finallyDo(() -> drive.tankDrive(0, 0));
     }
 
 
-    StructPublisher<Pose2d> publisher = NetworkTableInstance.getDefault()
-            .getStructTopic("SimPose", Pose2d.struct).publish();
+
 
 
     public void simulationPeriodic() {
@@ -333,7 +360,8 @@ public class CANDriveSubsystem extends SubsystemBase {
 
 
 
-        publisher.set(drivetrainSim.getPose());
+
+        ps.resetOdometry(drivetrainSim.getPose());
         RobotState.GLOBAL_POSE = drivetrainSim.getPose();
 
 

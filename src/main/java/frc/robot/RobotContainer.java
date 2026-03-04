@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -123,8 +125,6 @@ public class RobotContainer {
 
 
 
-        //go forward 1 and up 1
-        // operatorController.y().onTrue(driveSubsystem.driveAtTargetPose(new Pose2d(1,1,new Rotation2d())));
 
 
         // Set the default command for the drive subsystem to the command provided by
@@ -138,12 +138,13 @@ public class RobotContainer {
 
 
         if (RobotState.isSim()) {
-            driveSubsystem.setDefaultCommand(
+            /*driveSubsystem.setDefaultCommand(
             driveSubsystem.driveArcade(
                     () -> -driverController.getRawAxis(1) * DRIVE_SCALING,
                     () -> -driverController.getRawAxis(0) * ROTATION_SCALING,
                     () -> driverController.getRightTriggerAxis() // im sorry idk what to put here arin
-            ));
+            ));*/
+            driveSubsystem.setDefaultCommand(driveSubsystem.driveAtTargetPose(new Pose2d(1,1,new Rotation2d())));
         }
         else{
             driveSubsystem.setDefaultCommand(
