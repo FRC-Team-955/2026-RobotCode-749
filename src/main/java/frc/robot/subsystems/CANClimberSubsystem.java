@@ -100,7 +100,7 @@ public class CANClimberSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("climber", getPos());
         SmartDashboard.putNumber("Climber Encoder", climberEncoder.getPosition());
         SmartDashboard.putNumber("Climber bottom point", topEncoderValue);
-        System.out.print("CLIMBER ENC: "); System.out.println(climberEncoder.getPosition());
+        //System.out.print("CLIMBER ENC: "); System.out.println(climberEncoder.getPosition());
         // TOP -93
         // BOTTOM -207
     }
