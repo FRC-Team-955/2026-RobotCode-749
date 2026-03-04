@@ -6,16 +6,11 @@ import com.revrobotics.spark.SparkLowLevel;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
-import java.util.function.DoubleSupplier;
-
-import static frc.robot.Constants.ClimbConstants.BOTTOM_POSITION;
-import static frc.robot.Constants.ClimbConstants.TOP_POSITION;
+import static frc.robot.Constants.ClimbConstants.ENCODER_CAP;
 
 
 public class CANClimberSubsystem extends SubsystemBase {
@@ -34,8 +29,11 @@ public class CANClimberSubsystem extends SubsystemBase {
 
     }
 
-    public void setClimberZero() {
+    public void setClimberTopAsCurrent() {
         topEncoderValue = climberEncoder.getPosition() + 5; // the +5 is to allow us to be able to manually change the top point
+    }
+    public void setClimberBottomAsCurrent() {
+        topEncoderValue = climberEncoder.getPosition() + 5 - ENCODER_CAP; // the +5 is to allow us to be able to manually change the top point
     }
 
     public void stop() {
@@ -43,7 +41,7 @@ public class CANClimberSubsystem extends SubsystemBase {
     }
 
     public void goUp() {
-        if (climberEncoder.getPosition() < TOP_POSITION) {//climberEncoder.getPosition() < topEncoderValue
+        if (climberEncoder.getPosition() < topEncoderValue) {//climberEncoder.getPosition() < topEncoderValue
             //climber.set(4*MathUtil.clamp((topEncoderValue-climberEncoder.getPosition())/10, 0, 1));
             climber.set(4);
         } else {
@@ -54,7 +52,7 @@ public class CANClimberSubsystem extends SubsystemBase {
     }
 
     public void goDown() {
-        if (climberEncoder.getPosition() > BOTTOM_POSITION) { // ENCODER_CAP needs to be tuned: climberEncoder.getPosition() > topEncoderValue-Constants.ClimbConstants.ENCODER_CAP
+        if (climberEncoder.getPosition() > topEncoderValue- ENCODER_CAP) { // ENCODER_CAP needs to be tuned: climberEncoder.getPosition() > topEncoderValue-Constants.ClimbConstants.ENCODER_CAP
             //climber.set(-4*Math.abs(MathUtil.clamp((topEncoderValue-climberEncoder.getPosition())/10, -1, 0)));
             climber.set(-4);
         } else {

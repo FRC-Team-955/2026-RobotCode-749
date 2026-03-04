@@ -4,21 +4,16 @@
 
 package frc.robot;
 
-import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.hal.HAL;
 import edu.wpi.first.hal.FRCNetComm.tResourceType;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import frc.robot.subsystems.CANClimberSubsystem;
 import frc.robot.subsystems.CANDriveSubsystem;
 import frc.robot.subsystems.CANFuelSubsystem;
 import frc.robot.subsystems.PoseSubsystem;
-
-import static frc.robot.Constants.FuelConstants.SHOOTER_WHEELS_MOTOR_ID;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -97,7 +92,7 @@ public class Robot extends TimedRobot {
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
     fuelSubsystem.setCoastMode();
     driveSubsystem.resetSetPoints();
-    climberSubsystem.setClimberZero();
+    climberSubsystem.setClimberTopAsCurrent();
     // schedule the autonomous command (example)
     if (m_autonomousCommand != null) {
       CommandScheduler.getInstance().schedule(m_autonomousCommand);
