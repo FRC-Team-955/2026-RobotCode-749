@@ -170,7 +170,7 @@ return Poses;
             for(int i = 0; i<cVs.size(); i++){
                 ctr+= cVs.get(i);
             }
-            if(ctr/cVs.size()>66){
+            if(ctr/cVs.size()>58){
                 return -1;
             }
             return ctr/(cVs.size());
