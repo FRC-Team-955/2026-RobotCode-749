@@ -129,6 +129,7 @@ public class CANFuelSubsystem extends SubsystemBase {
       }
       else{
           feederRoller.set(0);
+
       }
       if(hitVelocity<0){
           return;
