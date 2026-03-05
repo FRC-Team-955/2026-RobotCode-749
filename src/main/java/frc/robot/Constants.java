@@ -76,6 +76,9 @@ public final class  Constants {
       public static final double SHOOTER_WEAK_SPEED = 40;
   }
     public static class ClimbConstants {
+      public static final double KP = 0.1;
+      public static final double KI = 0;
+      public static final double KD = 0;
       public static final int CLIMBER_ID = 1;
       public static final double GEAR_RATIO = 1/35;
       public static final double MAX_OUTPUT = 12;
