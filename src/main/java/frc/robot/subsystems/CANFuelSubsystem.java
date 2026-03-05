@@ -105,9 +105,9 @@ public class CANFuelSubsystem extends SubsystemBase {
   // the same values as intaking, but in the opposite direction.
   public void eject() {
     feederRoller
-        .setVoltage( SmartDashboard.getNumber("Intaking feeder roller value", -INTAKING_FEEDER_VOLTAGE));
+        .setVoltage(-SmartDashboard.getNumber("Intaking feeder roller value", INTAKING_FEEDER_VOLTAGE));
     intakeLauncherRoller
-        .setVoltage( SmartDashboard.getNumber("Intaking launcher roller value", -INTAKING_INTAKE_VOLTAGE));
+        .setVoltage( -SmartDashboard.getNumber("Intaking launcher roller value", INTAKING_INTAKE_VOLTAGE));
   }
 
   // A method to set the rollers to values for launching.
@@ -127,7 +127,7 @@ public class CANFuelSubsystem extends SubsystemBase {
       if(runFeederAutoAim){
           feederRoller.set(LAUNCHING_FEEDER_VOLTAGE);
           intakeLauncherRoller
-                  .setVoltage(-SmartDashboard.getNumber("Launching launcher roller value", -LAUNCHING_LAUNCHER_VOLTAGE));
+                  .setVoltage(-SmartDashboard.getNumber("Launching launcher roller value", LAUNCHING_LAUNCHER_VOLTAGE));
       }
       else{
           feederRoller.set(0);
@@ -165,7 +165,7 @@ public class CANFuelSubsystem extends SubsystemBase {
     feederRoller
         .setVoltage(SmartDashboard.getNumber("Spin-up feeder roller value", FEEDER_SPIN_UP_VOLTAGE));
     intakeLauncherRoller
-        .setVoltage(-SmartDashboard.getNumber("Launching launcher roller value", -LAUNCHING_LAUNCHER_VOLTAGE));
+        .setVoltage(-SmartDashboard.getNumber("Launching launcher roller value", LAUNCHING_LAUNCHER_VOLTAGE));
     shooterWheels.setVoltage(voltage);
   }
 
