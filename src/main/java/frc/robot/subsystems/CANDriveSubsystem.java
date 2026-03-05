@@ -32,7 +32,6 @@ import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.RobotState;
@@ -271,8 +270,14 @@ public class CANDriveSubsystem extends SubsystemBase {
         ps.resetOdometry(p);
     }
 
-
+    PIDController turnPIDAuto = new PIDController(3.6,KI,0.35);
+    PIDController forwardPIDAuto = new PIDController(3.5,KI,0.35);
+    StructPublisher<Pose2d> publisher = NetworkTableInstance.getDefault()
+            .getStructTopic("TargetPose", Pose2d.struct).publish();
     public void funcDriveAtTargetPose(Pose2d targetPose) {
+        publisher.set(targetPose);
+
+
         if (targetPose == null) return;
 
         Pose2d current = GLOBAL_POSE;
@@ -280,22 +285,28 @@ public class CANDriveSubsystem extends SubsystemBase {
         double dx = targetPose.getX() - current.getX();
         double dy = targetPose.getY() - current.getY();
 
+
         double distance = Math.hypot(dx, dy);
 
         double currentAngle = current.getRotation().getRadians();
         double targetAngle = Math.atan2(dy, dx);
 
         double angleToTarget = MathUtil.angleModulus(targetAngle - currentAngle);
-        double finalHeadingError = MathUtil.angleModulus(
-                targetPose.getRotation().getRadians() - currentAngle);
 
 
-        if (distance < 0.15) {
 
-            double turn = finalHeadingError * 2.1;
 
-            // soften near zero
+        if (distance < 0.1) {
+
+            double cAngle = currentAngle;
+            double tAngle = targetPose.getRotation().getRadians();
+
+
+            double turn; // = finalHeadingError * 2.1;
+            turn = 0.2 * turnPIDAuto.calculate(cAngle, tAngle); // doesnt always turn the "shorter" way
+
             turn = MathUtil.clamp(turn, -0.45, 0.45);
+
 
             drive.arcadeDrive(0, turn);
             return;
@@ -304,15 +315,11 @@ public class CANDriveSubsystem extends SubsystemBase {
 
 
         //  slowdown near target
-        double forward = 1.6 * distance;
-        forward = Math.min(forward, 0.8);
-
-        // Smooth ramp down near target
-        forward *= MathUtil.clamp(distance / 0.7, 0.25, 1.0);
+        double forward = 1.2* forwardPIDAuto.calculate(0,distance);
 
 
 
-        double turn = angleToTarget * 1.3;
+        double turn = angleToTarget * 1.7;
 
         // If heavily misaligned, reduce forward instead of hard stopping
         double alignmentScale = MathUtil.clamp(
@@ -325,13 +332,13 @@ public class CANDriveSubsystem extends SubsystemBase {
 
         turn = MathUtil.clamp(turn, -0.6, 0.6);
 
+        if(Math.abs(currentAngle-targetAngle) > Math.PI/16){
+
+            forward = 0;
+        }
+        forward = MathUtil.clamp(forward,-3,3);
         drive.arcadeDrive(forward, turn);
-        if(!isAtPose(GLOBAL_POSE,targetPose)){
-            System.out.println("NOT THERE YET!");
-        }
-        else{
-            System.out.println("MADE IT!");
-        }
+
     }
 
     private boolean isAtPose(Pose2d current, Pose2d target) {
@@ -342,7 +349,7 @@ public class CANDriveSubsystem extends SubsystemBase {
         double angleError =
                 current.getRotation().minus(target.getRotation()).getRadians();
 
-        return (dist < 0.20) && (Math.abs(angleError) < Math.toRadians(2.0));
+        return (dist < 0.13) && (Math.abs(angleError) < Math.toRadians(2.0));
     }
 
     private int atPoseTicks = 0;
