@@ -15,6 +15,8 @@ import frc.robot.subsystems.CANDriveSubsystem;
 import frc.robot.subsystems.CANFuelSubsystem;
 import frc.robot.subsystems.PoseSubsystem;
 
+import static frc.robot.RobotState.INITIAL_POSE;
+
 /**
  * The VM is configured to automatically run this class, and to call the
  * functions corresponding to
@@ -45,6 +47,7 @@ public class Robot extends TimedRobot {
     // Instantiate our RobotContainer. This will perform all our button bindings,
     // and put our
     // autonomous chooser on the dashboard.
+      RobotState.GLOBAL_POSE = INITIAL_POSE;
     m_robotContainer = new RobotContainer(fuelSubsystem, driveSubsystem, poseSubsystem, climberSubsystem);
 
 
@@ -94,6 +97,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousInit() {
+      RobotState.GLOBAL_POSE = INITIAL_POSE;
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
     fuelSubsystem.setCoastMode();
     driveSubsystem.resetSetPoints();

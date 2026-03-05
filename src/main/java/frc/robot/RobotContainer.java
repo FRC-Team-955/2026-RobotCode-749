@@ -7,6 +7,7 @@ package frc.robot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
 
@@ -123,8 +124,8 @@ public class RobotContainer {
         operatorController.a()
                 .whileTrue(ballSubsystem.runEnd(() -> ballSubsystem.eject(), () -> ballSubsystem.stop()));
 
-        //operatorController.x().onTrue(climberSubsystem.goToTop());
-        //operatorController.b().onTrue(climberSubsystem.goToBottom());
+        operatorController.x().onTrue(Commands.run(()->RobotState.GLOBAL_POSE = INITIAL_POSE));
+
 
 
 
