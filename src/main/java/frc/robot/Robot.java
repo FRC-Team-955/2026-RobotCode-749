@@ -44,6 +44,8 @@ public class Robot extends TimedRobot {
     // and put our
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer(fuelSubsystem, driveSubsystem, poseSubsystem, climberSubsystem);
+      LEDSystem leds = new LEDSystem();
+      leds.RAINBOW();
     // Used to track usage of Kitbot code, please do not remove.
     HAL.report(tResourceType.kResourceType_Framework, 10);
 
