@@ -62,7 +62,7 @@ public final class  Constants {
     // Voltage values for various fuel operations. These values may need to be tuned
     // based on exact robot construction.
     // See the Software Guide for tuning information
-      public static final double INTAKE_SCALE = -1.00;
+      public static final double INTAKE_SCALE = 1.00;
       public static final double LAUNCH_SCALE = 0.749; //set to -0.955 for real?
     public static final double INTAKING_FEEDER_VOLTAGE = 12*INTAKE_SCALE;
     public static final double INTAKING_INTAKE_VOLTAGE = 12*INTAKE_SCALE;

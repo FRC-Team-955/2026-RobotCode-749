@@ -36,7 +36,7 @@ public class CANClimberSubsystem extends SubsystemBase {
 
     public void changeMode() {
         mode ++;
-        if (mode == 3) {
+        if (mode == 4) {
             mode = 1;
         }
     }
@@ -67,12 +67,9 @@ public class CANClimberSubsystem extends SubsystemBase {
             PIDController.setSetpoint(topEncoderValue);
             climber.set(MathUtil.clamp(PIDController.calculate(climberEncoder.getPosition()), 0, 4));
         } else if (mode == 1) {
-            if (climberEncoder.getPosition() < topEncoderValue) {//climberEncoder.getPosition() < topEncoderValue
-                //climber.set(4*MathUtil.clamp((topEncoderValue-climberEncoder.getPosition())/10, 0, 1));
-                climber.set(4);
-            } else {
-                climber.set(0);
-            }
+            climber.set(0);
+        } else if (mode == 3) {
+            climber.set(0.1);
         }
         // (topEncoderValue-climberEncoder.getPosition())/10 will divide the difference so whenever it gets within 10 encoder ticks it
         // will start to slow down because when divided by 10 it will give you a value less than 1 (same goes for below function)
@@ -80,15 +77,12 @@ public class CANClimberSubsystem extends SubsystemBase {
 
     public void goDown() {
         if (mode == 2) {
-            PIDController.setSetpoint(topEncoderValue - 50);
+            PIDController.setSetpoint(topEncoderValue - 104);
             climber.set(MathUtil.clamp(PIDController.calculate(climberEncoder.getPosition()), -4, 0));
         } else if (mode == 1) {
-            if (climberEncoder.getPosition() > topEncoderValue - ENCODER_CAP) { // ENCODER_CAP needs to be tuned: climberEncoder.getPosition() > topEncoderValue-Constants.ClimbConstants.ENCODER_CAP
-                //climber.set(-4*Math.abs(MathUtil.clamp((topEncoderValue-climberEncoder.getPosition())/10, -1, 0)));
-                climber.set(-4);
-            } else {
-                climber.set(0);
-            }
+            climber.set(0);
+        } else if (mode == 3) {
+            climber.set(-0.1);
         }
     }
 
@@ -131,9 +125,11 @@ public class CANClimberSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("Climber Encoder", climberEncoder.getPosition());
         SmartDashboard.putNumber("Climber top point", topEncoderValue);
         if (mode == 1) {
-            SmartDashboard.putString("Climber Mode", "Manual");
+            SmartDashboard.putString("Climber Mode", "Disabled");
         } else if (mode == 2) {
             SmartDashboard.putString("Climber Mode", "Limited");
+        } else if (mode == 3) {
+            SmartDashboard.putString("Climber Mode", "Tuning");
         }
 
 

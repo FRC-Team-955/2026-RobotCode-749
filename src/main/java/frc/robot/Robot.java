@@ -97,7 +97,7 @@ public class Robot extends TimedRobot {
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
     fuelSubsystem.setCoastMode();
     driveSubsystem.resetSetPoints();
-    climberSubsystem.setClimberTopAsCurrent();
+    // climberSubsystem.setClimberTopAsCurrent();
     // schedule the autonomous command (example)
     if (m_autonomousCommand != null) {
       CommandScheduler.getInstance().schedule(m_autonomousCommand);
