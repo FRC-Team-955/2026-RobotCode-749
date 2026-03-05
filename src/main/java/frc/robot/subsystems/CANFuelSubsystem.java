@@ -122,6 +122,8 @@ public class CANFuelSubsystem extends SubsystemBase {
   }
 
   public void funcShootAtTarget(){
+      SmartDashboard.putNumber("AutoAimAngV",hitVelocity);
+
       if(runFeederAutoAim){
           feederRoller.set(LAUNCHING_FEEDER_VOLTAGE);
           intakeLauncherRoller

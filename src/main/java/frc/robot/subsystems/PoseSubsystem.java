@@ -120,6 +120,9 @@ public class PoseSubsystem extends SubsystemBase {
     StructPublisher<Pose2d> publisher = NetworkTableInstance.getDefault()
             .getStructTopic("Pose", Pose2d.struct).publish();
 
+    StructPublisher<Pose2d> llpublisher = NetworkTableInstance.getDefault()
+            .getStructTopic("LimelightPose", Pose2d.struct).publish();
+
 
     //update loop event
     @Override
@@ -133,6 +136,7 @@ public class PoseSubsystem extends SubsystemBase {
         }
         // Update the odometry in the periodic block
         m_poseEstimator.addVisionMeasurement(limelightMeasurement.pose, limelightMeasurement.timestampSeconds);
+        llpublisher.set(limelightMeasurement.pose);
         m_poseEstimator.update(
                 gyro.getRotation2d(), l.getAsDouble(), r.getAsDouble()); //use Rotation2d (gyroAngle) for reals
         if (Constants.DEBUG == 1){
