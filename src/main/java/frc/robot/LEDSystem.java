@@ -12,8 +12,7 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 public class LEDSystem {
     AddressableLED m_led;
 
-    // Reuse buffer
-    // Default to a length of 60, start empty output
+
     // Length is expensive to set, so only set it once, then just update data
     AddressableLEDBuffer m_ledBuffer;
 
@@ -29,7 +28,7 @@ public class LEDSystem {
 
     public LEDSystem(){
         m_led =  new AddressableLED(0);
-        m_ledBuffer = new AddressableLEDBuffer(60);
+        m_ledBuffer = new AddressableLEDBuffer(30);
         m_led.setLength(m_ledBuffer.getLength());
 
         // Set the data

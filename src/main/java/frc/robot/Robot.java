@@ -33,6 +33,7 @@ public class Robot extends TimedRobot {
     public final PoseSubsystem poseSubsystem = new PoseSubsystem();
     private final CANDriveSubsystem driveSubsystem = new CANDriveSubsystem(poseSubsystem);
     public final CANClimberSubsystem climberSubsystem = new CANClimberSubsystem();
+    LEDSystem leds = new LEDSystem();
   /**
    * This function is run when the robot is first started up and should be used
    * for any
@@ -44,8 +45,8 @@ public class Robot extends TimedRobot {
     // and put our
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer(fuelSubsystem, driveSubsystem, poseSubsystem, climberSubsystem);
-      LEDSystem leds = new LEDSystem();
-      leds.RAINBOW();
+
+
     // Used to track usage of Kitbot code, please do not remove.
     HAL.report(tResourceType.kResourceType_Framework, 10);
 
@@ -72,6 +73,7 @@ public class Robot extends TimedRobot {
     // robot's periodic
     // block in order for anything in the Command-based framework to work.
     CommandScheduler.getInstance().run();
+      leds.RAINBOW();
   }
 
   /** This function is called once each time the robot enters Disabled mode. */
