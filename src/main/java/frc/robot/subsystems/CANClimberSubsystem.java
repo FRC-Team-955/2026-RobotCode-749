@@ -42,13 +42,17 @@ public class CANClimberSubsystem extends SubsystemBase {
     }
 
     public void setTopValue() {
-        topEncoderValue = climberEncoder.getPosition();
-        bottomEncoderValue = climberEncoder.getPosition()-ENCODER_CAP;
+        if (mode == 3) {
+            topEncoderValue = climberEncoder.getPosition();
+            bottomEncoderValue = climberEncoder.getPosition() - ENCODER_CAP;
+        }
     }
 
     public void setBottomValue() {
-        bottomEncoderValue = climberEncoder.getPosition();
-        topEncoderValue = climberEncoder.getPosition()+ENCODER_CAP;
+        if (mode == 3) {
+            bottomEncoderValue = climberEncoder.getPosition();
+            topEncoderValue = climberEncoder.getPosition() + ENCODER_CAP;
+        }
     }
 
     public void setClimberTopAsCurrent() {

@@ -89,9 +89,9 @@ public class RobotContainer {
         driverController.x()
                         .onTrue(climberSubsystem.runOnce(() -> climberSubsystem.changeMode()));
 
-        driverController.a()
+        driverController.a() // requirement is must be in tuning mode
                         .onTrue(climberSubsystem.runOnce(() -> climberSubsystem.setTopValue()));
-        driverController.b()
+        driverController.b() // requirement is must be in tuning mode
                 .onTrue(climberSubsystem.runOnce(() -> climberSubsystem.setBottomValue()));
 
         driverController.rightBumper()
@@ -104,8 +104,8 @@ public class RobotContainer {
         operatorController.leftBumper()
                 .whileTrue(ballSubsystem.runEnd(() -> ballSubsystem.intake(), () -> ballSubsystem.stop()));
 
-        driverController.y().whileTrue(ballSubsystem.shootAtTarget().finallyDo(()->ballSubsystem.stop()));
-
+        // driverController.y().whileTrue(ballSubsystem.shootAtTarget().finallyDo(()->ballSubsystem.stop()));
+        // sorry not sorry arin :(
 
         // While the right bumper on the operator controller is held, spin up for 1
         // second, then launch fuel. When the button is released, stop.
