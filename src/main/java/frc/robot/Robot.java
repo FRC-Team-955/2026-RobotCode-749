@@ -33,7 +33,7 @@ public class Robot extends TimedRobot {
     public final PoseSubsystem poseSubsystem = new PoseSubsystem();
     private final CANDriveSubsystem driveSubsystem = new CANDriveSubsystem(poseSubsystem);
     public final CANClimberSubsystem climberSubsystem = new CANClimberSubsystem();
-    LEDSystem leds = new LEDSystem();
+    LEDSystem LEDS = new LEDSystem();
   /**
    * This function is run when the robot is first started up and should be used
    * for any
@@ -74,7 +74,7 @@ public class Robot extends TimedRobot {
     // robot's periodic
     // block in order for anything in the Command-based framework to work.
     CommandScheduler.getInstance().run();
-      leds.RAINBOW();
+      LEDS.RAINBOW();
   }
 
   /** This function is called once each time the robot enters Disabled mode. */
