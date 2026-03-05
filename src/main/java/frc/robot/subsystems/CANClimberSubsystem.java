@@ -6,6 +6,8 @@ import com.revrobotics.spark.SparkLowLevel;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -17,8 +19,11 @@ public class CANClimberSubsystem extends SubsystemBase {
     private final SparkMax climber;
 
     private final RelativeEncoder climberEncoder;
+    public final PIDController PIDController = new PIDController(Constants.ClimbConstants.KP, Constants.ClimbConstants.KI, Constants.ClimbConstants.KD);
+    public double mode = 1;
 
     public double topEncoderValue;
+    public double bottomEncoderValue;
 
     public CANClimberSubsystem() {
         climber = new SparkMax(Constants.ClimbConstants.CLIMBER_ID, SparkLowLevel.MotorType.kBrushless);
@@ -29,8 +34,25 @@ public class CANClimberSubsystem extends SubsystemBase {
 
     }
 
+    public void changeMode() {
+        mode ++;
+        if (mode == 3) {
+            mode = 1;
+        }
+    }
+
+    public void setTopValue() {
+        topEncoderValue = climberEncoder.getPosition();
+        bottomEncoderValue = climberEncoder.getPosition()-ENCODER_CAP;
+    }
+
+    public void setBottomValue() {
+        bottomEncoderValue = climberEncoder.getPosition();
+        topEncoderValue = climberEncoder.getPosition()+ENCODER_CAP;
+    }
+
     public void setClimberTopAsCurrent() {
-        topEncoderValue = climberEncoder.getPosition() + 5; // the +5 is to allow us to be able to manually change the top point
+        topEncoderValue = climberEncoder.getPosition(); // the +5 is to allow us to be able to manually change the top point
     }
     public void setClimberBottomAsCurrent() {
         topEncoderValue = climberEncoder.getPosition() + 5 - ENCODER_CAP; // the +5 is to allow us to be able to manually change the top point
@@ -41,22 +63,32 @@ public class CANClimberSubsystem extends SubsystemBase {
     }
 
     public void goUp() {
-        if (climberEncoder.getPosition() < topEncoderValue) {//climberEncoder.getPosition() < topEncoderValue
-            //climber.set(4*MathUtil.clamp((topEncoderValue-climberEncoder.getPosition())/10, 0, 1));
-            climber.set(4);
-        } else {
-            climber.set(0);
+        if (mode == 2) {
+            PIDController.setSetpoint(topEncoderValue);
+            climber.set(MathUtil.clamp(PIDController.calculate(climberEncoder.getPosition()), 0, 4));
+        } else if (mode == 1) {
+            if (climberEncoder.getPosition() < topEncoderValue) {//climberEncoder.getPosition() < topEncoderValue
+                //climber.set(4*MathUtil.clamp((topEncoderValue-climberEncoder.getPosition())/10, 0, 1));
+                climber.set(4);
+            } else {
+                climber.set(0);
+            }
         }
         // (topEncoderValue-climberEncoder.getPosition())/10 will divide the difference so whenever it gets within 10 encoder ticks it
         // will start to slow down because when divided by 10 it will give you a value less than 1 (same goes for below function)
     }
 
     public void goDown() {
-        if (climberEncoder.getPosition() > topEncoderValue- ENCODER_CAP) { // ENCODER_CAP needs to be tuned: climberEncoder.getPosition() > topEncoderValue-Constants.ClimbConstants.ENCODER_CAP
-            //climber.set(-4*Math.abs(MathUtil.clamp((topEncoderValue-climberEncoder.getPosition())/10, -1, 0)));
-            climber.set(-4);
-        } else {
-            climber.set(0);
+        if (mode == 2) {
+            PIDController.setSetpoint(topEncoderValue - 50);
+            climber.set(MathUtil.clamp(PIDController.calculate(climberEncoder.getPosition()), -4, 0));
+        } else if (mode == 1) {
+            if (climberEncoder.getPosition() > topEncoderValue - ENCODER_CAP) { // ENCODER_CAP needs to be tuned: climberEncoder.getPosition() > topEncoderValue-Constants.ClimbConstants.ENCODER_CAP
+                //climber.set(-4*Math.abs(MathUtil.clamp((topEncoderValue-climberEncoder.getPosition())/10, -1, 0)));
+                climber.set(-4);
+            } else {
+                climber.set(0);
+            }
         }
     }
 
@@ -97,7 +129,14 @@ public class CANClimberSubsystem extends SubsystemBase {
         public void periodic() {
         SmartDashboard.putNumber("climber", getPos());
         SmartDashboard.putNumber("Climber Encoder", climberEncoder.getPosition());
-        SmartDashboard.putNumber("Climber bottom point", topEncoderValue);
+        SmartDashboard.putNumber("Climber top point", topEncoderValue);
+        if (mode == 1) {
+            SmartDashboard.putString("Climber Mode", "Manual");
+        } else if (mode == 2) {
+            SmartDashboard.putString("Climber Mode", "Limited");
+        }
+
+
         //System.out.print("CLIMBER ENC: "); System.out.println(climberEncoder.getPosition());
         // TOP -93
         // BOTTOM -207

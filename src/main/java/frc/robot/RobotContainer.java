@@ -85,10 +85,13 @@ public class RobotContainer {
 
     private void configureBindings() {
 
+        driverController.x()
+                        .onTrue(climberSubsystem.runOnce(() -> climberSubsystem.changeMode()));
+
         driverController.a()
-                        .onTrue(climberSubsystem.runOnce(() -> climberSubsystem.setClimberTopAsCurrent()));
+                        .onTrue(climberSubsystem.runOnce(() -> climberSubsystem.setTopValue()));
         driverController.b()
-                .onTrue(climberSubsystem.runOnce(() -> climberSubsystem.setClimberTopAsCurrent()));
+                .onTrue(climberSubsystem.runOnce(() -> climberSubsystem.setBottomValue()));
 
         driverController.rightBumper()
                         .whileTrue(climberSubsystem.runEnd(() -> climberSubsystem.goUp(), () -> climberSubsystem.stop()));
