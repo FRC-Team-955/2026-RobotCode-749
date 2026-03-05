@@ -4,8 +4,6 @@
 
 package frc.robot;
 
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -71,7 +69,7 @@ public class RobotContainer {
         // Set the options to show up in the Dashboard for selecting auto modes. If you
         // add additional auto modes you can add additional lines here with
         // autoChooser.addOption
-        autoChooser.setDefaultOption("AUTO TEST LOOP", Autos.ArinsAutoV2(driveSubsystem, ballSubsystem));
+        autoChooser.setDefaultOption("AUTO TEST LOOP", Autos.lBumbShootAndMidAuto(driveSubsystem, ballSubsystem));
         autoChooser.addOption("Right Bump Shoot", Autos.rBumpShoot(driveSubsystem, ballSubsystem));
         autoChooser.addOption("Left Bump Shoot", Autos.lBumpShoot(driveSubsystem, ballSubsystem));
         autoChooser.addOption("Center Weak Shoot", Autos.centerShoot(driveSubsystem, ballSubsystem));
@@ -79,7 +77,7 @@ public class RobotContainer {
         autoChooser.addOption("PID rotate bashy", Autos.PIDRotateHalf(driveSubsystem, ballSubsystem));
         autoChooser.addOption("go back then shoot", Autos.boringAuto(driveSubsystem, ballSubsystem));
         autoChooser.addOption("weak shoot", Autos.weakShoot(driveSubsystem, ballSubsystem));
-        autoChooser.addOption("AUTO TEST LOOP", Autos.ArinsAutoV2(driveSubsystem, ballSubsystem));
+        autoChooser.addOption("AUTO TEST LOOP", Autos.lBumbShootAndMidAuto(driveSubsystem, ballSubsystem));
     }
 
 

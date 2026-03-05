@@ -288,8 +288,8 @@ public class CANDriveSubsystem extends SubsystemBase {
 
         double distance = Math.hypot(dx, dy);
 
-        double currentAngle = current.getRotation().getRadians();
-        double targetAngle = Math.atan2(dy, dx);
+        double currentAngle = (current.getRotation().getRadians());
+        double targetAngle = (Math.atan2(dy, dx));
 
         double angleToTarget = MathUtil.angleModulus(targetAngle - currentAngle);
 
@@ -303,7 +303,8 @@ public class CANDriveSubsystem extends SubsystemBase {
 
 
             double turn; // = finalHeadingError * 2.1;
-            turn = 0.2 * turnPIDAuto.calculate(cAngle, tAngle); // doesnt always turn the "shorter" way
+            turn = 0.2 * turnPIDAuto.calculate(cAngle, tAngle); // doesnt always go the "shorter" way
+
 
             turn = MathUtil.clamp(turn, -0.45, 0.45);
 
@@ -336,7 +337,7 @@ public class CANDriveSubsystem extends SubsystemBase {
 
             forward = 0;
         }
-        forward = MathUtil.clamp(forward,-3,3);
+        forward = MathUtil.clamp(forward,-2.8,2.8);
         drive.arcadeDrive(forward, turn);
 
     }
@@ -353,7 +354,7 @@ public class CANDriveSubsystem extends SubsystemBase {
     }
 
     private int atPoseTicks = 0;
-    private final int REQUIRED_TICKS = 12; //
+    private final int REQUIRED_TICKS = 10; //
 
     private boolean isSettledAtPose(Pose2d current, Pose2d target){
         if (isAtPose(current, target)) {
