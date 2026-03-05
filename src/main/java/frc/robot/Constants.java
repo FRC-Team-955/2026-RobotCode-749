@@ -62,7 +62,7 @@ public final class  Constants {
     // Voltage values for various fuel operations. These values may need to be tuned
     // based on exact robot construction.
     // See the Software Guide for tuning information
-      public static final double INTAKE_SCALE = 1.00;
+      public static final double INTAKE_SCALE = -1.00;
       public static final double LAUNCH_SCALE = 0.749; //set to -0.955 for real?
     public static final double INTAKING_FEEDER_VOLTAGE = 12*INTAKE_SCALE;
     public static final double INTAKING_INTAKE_VOLTAGE = 12*INTAKE_SCALE;
@@ -82,7 +82,7 @@ public final class  Constants {
       public static final int CLIMBER_ID = 1;
       public static final double GEAR_RATIO = 1/35;
       public static final double MAX_OUTPUT = 12;
-      public static final double ENCODER_CAP = 110; // in encoder ticks, NEEDS to be tuned (im guessing 150 but its a wild guess)
+      public static final double ENCODER_CAP = 104; // in encoder ticks, NEEDS to be tuned (im guessing 150 but its a wild guess)
       public static final double TOP_SETPOINT = 0.3; //METERS
         public static final double BOTTOM_SETPOINT = 0.0; //METERS
         public static final double TOP_POSITION = -93;
