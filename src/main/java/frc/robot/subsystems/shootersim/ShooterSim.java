@@ -24,7 +24,7 @@ public class ShooterSim {
 
         AngularVelocityLaunchAngle.add(0,Math.PI/2);
         AngularVelocityLaunchAngle.add(40,Math.PI/2-Math.toRadians(30)); //
-        AngularVelocityLaunchAngle.add(58,Math.PI/2-Math.toRadians(24)); //23/25 deg off vertical
+        AngularVelocityLaunchAngle.add(58,Math.PI/2-Math.toRadians(24.1)); //23/25 deg off vertical
     }
 
 
