@@ -206,12 +206,9 @@ public class CANFuelSubsystem extends SubsystemBase {
     // This method will be called once per scheduler run
       SmartDashboard.putNumber("Shooter Velocity", -shooterWheels.getVelocity().getValueAsDouble()); // 58 running, ~61(?) for spinup
       SmartDashboard.putNumber("Shooter Encoder", -shooterWheels.getPosition().getValueAsDouble());
-        boolean badPosePotenitally = false;
+
       if(counter == calculateEvery) {
-          double candidateCV = SS.poseHit(GLOBAL_POSE,targetList);
-          if(candidateCV<0){
-              badPosePotenitally =true;
-          }
+
           ArrayList<Pose3d> trajectory;
           //System.out.print("ROBOT VX: "); System.out.println(ROBOT_VX);
          // System.out.print("ROBOT VY: "); System.out.println(ROBOT_VY);
@@ -230,13 +227,8 @@ public class CANFuelSubsystem extends SubsystemBase {
               arrayPublisher.set(trajectory.toArray(new Pose3d[0]));
               double bestGuessVelocity = SS.getShooterVel(GLOBAL_POSE, ROBOT_VX, ROBOT_VY, targetList);
               if (bestGuessVelocity < 0) {
-                  System.out.print("No shot can be made. Details: ");
-                  if(badPosePotenitally) {
-                      System.out.println("BAD POSE: BAD LOCATION! The current robot (x,y) cannot hit a shot.");
-                  }
-                  else{
-                      System.out.print("BAD POSE: BAD ANGLE! Current angle: "); System.out.print(GLOBAL_POSE.getRotation().getRadians());System.out.print(" Angle to hub needed: ");System.out.println(SS.toFaceHub().getRadians());
-                  }
+                  System.out.print("No shot can be made.");
+
                     hitVelocity = -1;
               } else {
                   System.out.print("GOOD POSE! Can Hit With AngV: ");
@@ -246,14 +238,9 @@ public class CANFuelSubsystem extends SubsystemBase {
           } else { //if simulation, just use best possible
               double bestGuessVelocity = SS.getShooterVel(GLOBAL_POSE, ROBOT_VX, ROBOT_VY, targetList);
               if (bestGuessVelocity < 0) {
-                  System.out.print("No shot can be made. Details: ");
+                  System.out.print("No shot can be made.");
                   trajectory = new ArrayList<Pose3d>();
-                  if(badPosePotenitally) {
-                      System.out.println("BAD LOCATION! The current robot (x,y) cannot hit a shot.");
-                  }
-                  else{
-                      System.out.print("BAD ANGLE! Current angle: "); System.out.print(GLOBAL_POSE.getRotation().getRadians());System.out.print(" Angle to hub needed: ");System.out.println(SS.toFaceHub().getRadians());
-                  }
+
 
               } else {
                   System.out.print("HIT! Target AngV: ");
