@@ -6,13 +6,13 @@ public class InterpolationTable {
     private final ArrayList<Double> in = new ArrayList<>();
     private final ArrayList<Double> out = new ArrayList<>();
 
-    private ArrayList<Double> polyCoeffs = new ArrayList<Double>();
+
 
 
     public void add(double inPt, double outPt) {
         in.add(inPt);
         out.add(outPt);
-        polyCoeffs = PolyRegression.polyRegression(in,out,in.size()-1);
+
     }
 
     public double getLinear(double inPt){
@@ -62,11 +62,5 @@ public class InterpolationTable {
         return interpolatedPoint;
     }
 
-    public double getPoly(double inPt){
-        double sum = 0;
-        for(int i =0; i<polyCoeffs.size(); i++){
-            sum += polyCoeffs.get(i)*Math.pow(inPt,i);
-        }
-        return sum;
-    }
+
 }

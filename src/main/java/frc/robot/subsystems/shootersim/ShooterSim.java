@@ -44,11 +44,11 @@ public class ShooterSim {
         double x = robotPose.getX() + shooterOffsetX;
         double y = robotPose.getY() + shooterOffsetY;
         double h = SHOOTER_Z;
-        double theta = AngularVelocityLaunchAngle.getPoly(angV);
+        double theta = AngularVelocityLaunchAngle.getLinear(angV);
 
 
         // Voltage to horizontal range along shot
-        double b = x + AngularVelocityToLandingPt.getPoly(angV); // b = x + range along shot direction
+        double b = x + AngularVelocityToLandingPt.getLinear(angV); // b = x + range along shot direction
 
         // Precompute launch velocity from derived formula
         double dx = b - x;
