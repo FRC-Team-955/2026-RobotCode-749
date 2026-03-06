@@ -55,13 +55,10 @@ public class CANClimberSubsystem extends SubsystemBase {
         }
     }
 
-    public void setClimberTopAsCurrent() {
-        topEncoderValue = climberEncoder.getPosition(); // the +5 is to allow us to be able to manually change the top point
+    public void initSetPoint() {
+        bottomEncoderValue = climberEncoder.getPosition();
+        topEncoderValue = climberEncoder.getPosition() + ENCODER_CAP;
     }
-    public void setClimberBottomAsCurrent() {
-        topEncoderValue = climberEncoder.getPosition() + 5 - ENCODER_CAP; // the +5 is to allow us to be able to manually change the top point
-    }
-
     public void stop() {
         climber.set(0);
     }
