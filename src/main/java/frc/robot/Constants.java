@@ -80,6 +80,7 @@ public final class  Constants {
       public static final double KI = 0;
       public static final double KD = 0;
       public static final int CLIMBER_ID = 1;
+      public static final int LIMITSWITCH_ID = 0; // idk its not plugged in yet
       public static final double GEAR_RATIO = 1/35;
       public static final double MAX_OUTPUT = 12;
       public static final double ENCODER_CAP = 104; // in encoder ticks, NEEDS to be tuned (im guessing 150 but its a wild guess)

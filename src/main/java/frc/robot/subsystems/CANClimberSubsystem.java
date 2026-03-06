@@ -8,6 +8,7 @@ import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -24,6 +25,8 @@ public class CANClimberSubsystem extends SubsystemBase {
 
     public double topEncoderValue;
     public double bottomEncoderValue;
+
+    DigitalInput limitSwitch = new DigitalInput(Constants.ClimbConstants.LIMITSWITCH_ID);
 
     public CANClimberSubsystem() {
         climber = new SparkMax(Constants.ClimbConstants.CLIMBER_ID, SparkLowLevel.MotorType.kBrushless);
@@ -132,7 +135,7 @@ public class CANClimberSubsystem extends SubsystemBase {
         } else if (mode == 3) {
             SmartDashboard.putString("Climber Mode", "Tuning");
         }
-
+        SmartDashboard.putBoolean("Climber Limit Switch", limitSwitch.get());
 
         //System.out.print("CLIMBER ENC: "); System.out.println(climberEncoder.getPosition());
         // TOP -93
