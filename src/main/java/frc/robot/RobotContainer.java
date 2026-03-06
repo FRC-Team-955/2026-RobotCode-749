@@ -106,7 +106,7 @@ public class RobotContainer {
         operatorController.leftBumper()
                 .whileTrue(ballSubsystem.runEnd(() -> ballSubsystem.intake(), () -> ballSubsystem.stop()));
 
-        // driverController.y().whileTrue(ballSubsystem.shootAtTarget().finallyDo(()->ballSubsystem.stop()));
+        //driverController.y().whileTrue(ballSubsystem.shootAtTarget().finallyDo(()->ballSubsystem.stop()));
         // sorry not sorry arin :(
 
         // While the right bumper on the operator controller is held, spin up for 1
@@ -126,7 +126,7 @@ public class RobotContainer {
         operatorController.a()
                 .whileTrue(ballSubsystem.runEnd(() -> ballSubsystem.eject(), () -> ballSubsystem.stop()));
 
-        operatorController.x().onTrue(Commands.run(()->RobotState.GLOBAL_POSE = INITIAL_POSE));
+        operatorController.x().onTrue(driveSubsystem.runOnce(()->driveSubsystem.resetOdometry(INITIAL_POSE)));
 
 
 

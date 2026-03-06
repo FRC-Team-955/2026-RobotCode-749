@@ -100,7 +100,7 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
       System.out.println("AUTO.INIT");
-      poseSubsystem.resetOdometry(INITIAL_POSE);
+      driveSubsystem.resetOdometry(INITIAL_POSE);
       RobotState.GLOBAL_POSE = INITIAL_POSE;
       System.out.print("AUTO INIT POSE X:"); System.out.println(poseSubsystem.getPose().getX());
     climberSubsystem.resetMode();

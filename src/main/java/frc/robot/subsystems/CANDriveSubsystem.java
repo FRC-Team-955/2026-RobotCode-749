@@ -403,7 +403,9 @@ public class CANDriveSubsystem extends SubsystemBase {
 
 
         ps.resetOdometry(drivetrainSim.getPose());
-        RobotState.GLOBAL_POSE = drivetrainSim.getPose();
+        if(isSim()) {
+            RobotState.GLOBAL_POSE = drivetrainSim.getPose();
+        }
 
 
 

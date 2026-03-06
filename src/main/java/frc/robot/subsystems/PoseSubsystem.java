@@ -83,9 +83,10 @@ public class PoseSubsystem extends SubsystemBase {
 
 
 
-    //SELF EXPLANATORY......
+    //SELF EXPLANATORY...... but kinda no works
     public void resetOdometry(Pose2d a){
         m_poseEstimator.resetPose(a);
+        GLOBAL_POSE = a;
     }
 
 
