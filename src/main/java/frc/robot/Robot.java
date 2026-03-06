@@ -44,6 +44,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
+      climberSubsystem.resetMode();
     climberSubsystem.initSetPoint();
     // Instantiate our RobotContainer. This will perform all our button bindings,
     // and put our
@@ -102,7 +103,7 @@ public class Robot extends TimedRobot {
       poseSubsystem.resetOdometry(INITIAL_POSE);
       RobotState.GLOBAL_POSE = INITIAL_POSE;
       System.out.print("AUTO INIT POSE X:"); System.out.println(poseSubsystem.getPose().getX());
-
+    climberSubsystem.resetMode();
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
     fuelSubsystem.setCoastMode();
     driveSubsystem.resetSetPoints();
@@ -122,6 +123,7 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopInit() {
       driveSubsystem.resetSetPoints();
+      climberSubsystem.resetMode();
     // This makes sure that the autonomous stops running when
     // teleop starts running. If you want the autonomous to
     // continue until interrupted by another command, remove

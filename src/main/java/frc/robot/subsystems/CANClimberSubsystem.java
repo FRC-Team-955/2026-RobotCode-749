@@ -37,6 +37,10 @@ public class CANClimberSubsystem extends SubsystemBase {
 
     }
 
+    public void resetMode() {
+        mode = 1;
+    }
+
     public void changeMode() {
         mode ++;
         if (mode == 4) {
