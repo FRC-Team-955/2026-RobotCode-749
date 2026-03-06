@@ -221,7 +221,7 @@ public class CANDriveSubsystem extends SubsystemBase {
     public Command driveArcade(DoubleSupplier xSpeed, DoubleSupplier zRotation, DoubleSupplier muffle) {
         return run(() -> {
             double limitedX = ((1-muffle.getAsDouble())/2 + 0.5)*limit.calculate(xSpeed.getAsDouble());
-            double rot = zRotation.getAsDouble();
+            double rot = ((1-muffle.getAsDouble())/2 + 0.5)*zRotation.getAsDouble();
 
             updateSetPoints(limitedX + rot, limitedX - rot);
             drive.arcadeDrive(limitedX, rot);
