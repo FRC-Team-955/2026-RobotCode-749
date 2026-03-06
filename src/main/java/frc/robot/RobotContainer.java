@@ -75,8 +75,12 @@ public class RobotContainer {
         autoChooser.setDefaultOption("Center Weak Shoot", Autos.centerShoot(driveSubsystem, ballSubsystem));
         autoChooser.addOption("Right Bump Shoot", Autos.rBumpShoot(driveSubsystem, ballSubsystem));
         autoChooser.addOption("Left Bump Shoot", Autos.lBumpShoot(driveSubsystem, ballSubsystem));
-        autoChooser.addOption("[TEST] P2P Left Bump Shoot", Autos.lBumpShootP2P(driveSubsystem, ballSubsystem));
         autoChooser.addOption("Center Weak Shoot", Autos.centerShoot(driveSubsystem, ballSubsystem));
+        autoChooser.addOption("[EXP] Left Bump Shoot", Autos.expLBump(driveSubsystem, ballSubsystem));
+        autoChooser.addOption("[EXP] Right Bump Shoot", Autos.expRBump(driveSubsystem, ballSubsystem));
+        autoChooser.addOption("[EXP] Center Weak Shoot Left", Autos.expCenterShootL(driveSubsystem, ballSubsystem));
+        autoChooser.addOption("[EXP] Center Weak Shoot Right", Autos.expCenterShootR(driveSubsystem, ballSubsystem));
+        autoChooser.addOption("[TEST] P2P Left Bump Shoot", Autos.lBumpShootP2P(driveSubsystem, ballSubsystem));
         autoChooser.addOption("[TEST] PID 1m Auto", Autos.PIDAuto(driveSubsystem, ballSubsystem));
         autoChooser.addOption("[TEST] PID rotate bashy", Autos.PIDRotateHalf(driveSubsystem, ballSubsystem));
         autoChooser.addOption("[TEST] go back then shoot", Autos.boringAuto(driveSubsystem, ballSubsystem));
@@ -126,7 +130,7 @@ public class RobotContainer {
         operatorController.a()
                 .whileTrue(ballSubsystem.runEnd(() -> ballSubsystem.eject(), () -> ballSubsystem.stop()));
 
-        operatorController.x().onTrue(driveSubsystem.runOnce(()->driveSubsystem.resetOdometry(INITIAL_POSE)));
+        operatorController.x().onTrue(driveSubsystem.runOnce(()->driveSubsystem.resetOdometry(INITIAL_POSE))); // op x on click is restart poseSubsystem
 
 
 

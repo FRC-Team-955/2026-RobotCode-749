@@ -71,6 +71,39 @@ public final class Autos {
                 ballSubsystem.runOnce(() -> ballSubsystem.stop())
         );
     }
+
+    public static Command expRBump(CANDriveSubsystem driveSubsystem, CANFuelSubsystem ballSubsystem) {
+        return new SequentialCommandGroup(
+                driveSubsystem.setPIDSetpoints(() -> 0, () -> -0.67),
+                driveSubsystem.autoDrivePID(driveSubsystem.giveLeftEncoder(), driveSubsystem.giveRightEncoder()).withTimeout(3),
+                ballSubsystem.spinUpCommand().until(() -> ballSubsystem.isAtSpeed(48)),
+                ballSubsystem.launchCommand(() -> -6.63).withTimeout(4),
+                ballSubsystem.runOnce(() -> ballSubsystem.stop()), // everything after this is experimental
+                driveSubsystem.setPIDSetpoints(() -> 0, () -> -0.2),
+                driveSubsystem.autoDrivePID(driveSubsystem.giveLeftEncoder(), driveSubsystem.giveRightEncoder()).withTimeout(2),
+                driveSubsystem.setPIDSetpoints(() -> 0.5, () -> 0.5),
+                driveSubsystem.autoDrivePID(driveSubsystem.giveLeftEncoder(), driveSubsystem.giveRightEncoder()).withTimeout(2),
+                driveSubsystem.setPIDSetpoints(() -> 0, () -> 0.9),
+                driveSubsystem.autoDrivePID(driveSubsystem.giveLeftEncoder(), driveSubsystem.giveRightEncoder()).withTimeout(2)
+        );
+    }
+
+    public static Command expLBump(CANDriveSubsystem driveSubsystem, CANFuelSubsystem ballSubsystem) {
+        return new SequentialCommandGroup(
+                driveSubsystem.setPIDSetpoints(() -> -0.67, () -> 0),
+                driveSubsystem.autoDrivePID(driveSubsystem.giveLeftEncoder(), driveSubsystem.giveRightEncoder()).withTimeout(3),
+                ballSubsystem.spinUpCommand().until(() -> ballSubsystem.isAtSpeed(48)),
+                ballSubsystem.launchCommand(() -> -6.63).withTimeout(4),
+                ballSubsystem.runOnce(() -> ballSubsystem.stop()), // everything after this is experimental
+                driveSubsystem.setPIDSetpoints(() -> -0.2, () -> 0),
+                driveSubsystem.autoDrivePID(driveSubsystem.giveLeftEncoder(), driveSubsystem.giveRightEncoder()).withTimeout(2),
+                driveSubsystem.setPIDSetpoints(() -> 0.5, () -> 0.5),
+                driveSubsystem.autoDrivePID(driveSubsystem.giveLeftEncoder(), driveSubsystem.giveRightEncoder()).withTimeout(2),
+                driveSubsystem.setPIDSetpoints(() -> 0.9, () -> 0),
+                driveSubsystem.autoDrivePID(driveSubsystem.giveLeftEncoder(), driveSubsystem.giveRightEncoder()).withTimeout(2)
+        );
+    }
+
     public static Command lBumpShootP2P(CANDriveSubsystem driveSubsystem, CANFuelSubsystem ballSubsystem) {
         return new SequentialCommandGroup(
                 driveSubsystem.runOnce(()-> driveSubsystem.resetOdometry(new Pose2d(3.66,6,Rotation2d.k180deg))),
@@ -84,10 +117,42 @@ public final class Autos {
     public static Command centerShoot(CANDriveSubsystem driveSubsystem, CANFuelSubsystem ballSubsystem) {
         return new SequentialCommandGroup(
                 driveSubsystem.setPIDSetpoints(() -> -0.5, () -> -0.5),
-                driveSubsystem.autoDrivePID(driveSubsystem.giveLeftEncoder(), driveSubsystem.giveRightEncoder()).withTimeout(200),
+                driveSubsystem.autoDrivePID(driveSubsystem.giveLeftEncoder(), driveSubsystem.giveRightEncoder()).withTimeout(2),
                 ballSubsystem.spinUpCommand().until(() -> ballSubsystem.isAtSpeed(Constants.FuelConstants.SHOOTER_WEAK_SPEED)),
                 ballSubsystem.launchCommand(() -> Constants.FuelConstants.SHOOTER_WEAK_LAUNCH_VOLTAGE).withTimeout(4),
                 ballSubsystem.runOnce(() -> ballSubsystem.stop())
+        );
+    }
+
+    public static Command expCenterShootL(CANDriveSubsystem driveSubsystem, CANFuelSubsystem ballSubsystem) {
+        return new SequentialCommandGroup(
+                driveSubsystem.setPIDSetpoints(() -> -0.5, () -> -0.5),
+                driveSubsystem.autoDrivePID(driveSubsystem.giveLeftEncoder(), driveSubsystem.giveRightEncoder()).withTimeout(2),
+                ballSubsystem.spinUpCommand().until(() -> ballSubsystem.isAtSpeed(Constants.FuelConstants.SHOOTER_WEAK_SPEED)),
+                ballSubsystem.launchCommand(() -> Constants.FuelConstants.SHOOTER_WEAK_LAUNCH_VOLTAGE).withTimeout(4),
+                ballSubsystem.runOnce(() -> ballSubsystem.stop()),
+                driveSubsystem.setPIDSetpoints(() -> 0.4, () -> 0),
+                driveSubsystem.autoDrivePID(driveSubsystem.giveLeftEncoder(), driveSubsystem.giveRightEncoder()).withTimeout(2),
+                driveSubsystem.setPIDSetpoints(() -> 0.5, () -> 0.5),
+                driveSubsystem.autoDrivePID(driveSubsystem.giveLeftEncoder(), driveSubsystem.giveRightEncoder()).withTimeout(2),
+                driveSubsystem.setPIDSetpoints(() -> 0, () -> 0.4),
+                driveSubsystem.autoDrivePID(driveSubsystem.giveLeftEncoder(), driveSubsystem.giveRightEncoder()).withTimeout(2)
+        );
+    }
+
+    public static Command expCenterShootR(CANDriveSubsystem driveSubsystem, CANFuelSubsystem ballSubsystem) {
+        return new SequentialCommandGroup(
+                driveSubsystem.setPIDSetpoints(() -> -0.5, () -> -0.5),
+                driveSubsystem.autoDrivePID(driveSubsystem.giveLeftEncoder(), driveSubsystem.giveRightEncoder()).withTimeout(2),
+                ballSubsystem.spinUpCommand().until(() -> ballSubsystem.isAtSpeed(Constants.FuelConstants.SHOOTER_WEAK_SPEED)),
+                ballSubsystem.launchCommand(() -> Constants.FuelConstants.SHOOTER_WEAK_LAUNCH_VOLTAGE).withTimeout(4),
+                ballSubsystem.runOnce(() -> ballSubsystem.stop()),
+                driveSubsystem.setPIDSetpoints(() -> 0, () -> 0.4),
+                driveSubsystem.autoDrivePID(driveSubsystem.giveLeftEncoder(), driveSubsystem.giveRightEncoder()).withTimeout(2),
+                driveSubsystem.setPIDSetpoints(() -> 0.5, () -> 0.5),
+                driveSubsystem.autoDrivePID(driveSubsystem.giveLeftEncoder(), driveSubsystem.giveRightEncoder()).withTimeout(2),
+                driveSubsystem.setPIDSetpoints(() -> 0.4, () -> 0),
+                driveSubsystem.autoDrivePID(driveSubsystem.giveLeftEncoder(), driveSubsystem.giveRightEncoder()).withTimeout(2)
         );
     }
 
