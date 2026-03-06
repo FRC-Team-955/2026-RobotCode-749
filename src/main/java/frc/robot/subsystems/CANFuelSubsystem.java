@@ -227,7 +227,7 @@ public class CANFuelSubsystem extends SubsystemBase {
               arrayPublisher.set(trajectory.toArray(new Pose3d[0]));
               double bestGuessVelocity = SS.getShooterVel(GLOBAL_POSE, ROBOT_VX, ROBOT_VY, targetList);
               if (bestGuessVelocity < 0) {
-                  System.out.print("No shot can be made.");
+                  System.out.println("No shot can be made.");
 
                     hitVelocity = -1;
               } else {
@@ -238,7 +238,7 @@ public class CANFuelSubsystem extends SubsystemBase {
           } else { //if simulation, just use best possible
               double bestGuessVelocity = SS.getShooterVel(GLOBAL_POSE, ROBOT_VX, ROBOT_VY, targetList);
               if (bestGuessVelocity < 0) {
-                  System.out.print("No shot can be made.");
+                  System.out.println("No shot can be made.");
                   trajectory = new ArrayList<Pose3d>();
 
 

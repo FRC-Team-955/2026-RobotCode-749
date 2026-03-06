@@ -2,7 +2,6 @@ package frc.robot.subsystems;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.DifferentialDrivePoseEstimator;
 
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 
 
@@ -11,8 +10,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -22,7 +19,7 @@ import java.util.function.DoubleSupplier;
 
 import com.ctre.phoenix6.hardware.Pigeon2;
 import frc.robot.RobotState;
-
+import frc.robot.LimelightHelpers;
 
 import static frc.robot.RobotState.*;
 
@@ -38,6 +35,47 @@ public class PoseSubsystem extends SubsystemBase {
     double OldL = 0;
     double OldR = 0;
 
+
+    // Basic targeting data
+    double tx = LimelightHelpers.getTX("");  // Horizontal offset from crosshair to target in degrees
+    double ty = LimelightHelpers.getTY("");  // Vertical offset from crosshair to target in degrees
+    double ta = LimelightHelpers.getTA("");  // Target area (0% to 100% of image)
+    boolean hasTarget = LimelightHelpers.getTV(""); // Do you have a valid target?
+
+    double txnc = LimelightHelpers.getTXNC("");  // Horizontal offset from principal pixel/point to target in degrees
+    double tync = LimelightHelpers.getTYNC("");  // Vertical offset from principal pixel/point to target in degrees
+
+
+    public PoseSubsystem() {
+        // Switch to pipeline 0
+        LimelightHelpers.setPipelineIndex("", 0);
+        // Set a custom crop window for improved performance (-1 to 1 for each value)
+        LimelightHelpers.setCropWindow("", -0.5, 0.5, -0.5, 0.5);
+
+// Change the camera pose relative to robot center (x forward, y left, z up, degrees)
+        LimelightHelpers.setCameraPose_RobotSpace("",
+                0.5,    // Forward offset (meters)
+                0.0,    // Side offset (meters)
+                0.5,    // Height offset (meters)
+                0.0,    // Roll (degrees)
+                30.0,   // Pitch (degrees)
+                0.0     // Yaw (degrees)
+        );
+
+// Set AprilTag offset tracking point (meters)
+        LimelightHelpers.setFiducial3DOffset("",
+                0.0,    // Forward offset
+                0.0,    // Side offset
+                0.5     // Height offset
+        );
+
+// Configure AprilTag detection
+        LimelightHelpers.SetFiducialIDFiltersOverride("", new int[]{1, 2, 3, 4}); // Only track these tag IDs
+        LimelightHelpers.SetFiducialDownscalingOverride("", 2.0f); // Process at half resolution
+
+// Adjust keystone crop window (-0.95 to 0.95 for both horizontal and vertical)
+        LimelightHelpers.setKeystone("", 0.1, -0.05);
+    }
 
 
 
@@ -65,14 +103,14 @@ public class PoseSubsystem extends SubsystemBase {
         OldL = l.getAsDouble();
         OldR=r.getAsDouble();
         m_poseEstimator =
-        new DifferentialDrivePoseEstimator(
-                kinematics,
-                gyro.getRotation2d(),
-                l.getAsDouble(),
-                r.getAsDouble(),
-                new Pose2d(),
-                VecBuilder.fill(0.05, 0.05, Units.degreesToRadians(3)), //gyro accuracy
-                VecBuilder.fill(0.5, 0.5, Units.degreesToRadians(10)));
+                new DifferentialDrivePoseEstimator(
+                        kinematics,
+                        gyro.getRotation2d(),
+                        l.getAsDouble(),
+                        r.getAsDouble(),
+                        new Pose2d(),
+                        VecBuilder.fill(0.05, 0.05, Units.degreesToRadians(3)), //gyro accuracy
+                        VecBuilder.fill(0.5, 0.5, Units.degreesToRadians(10)));
     }
 
 
@@ -86,29 +124,18 @@ public class PoseSubsystem extends SubsystemBase {
     //update loop event
     @Override
     public void periodic() {
-        double tv = NetworkTableInstance.getDefault().getTable("limelight").getEntry("tv").getDouble(0);
-        Pose2d llpose = new Pose2d();
-        double[] lldata;
-        if(RobotState.isRedAlliance()){// limelight is the only thing in this whole code that is not symmetric depending on alliance!
-            lldata = NetworkTableInstance.getDefault().getTable("limelight").getEntry("botpose_wpired").getDoubleArray(new double[6]);
-        }
-        else {
-            lldata = NetworkTableInstance.getDefault().getTable("limelight").getEntry("botpose_wpiblue").getDoubleArray(new double[6]);
-        }
-        // Update the odometry in the periodic block
-        if(tv==1) { //IF TARGET
-            //pose
-            llpose = new Pose2d(lldata[0],lldata[1],Rotation2d.fromDegrees(lldata[5]));
-
-            m_poseEstimator.addVisionMeasurement(llpose, Timer.getFPGATimestamp());
-            String llpipeline = NetworkTableInstance.getDefault().getTable("limelight").getEntry("tdclass").getString("NA");
-            System.out.print("LIMELIGHT ("); System.out.print(llpipeline); System.out.print(") POSE: [X:"); System.out.print(llpose.getX()); System.out.print(", Y:");System.out.print(llpose.getY());System.out.print(", THETA:");System.out.print(llpose.getRotation().getRadians());System.out.println("]");
-
+        LimelightHelpers.PoseEstimate limelightMeasurement;
+        if (RobotState.isTestMode() || RobotState.isRedAlliance()){
+            limelightMeasurement= LimelightHelpers.getBotPoseEstimate_wpiRed("");
         }
         else{
-            System.out.println("NO LIMELIGHT TARGET");
+            limelightMeasurement= LimelightHelpers.getBotPoseEstimate_wpiBlue("");
         }
-        llpublisher.set(llpose);
+        // Update the odometry in the periodic block
+        if(LimelightHelpers.getTV("")) { //IF TARGET
+            m_poseEstimator.addVisionMeasurement(limelightMeasurement.pose, limelightMeasurement.timestampSeconds);
+        }
+        llpublisher.set(limelightMeasurement.pose);
         m_poseEstimator.update(
                 gyro.getRotation2d(), l.getAsDouble(), r.getAsDouble()); //use Rotation2d (gyroAngle) for reals
         if (Constants.DEBUG == 1){
@@ -129,7 +156,7 @@ public class PoseSubsystem extends SubsystemBase {
 
 
 
-            GLOBAL_POSE = m_poseEstimator.getEstimatedPosition();
+        GLOBAL_POSE = m_poseEstimator.getEstimatedPosition();
         publisher.set(GLOBAL_POSE);
 
 
