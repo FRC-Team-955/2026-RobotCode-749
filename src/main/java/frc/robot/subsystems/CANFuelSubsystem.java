@@ -185,6 +185,10 @@ public class CANFuelSubsystem extends SubsystemBase {
       return (((-shooterWheels.getVelocity().getValueAsDouble())- speed) > -1.2);
   }
 
+  public double toFaceHub(){
+      return SS.toFaceHub().getRadians();
+  }
+
 
     StructArrayPublisher<Pose3d> arrayPublisher = NetworkTableInstance.getDefault()
             .getStructArrayTopic("CurrentPathShotORBestInSIM", Pose3d.struct).publish();

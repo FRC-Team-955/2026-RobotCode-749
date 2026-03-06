@@ -75,6 +75,7 @@ public class RobotContainer {
         autoChooser.setDefaultOption("AUTO TEST LOOP", Autos.lBumpShoot(driveSubsystem, ballSubsystem));
         autoChooser.addOption("Right Bump Shoot", Autos.rBumpShoot(driveSubsystem, ballSubsystem));
         autoChooser.addOption("Left Bump Shoot", Autos.lBumpShoot(driveSubsystem, ballSubsystem));
+        autoChooser.addOption("[TEST] P2P Left Bump Shoot", Autos.lBumpShootP2P(driveSubsystem, ballSubsystem));
         autoChooser.addOption("Center Weak Shoot", Autos.centerShoot(driveSubsystem, ballSubsystem));
         autoChooser.addOption("[TEST] PID 1m Auto", Autos.PIDAuto(driveSubsystem, ballSubsystem));
         autoChooser.addOption("[TEST] PID rotate bashy", Autos.PIDRotateHalf(driveSubsystem, ballSubsystem));

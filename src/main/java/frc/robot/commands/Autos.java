@@ -71,6 +71,15 @@ public final class Autos {
                 ballSubsystem.runOnce(() -> ballSubsystem.stop())
         );
     }
+    public static Command lBumpShootP2P(CANDriveSubsystem driveSubsystem, CANFuelSubsystem ballSubsystem) {
+        return new SequentialCommandGroup(
+                driveSubsystem.runOnce(()-> driveSubsystem.resetOdometry(new Pose2d(3.66,6,Rotation2d.k180deg))),
+                driveSubsystem.driveAtTargetPose(new Pose2d(3.66,6, new Rotation2d(2.02))),
+                ballSubsystem.spinUpCommand().until(() -> ballSubsystem.isAtSpeed(48)),
+                ballSubsystem.launchCommand(() -> -6.63).withTimeout(4),
+                ballSubsystem.runOnce(() -> ballSubsystem.stop())
+        );
+    }
 
     public static Command centerShoot(CANDriveSubsystem driveSubsystem, CANFuelSubsystem ballSubsystem) {
         return new SequentialCommandGroup(
