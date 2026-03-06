@@ -106,7 +106,6 @@ public final class Autos {
     public static Command lBumbShootAndMidAuto(CANDriveSubsystem ds, CANFuelSubsystem fs){
         return new SequentialCommandGroup(
                 ds.runOnce(()-> ds.resetOdometry(INITIAL_POSE)), // correctly set Auto's start pos, in sim and irl!
-                ds.runOnce(()->System.out.println("HIII")),
                 ds.driveAtTargetPose(new Pose2d(2.8,4, new Rotation2d(Math.PI) )),
                 fs.shootAtTarget().withTimeout(6),
                 fs.runOnce(()->fs.stop()),

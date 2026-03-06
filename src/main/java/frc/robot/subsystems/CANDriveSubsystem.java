@@ -63,6 +63,9 @@ public class CANDriveSubsystem extends SubsystemBase {
     public final PIDController leftPID = new PIDController(KP, KI, KD);
     public final PIDController rightPID = new PIDController(KP, KI, KD);
 
+    PIDController turnPIDAuto = new PIDController(3.6,KI,0.35);
+    PIDController forwardPIDAuto = new PIDController(3.5,KI,0.35);
+
 /// TODO: TUNE THIS
     DifferentialDrivetrainSim drivetrainSim = new DifferentialDrivetrainSim(
             DCMotor.getNEO(2),       // 2 NEO motors on each side of the drivetrain.
@@ -139,8 +142,13 @@ public class CANDriveSubsystem extends SubsystemBase {
         config.inverted(true);
         leftLeader.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
-        //INIT ARINS CODE
+        //INIT poseSubsystem
         ps.setSource(()->leftLeader.getEncoder().getPosition(), ()->rightLeader.getEncoder().getPosition());
+
+        turnPIDAuto.enableContinuousInput(-Math.PI, Math.PI);
+
+        turnPIDAuto.setTolerance(Math.toRadians(2));
+        forwardPIDAuto.setTolerance(0.05);
 
 
 
@@ -276,18 +284,14 @@ public class CANDriveSubsystem extends SubsystemBase {
         return run(()->resetOdometry(p));
     }
 
-    PIDController turnPIDAuto = new PIDController(3.6,KI,0.35);
-    PIDController forwardPIDAuto = new PIDController(3.5,KI,0.35);
+
 
     StructPublisher<Pose2d> publisher = NetworkTableInstance.getDefault()
             .getStructTopic("TargetPose", Pose2d.struct).publish();
     public void funcDriveAtTargetPose(Pose2d targetPose) {
         publisher.set(targetPose);
 
-        turnPIDAuto.enableContinuousInput(-Math.PI, Math.PI);
 
-        turnPIDAuto.setTolerance(Math.toRadians(2));
-        forwardPIDAuto.setTolerance(0.05);
         if (targetPose == null) return;
 
         Pose2d current = GLOBAL_POSE;
@@ -313,7 +317,7 @@ public class CANDriveSubsystem extends SubsystemBase {
 
 
             double turn; // = finalHeadingError * 2.1;
-            turn = 0.2 * turnPIDAuto.calculate(cAngle, tAngle); // doesnt always go the "shorter" way
+            turn = 0.2 * turnPIDAuto.calculate(cAngle, tAngle);
 
 
             turn = MathUtil.clamp(turn, -0.45, 0.45);
