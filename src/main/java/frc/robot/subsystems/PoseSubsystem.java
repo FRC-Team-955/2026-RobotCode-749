@@ -12,6 +12,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -88,18 +89,18 @@ public class PoseSubsystem extends SubsystemBase {
         double tv = NetworkTableInstance.getDefault().getTable("limelight").getEntry("tv").getDouble(0);
         Pose2d llpose = new Pose2d();
         double[] lldata;
-
-
-
-            lldata = NetworkTableInstance.getDefault().getTable("limelight").getEntry("botpose").getDoubleArray(new double[6]);
+        lldata = NetworkTableInstance.getDefault().getTable("limelight").getEntry("botpose").getDoubleArray(new double[6]);
 
         // Update the odometry in the periodic block
         if(tv==1) { //IF TARGET
             //pose
-            llpose = new Pose2d(lldata[0],lldata[1],new Rotation2d(lldata[5]));
-            if(RobotState.isRedAlliance()){
+            llpose = new Pose2d(lldata[0],lldata[1],Rotation2d.fromDegrees(lldata[5]));
+            if(RobotState.isRedAlliance()){// limelight is the only thing in this whole code that is not symmetric depending on alliance!
                 llpose = new Pose2d(16-llpose.getX(), 8-llpose.getY(),new Rotation2d(llpose.getRotation().getRadians()+Math.PI));
             }
+            m_poseEstimator.addVisionMeasurement(llpose, Timer.getFPGATimestamp());
+            String llpipeline = NetworkTableInstance.getDefault().getTable("limelight").getEntry("tdclass").getString("NA");
+            System.out.print("LIMELIGHT ("); System.out.print(llpipeline); System.out.print(") POSE: [X:"); System.out.print(llpose.getX()); System.out.print(", Y:");System.out.print(llpose.getY());System.out.print(", THETA:");System.out.print(llpose.getRotation().getRadians());System.out.println("]");
 
         }
         else{
