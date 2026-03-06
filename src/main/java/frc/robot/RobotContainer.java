@@ -72,7 +72,7 @@ public class RobotContainer {
         // Set the options to show up in the Dashboard for selecting auto modes. If you
         // add additional auto modes you can add additional lines here with
         // autoChooser.addOption
-        autoChooser.setDefaultOption("AUTO TEST LOOP", Autos.lBumbShootAndMidAuto(driveSubsystem, ballSubsystem));
+        autoChooser.setDefaultOption("AUTO TEST LOOP", Autos.lBumpShoot(driveSubsystem, ballSubsystem));
         autoChooser.addOption("Right Bump Shoot", Autos.rBumpShoot(driveSubsystem, ballSubsystem));
         autoChooser.addOption("Left Bump Shoot", Autos.lBumpShoot(driveSubsystem, ballSubsystem));
         autoChooser.addOption("Center Weak Shoot", Autos.centerShoot(driveSubsystem, ballSubsystem));
@@ -144,8 +144,8 @@ public class RobotContainer {
         if (RobotState.isSim()) {
             driveSubsystem.setDefaultCommand(
             driveSubsystem.driveArcade(
-                    () -> -driverController.getRawAxis(1) * DRIVE_SCALING,
-                    () -> -driverController.getRawAxis(0) * ROTATION_SCALING,
+                    () -> driverController.getRawAxis(1) * DRIVE_SCALING,
+                    () -> driverController.getRawAxis(0) * ROTATION_SCALING,
                     () -> driverController.getRightTriggerAxis() // im sorry idk what to put here arin
             ));
             //driveSubsystem.setDefaultCommand(driveSubsystem.driveAtTargetPose(new Pose2d(1,1,new Rotation2d())));

@@ -15,6 +15,7 @@ import frc.robot.subsystems.CANDriveSubsystem;
 import frc.robot.subsystems.CANFuelSubsystem;
 import frc.robot.subsystems.PoseSubsystem;
 
+import static frc.robot.RobotState.GLOBAL_POSE;
 import static frc.robot.RobotState.INITIAL_POSE;
 
 /**
@@ -97,7 +98,11 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousInit() {
+      System.out.println("AUTO.INIT");
+      poseSubsystem.resetOdometry(INITIAL_POSE);
       RobotState.GLOBAL_POSE = INITIAL_POSE;
+      System.out.print("AUTO INIT POSE X:"); System.out.println(poseSubsystem.getPose().getX());
+
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
     fuelSubsystem.setCoastMode();
     driveSubsystem.resetSetPoints();

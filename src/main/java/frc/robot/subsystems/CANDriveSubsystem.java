@@ -269,6 +269,9 @@ public class CANDriveSubsystem extends SubsystemBase {
     public void resetOdometry(Pose2d p){
         ps.resetOdometry(p);
     }
+    public Command cresetOdometry(Pose2d p){
+        return run(()->resetOdometry(p));
+    }
 
     PIDController turnPIDAuto = new PIDController(3.6,KI,0.35);
     PIDController forwardPIDAuto = new PIDController(3.5,KI,0.35);
@@ -378,8 +381,8 @@ public class CANDriveSubsystem extends SubsystemBase {
 
 
         // Set the inputs to the system. Note that we need to convert
-        drivetrainSim.setInputs(leftLeader.get() * RobotController.getInputVoltage(),
-                rightLeader.get() * RobotController.getInputVoltage());
+        drivetrainSim.setInputs(-leftLeader.get() * RobotController.getInputVoltage(),
+                -rightLeader.get() * RobotController.getInputVoltage());
         // Advance the model by 20 ms. Note that if you are running this
         // subsystem in a separate thread or have changed the nominal timestep
         // of TimedRobot, this value needs to match it.
