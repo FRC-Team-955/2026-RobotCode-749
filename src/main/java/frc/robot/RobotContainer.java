@@ -67,12 +67,12 @@ public class RobotContainer {
 
 
         configureBindings(); //controller bindings
-        SmartDashboard.putData(autoChooser);
+
 
         // Set the options to show up in the Dashboard for selecting auto modes. If you
         // add additional auto modes you can add additional lines here with
         // autoChooser.addOption
-        autoChooser.setDefaultOption("AUTO TEST LOOP", Autos.lBumpShoot(driveSubsystem, ballSubsystem));
+        autoChooser.setDefaultOption("[TEST] P2P AUTO", Autos.P2PAutoTest(driveSubsystem, ballSubsystem));
         autoChooser.addOption("Right Bump Shoot", Autos.rBumpShoot(driveSubsystem, ballSubsystem));
         autoChooser.addOption("Left Bump Shoot", Autos.lBumpShoot(driveSubsystem, ballSubsystem));
         autoChooser.addOption("[TEST] P2P Left Bump Shoot", Autos.lBumpShootP2P(driveSubsystem, ballSubsystem));
@@ -81,7 +81,8 @@ public class RobotContainer {
         autoChooser.addOption("[TEST] PID rotate bashy", Autos.PIDRotateHalf(driveSubsystem, ballSubsystem));
         autoChooser.addOption("[TEST] go back then shoot", Autos.boringAuto(driveSubsystem, ballSubsystem));
         autoChooser.addOption("[TEST]weak shoot", Autos.weakShoot(driveSubsystem, ballSubsystem));
-        autoChooser.addOption("AUTO TEST LOOP", Autos.lBumbShootAndMidAuto(driveSubsystem, ballSubsystem));
+        autoChooser.addOption("AUTO TEST LOOP", Autos.P2PAutoTest(driveSubsystem, ballSubsystem));
+        SmartDashboard.putData(autoChooser);
     }
 
 

@@ -75,7 +75,7 @@ public final class Autos {
         return new SequentialCommandGroup(
                 driveSubsystem.runOnce(()-> driveSubsystem.resetOdometry(new Pose2d(3.66,6,Rotation2d.k180deg))),
                 driveSubsystem.driveAtTargetPose(new Pose2d(3.66,6, new Rotation2d(2.02))),
-                ballSubsystem.spinUpCommand().until(() -> ballSubsystem.isAtSpeed(48)),
+                ballSubsystem.spinUpCommand().until(() -> ballSubsystem.isAtSpeed(48)), // EVENTUALLY replace with ballSubsystem.shootAtTarget()!!!!
                 ballSubsystem.launchCommand(() -> -6.63).withTimeout(4),
                 ballSubsystem.runOnce(() -> ballSubsystem.stop())
         );
@@ -112,7 +112,7 @@ public final class Autos {
     }
 
 
-    public static Command lBumbShootAndMidAuto(CANDriveSubsystem ds, CANFuelSubsystem fs){
+    public static Command P2PAutoTest(CANDriveSubsystem ds, CANFuelSubsystem fs){
         return new SequentialCommandGroup(
                 ds.runOnce(()-> ds.resetOdometry(INITIAL_POSE)), // correctly set Auto's start pos, in sim and irl!
                 ds.driveAtTargetPose(new Pose2d(2.8,4, new Rotation2d(Math.PI) )),
