@@ -132,7 +132,9 @@ public class PoseSubsystem extends SubsystemBase {
             limelightMeasurement= LimelightHelpers.getBotPoseEstimate_wpiBlue("");
         }
         // Update the odometry in the periodic block
-        m_poseEstimator.addVisionMeasurement(limelightMeasurement.pose, limelightMeasurement.timestampSeconds);
+        if(LimelightHelpers.getTV("")) { //IF TARGET
+            m_poseEstimator.addVisionMeasurement(limelightMeasurement.pose, limelightMeasurement.timestampSeconds);
+        }
         llpublisher.set(limelightMeasurement.pose);
         m_poseEstimator.update(
                 gyro.getRotation2d(), l.getAsDouble(), r.getAsDouble()); //use Rotation2d (gyroAngle) for reals
