@@ -66,9 +66,9 @@ public final class  Constants {
       public static final double LAUNCH_SCALE = 0.749; //set to -0.955 for real?
     public static final double INTAKING_FEEDER_VOLTAGE = 12*INTAKE_SCALE;
     public static final double INTAKING_INTAKE_VOLTAGE = 12*INTAKE_SCALE;
-    public static final double LAUNCHING_FEEDER_VOLTAGE = (9)*LAUNCH_SCALE;
+    public static final double LAUNCHING_FEEDER_VOLTAGE = (9)*LAUNCH_SCALE; //
     public static final double LAUNCHING_LAUNCHER_VOLTAGE = 12*LAUNCH_SCALE;
-    public static final double FEEDER_SPIN_UP_VOLTAGE = (-6)*LAUNCH_SCALE;
+    public static final double FEEDER_SPIN_UP_VOLTAGE = (-6)*LAUNCH_SCALE; //
       public static final double SHOOTER_SPIN_UP_VOLTAGE = -10.2;
       public static final double SHOOTER_LAUNCH_VOLTAGE = -6.7;
       public static final double SHOOTER_WEAK_LAUNCH_VOLTAGE = -5.5;

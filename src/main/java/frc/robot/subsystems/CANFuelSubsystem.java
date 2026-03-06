@@ -112,7 +112,7 @@ public class CANFuelSubsystem extends SubsystemBase {
 
   // A method to set the rollers to values for launching.
   public void launch(DoubleSupplier voltage) {
-    feederRoller.setVoltage(SmartDashboard.getNumber("Launching feeder roller value", LAUNCHING_FEEDER_VOLTAGE));
+    feederRoller.setVoltage(SmartDashboard.getNumber("Launching feeder roller value", LAUNCHING_FEEDER_VOLTAGE)); //
     intakeLauncherRoller
         .setVoltage(-SmartDashboard.getNumber("Launching launcher roller value", -LAUNCHING_LAUNCHER_VOLTAGE));
       shooterWheels.setVoltage(voltage.getAsDouble()); ///brake mode makes this stop
@@ -163,7 +163,7 @@ public class CANFuelSubsystem extends SubsystemBase {
   // push Fuel away from the launcher
   public void spinUp(double voltage) {
     feederRoller
-        .setVoltage(SmartDashboard.getNumber("Spin-up feeder roller value", FEEDER_SPIN_UP_VOLTAGE));
+        .setVoltage(SmartDashboard.getNumber("Spin-up feeder roller value", FEEDER_SPIN_UP_VOLTAGE)); //
     intakeLauncherRoller
         .setVoltage(-SmartDashboard.getNumber("Launching launcher roller value", LAUNCHING_LAUNCHER_VOLTAGE));
     shooterWheels.setVoltage(voltage);
@@ -213,8 +213,8 @@ public class CANFuelSubsystem extends SubsystemBase {
               badPosePotenitally =true;
           }
           ArrayList<Pose3d> trajectory;
-          System.out.print("ROBOT VX: "); System.out.println(ROBOT_VX);
-          System.out.print("ROBOT VY: "); System.out.println(ROBOT_VY);
+          //System.out.print("ROBOT VX: "); System.out.println(ROBOT_VX);
+         // System.out.print("ROBOT VY: "); System.out.println(ROBOT_VY);
           if (!isSim()) {
 
               trajectory = SS.SimShot(Math.abs(shooterWheels.getVelocity().getValueAsDouble()), RobotState.GLOBAL_POSE, ROBOT_VX, ROBOT_VY);
