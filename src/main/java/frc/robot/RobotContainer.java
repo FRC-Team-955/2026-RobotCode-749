@@ -91,9 +91,9 @@ public class RobotContainer {
         driverController.x()
                         .onTrue(climberSubsystem.runOnce(() -> climberSubsystem.changeMode()));
 
-        driverController.a() // requirement is must be in tuning mode
-                        .onTrue(climberSubsystem.runOnce(() -> climberSubsystem.setTopValue()));
         driverController.b() // requirement is must be in tuning mode
+                        .onTrue(climberSubsystem.runOnce(() -> climberSubsystem.setTopValue()));
+        driverController.a() // requirement is must be in tuning mode
                 .onTrue(climberSubsystem.runOnce(() -> climberSubsystem.setBottomValue()));
 
         driverController.rightBumper()

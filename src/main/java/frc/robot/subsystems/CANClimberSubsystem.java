@@ -73,7 +73,7 @@ public class CANClimberSubsystem extends SubsystemBase {
     public void goUp() {
         if (mode == 2) {
             PIDController.setSetpoint(topEncoderValue);
-            climber.set(MathUtil.clamp(PIDController.calculate(climberEncoder.getPosition()), 0, 4));
+            climber.set(MathUtil.clamp(PIDController.calculate(climberEncoder.getPosition()), 0, 5));
         } else if (mode == 1) {
             climber.set(0);
         } else if (mode == 3) {
@@ -85,8 +85,8 @@ public class CANClimberSubsystem extends SubsystemBase {
 
     public void goDown() {
         if (mode == 2) {
-            PIDController.setSetpoint(topEncoderValue - ENCODER_CAP*0.75);
-            climber.set(MathUtil.clamp(PIDController.calculate(climberEncoder.getPosition()), -4, 0));
+            PIDController.setSetpoint(topEncoderValue - ENCODER_CAP*0.92);
+            climber.set(MathUtil.clamp(PIDController.calculate(climberEncoder.getPosition()), -5, 0));
         } else if (mode == 1) {
             climber.set(0);
         } else if (mode == 3) {
