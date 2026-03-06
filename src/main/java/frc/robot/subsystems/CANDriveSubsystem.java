@@ -67,7 +67,7 @@ public class CANDriveSubsystem extends SubsystemBase {
     DifferentialDrivetrainSim drivetrainSim = new DifferentialDrivetrainSim(
             DCMotor.getNEO(2),       // 2 NEO motors on each side of the drivetrain.
             8.45,                    //
-            4,                     // MOI from CAD??
+            3,                     // MOI from CAD??
             29.76,                    // The mass of the robot is not 30 kg.
             Units.inchesToMeters(3), // The robot uses 3" radius wheels.
             DBASE_WIDTH,                  // what u think it is
@@ -267,6 +267,9 @@ public class CANDriveSubsystem extends SubsystemBase {
 
 
     public void resetOdometry(Pose2d p){
+        if(isSim()){
+            drivetrainSim.setPose(p);
+        }
         ps.resetOdometry(p);
     }
     public Command cresetOdometry(Pose2d p){
@@ -275,12 +278,16 @@ public class CANDriveSubsystem extends SubsystemBase {
 
     PIDController turnPIDAuto = new PIDController(3.6,KI,0.35);
     PIDController forwardPIDAuto = new PIDController(3.5,KI,0.35);
+
     StructPublisher<Pose2d> publisher = NetworkTableInstance.getDefault()
             .getStructTopic("TargetPose", Pose2d.struct).publish();
     public void funcDriveAtTargetPose(Pose2d targetPose) {
         publisher.set(targetPose);
 
+        turnPIDAuto.enableContinuousInput(-Math.PI, Math.PI);
 
+        turnPIDAuto.setTolerance(Math.toRadians(2));
+        forwardPIDAuto.setTolerance(0.05);
         if (targetPose == null) return;
 
         Pose2d current = GLOBAL_POSE;
@@ -312,7 +319,7 @@ public class CANDriveSubsystem extends SubsystemBase {
             turn = MathUtil.clamp(turn, -0.45, 0.45);
 
 
-            drive.arcadeDrive(0, turn);
+            drive.arcadeDrive(0, -turn);
             return;
         }
 
@@ -341,7 +348,7 @@ public class CANDriveSubsystem extends SubsystemBase {
             forward = 0;
         }
         forward = MathUtil.clamp(forward,-2.8,2.8);
-        drive.arcadeDrive(forward, turn);
+        drive.arcadeDrive(-forward, -turn);
 
     }
 
@@ -353,11 +360,11 @@ public class CANDriveSubsystem extends SubsystemBase {
         double angleError =
                 current.getRotation().minus(target.getRotation()).getRadians();
 
-        return (dist < 0.13) && (Math.abs(angleError) < Math.toRadians(2.0));
+        return (dist < 0.13) && (Math.abs(angleError) < Math.toRadians(5));
     }
 
     private int atPoseTicks = 0;
-    private final int REQUIRED_TICKS = 10; //
+    private final int REQUIRED_TICKS = 8; //
 
     private boolean isSettledAtPose(Pose2d current, Pose2d target){
         if (isAtPose(current, target)) {
@@ -405,10 +412,10 @@ public class CANDriveSubsystem extends SubsystemBase {
             System.out.println("IDIOT. CALL ARIN AND TELL HIM TO GET A BRAIN");
         }
         else {
-            m_leftEncoderSim.setPosition(drivetrainSim.getLeftPositionMeters());
-            m_leftEncoderSim.setVelocity(drivetrainSim.getLeftVelocityMetersPerSecond());
-            m_rightEncoderSim.setPosition(drivetrainSim.getRightPositionMeters());
-            m_rightEncoderSim.setVelocity(drivetrainSim.getRightVelocityMetersPerSecond());
+            m_leftEncoderSim.setPosition(-drivetrainSim.getLeftPositionMeters());
+            m_leftEncoderSim.setVelocity(-drivetrainSim.getLeftVelocityMetersPerSecond());
+            m_rightEncoderSim.setPosition(-drivetrainSim.getRightPositionMeters());
+            m_rightEncoderSim.setVelocity(-drivetrainSim.getRightVelocityMetersPerSecond());
         }
     }
 

@@ -87,11 +87,7 @@ public class PoseSubsystem extends SubsystemBase {
     public void resetOdometry(Pose2d a){
         m_poseEstimator.resetPose(a);
     }
-    //overloaded function for in case a zero-reset is needed
-    public void resetOdometry(){
 
-        m_poseEstimator.resetPose(new Pose2d());
-    }
 
     // get pose2d format of best guess pose from the PoseSubsystem
     public Pose2d getPose() {
@@ -156,8 +152,9 @@ public class PoseSubsystem extends SubsystemBase {
 
 
 
-            publisher.set(GLOBAL_POSE);
+
             GLOBAL_POSE = m_poseEstimator.getEstimatedPosition();
+        publisher.set(GLOBAL_POSE);
 
 
 

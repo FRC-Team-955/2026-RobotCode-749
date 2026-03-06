@@ -12,6 +12,8 @@ import frc.robot.Constants;
 import frc.robot.subsystems.CANFuelSubsystem;
 import frc.robot.subsystems.CANDriveSubsystem;
 
+import static frc.robot.RobotState.INITIAL_POSE;
+
 public final class Autos {
     // Example autonomous command which drives forward for 1 second.
     public static Command exampleAuto(CANDriveSubsystem driveSubsystem, CANFuelSubsystem ballSubsystem) {
@@ -73,7 +75,7 @@ public final class Autos {
     public static Command centerShoot(CANDriveSubsystem driveSubsystem, CANFuelSubsystem ballSubsystem) {
         return new SequentialCommandGroup(
                 driveSubsystem.setPIDSetpoints(() -> -0.5, () -> -0.5),
-                driveSubsystem.autoDrivePID(driveSubsystem.giveLeftEncoder(), driveSubsystem.giveRightEncoder()).withTimeout(3),
+                driveSubsystem.autoDrivePID(driveSubsystem.giveLeftEncoder(), driveSubsystem.giveRightEncoder()).withTimeout(200),
                 ballSubsystem.spinUpCommand().until(() -> ballSubsystem.isAtSpeed(Constants.FuelConstants.SHOOTER_WEAK_SPEED)),
                 ballSubsystem.launchCommand(() -> Constants.FuelConstants.SHOOTER_WEAK_LAUNCH_VOLTAGE).withTimeout(4),
                 ballSubsystem.runOnce(() -> ballSubsystem.stop())
@@ -103,6 +105,8 @@ public final class Autos {
 
     public static Command lBumbShootAndMidAuto(CANDriveSubsystem ds, CANFuelSubsystem fs){
         return new SequentialCommandGroup(
+                ds.runOnce(()-> ds.resetOdometry(INITIAL_POSE)), // correctly set Auto's start pos, in sim and irl!
+                ds.runOnce(()->System.out.println("HIII")),
                 ds.driveAtTargetPose(new Pose2d(2.8,4, new Rotation2d(Math.PI) )),
                 fs.shootAtTarget().withTimeout(6),
                 fs.runOnce(()->fs.stop()),
