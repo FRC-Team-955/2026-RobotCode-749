@@ -48,16 +48,16 @@ public class PoseSubsystem extends SubsystemBase {
 
 
     public PoseSubsystem() {
-        m_poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(0.3,0.3,Math.PI/24));
+        m_poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(0.5,0.5,Math.PI/7)); // yaw angle +; xy are ok
         // Switch to pipeline 0
-        LimelightHelpers.setPipelineIndex("", 0);
+        LimelightHelpers.setPipelineIndex("", 0); // Default Pipeline
         // Set a custom crop window for improved performance (-1 to 1 for each value)
         //LimelightHelpers.setCropWindow("", -0.5, 0.5, -0.5, 0.5);
 
 // Change the camera pose relative to robot center (x forward, y left, z up, degrees)
         // OUR LIMELIGHT IS ON THE BACK, FACING BACKWARDS
         LimelightHelpers.setCameraPose_RobotSpace("",
-                -0.28,    // Forward offset (meters)
+                -0.32,    // Forward offset (meters)
                 0.0,    // Side offset (meters)
                 0.19,    // Height offset (meters)
                 0.0,    // Roll (degrees)
@@ -126,34 +126,37 @@ public class PoseSubsystem extends SubsystemBase {
 
 
     boolean hadTarget = false;
+    int ctr = 0;
 
     //update loop event
     @Override
     public void periodic() {
-        //LimelightHelpers.SetRobotOrientation("", m_poseEstimator.getEstimatedPosition().getRotation().getDegrees()+180,0,0,0,0,0);
-        LimelightHelpers.PoseEstimate limelightMeasurement;
-        if (RobotState.isTestMode() || RobotState.isRedAlliance()){
+        ctr++;
+        if(ctr == 2) { // dont spam the ll
+            //LimelightHelpers.SetRobotOrientation("", m_poseEstimator.getEstimatedPosition().getRotation().getDegrees()+180,0,0,0,0,0);
+            LimelightHelpers.PoseEstimate limelightMeasurement;
+            if (RobotState.isTestMode() || RobotState.isRedAlliance()) {
 
-            limelightMeasurement= LimelightHelpers.getBotPoseEstimate_wpiRed("");
-        }
-        else{
-            limelightMeasurement= LimelightHelpers.getBotPoseEstimate_wpiBlue("");
-        }
-        // Update the odometry in the periodic block
-        if(LimelightHelpers.getTV("")) { //IF TARGET
-            if(!hadTarget){
-                hadTarget=true;
-                System.out.println("Limelight target acquired!");
+                limelightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiRed("");
+            } else {
+                limelightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue("");
             }
-            m_poseEstimator.addVisionMeasurement(limelightMeasurement.pose, limelightMeasurement.timestampSeconds);
-        }
-        else{
-            if(hadTarget) {
-                System.out.println("NO LIMELIGHT TARGET");
-                hadTarget=false;
+            // Update the odometry in the periodic block
+            if (LimelightHelpers.getTV("")) { //IF TARGET
+                if (!hadTarget) {
+                    hadTarget = true;
+                    System.out.println("Limelight target acquired!");
+                }
+                m_poseEstimator.addVisionMeasurement(limelightMeasurement.pose, limelightMeasurement.timestampSeconds);
+            } else {
+                if (hadTarget) {
+                    System.out.println("NO LIMELIGHT TARGET");
+                    hadTarget = false;
+                }
             }
+            llpublisher.set(limelightMeasurement.pose);
+            ctr = 0;
         }
-        llpublisher.set(limelightMeasurement.pose);
 
         m_poseEstimator.update(
                 gyro.getRotation2d(), l.getAsDouble(), r.getAsDouble()); //use Rotation2d (gyroAngle) for reals
