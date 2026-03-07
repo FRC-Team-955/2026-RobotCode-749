@@ -130,7 +130,7 @@ public class PoseSubsystem extends SubsystemBase {
     //update loop event
     @Override
     public void periodic() {
-        LimelightHelpers.SetRobotOrientation("",m_poseEstimator.getEstimatedPosition().getRotation().getDegrees(),0,0,0,0,0);
+        LimelightHelpers.SetRobotOrientation("", m_poseEstimator.getEstimatedPosition().getRotation().getDegrees()+180,0,0,0,0,0);
         LimelightHelpers.PoseEstimate limelightMeasurement;
         if (RobotState.isTestMode() || RobotState.isRedAlliance()){
 

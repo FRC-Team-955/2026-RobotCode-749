@@ -32,6 +32,7 @@ import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.RobotState;
@@ -408,6 +409,16 @@ public class CANDriveSubsystem extends SubsystemBase {
 
     public Command driveAtTargetPose(Pose2d target){
         return run(()->funcDriveAtTargetPose(target)).until(()->isSettledAtPose(GLOBAL_POSE,target)).finallyDo(() -> drive.tankDrive(0, 0));
+    }
+
+    public Command shake(){
+        return new SequentialCommandGroup(
+                driveArcade(()->0,()->1,()->0).withTimeout(0.2),
+                driveArcade(()->0,()->-1,()->0).withTimeout(0.2),
+                driveArcade(()->0,()->-1,()->0).withTimeout(0.2),
+                driveArcade(()->0,()->1,()->0).withTimeout(0.2),
+                driveArcade(()->0,()->0,()->0).withTimeout(0.02)
+        );
     }
 
 
