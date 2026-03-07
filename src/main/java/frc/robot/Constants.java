@@ -74,6 +74,8 @@ public final class  Constants {
       public static final double SHOOTER_WEAK_LAUNCH_VOLTAGE = -5.5;
       public static final double SHOOTER_STRONG_SPEED = 58;
       public static final double SHOOTER_WEAK_SPEED = 40;
+      public static final double CORNER_HIT_VELOCITY = 70;
+
   }
     public static class ClimbConstants {
       public static final double KP = 0.1;
@@ -102,7 +104,7 @@ public final class  Constants {
 
     // This value is multiplied by the joystick value when driving the robot to
     // help avoid driving and turning too fast and being difficult to control
-    public static final double DRIVE_SCALING = .67; /// <--------------------- LOOK ITS 67!
+    public static final double DRIVE_SCALING = .749; //
     public static final double ROTATION_SCALING = .55;
   }
 }
