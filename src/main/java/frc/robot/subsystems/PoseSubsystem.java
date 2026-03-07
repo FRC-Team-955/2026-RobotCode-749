@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
+import java.util.Objects;
 import java.util.function.DoubleSupplier;
 
 
@@ -47,30 +48,31 @@ public class PoseSubsystem extends SubsystemBase {
 
 
     public PoseSubsystem() {
+        m_poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(0.7,0.7,9999999));
         // Switch to pipeline 0
         LimelightHelpers.setPipelineIndex("", 0);
         // Set a custom crop window for improved performance (-1 to 1 for each value)
-        LimelightHelpers.setCropWindow("", -0.5, 0.5, -0.5, 0.5);
+        //LimelightHelpers.setCropWindow("", -0.5, 0.5, -0.5, 0.5);
 
 // Change the camera pose relative to robot center (x forward, y left, z up, degrees)
         LimelightHelpers.setCameraPose_RobotSpace("",
-                0.5,    // Forward offset (meters)
+                -0.28,    // Forward offset (meters)
                 0.0,    // Side offset (meters)
-                0.5,    // Height offset (meters)
+                0.19,    // Height offset (meters)
                 0.0,    // Roll (degrees)
-                30.0,   // Pitch (degrees)
-                0.0     // Yaw (degrees)
+                -20.0,   // Pitch (degrees)
+                180.0     // Yaw (degrees)
         );
 
 // Set AprilTag offset tracking point (meters)
         LimelightHelpers.setFiducial3DOffset("",
                 0.0,    // Forward offset
                 0.0,    // Side offset
-                0.5     // Height offset
+                0.0     // Height offset
         );
 
 // Configure AprilTag detection
-        LimelightHelpers.SetFiducialIDFiltersOverride("", new int[]{1, 2, 3, 4}); // Only track these tag IDs
+        //LimelightHelpers.SetFiducialIDFiltersOverride("", new int[]{1, 2, 3, 4}); // Only track these tag IDs
         LimelightHelpers.SetFiducialDownscalingOverride("", 2.0f); // Process at half resolution
 
 // Adjust keystone crop window (-0.95 to 0.95 for both horizontal and vertical)
@@ -124,16 +126,21 @@ public class PoseSubsystem extends SubsystemBase {
     //update loop event
     @Override
     public void periodic() {
+        LimelightHelpers.SetRobotOrientation("",m_poseEstimator.getEstimatedPosition().getRotation().getDegrees(),0,0,0,0,0);
         LimelightHelpers.PoseEstimate limelightMeasurement;
         if (RobotState.isTestMode() || RobotState.isRedAlliance()){
-            limelightMeasurement= LimelightHelpers.getBotPoseEstimate_wpiRed("");
+
+            limelightMeasurement= LimelightHelpers.getBotPoseEstimate_wpiRed_MegaTag2("");
         }
         else{
-            limelightMeasurement= LimelightHelpers.getBotPoseEstimate_wpiBlue("");
+            limelightMeasurement= LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("");
         }
         // Update the odometry in the periodic block
         if(LimelightHelpers.getTV("")) { //IF TARGET
             m_poseEstimator.addVisionMeasurement(limelightMeasurement.pose, limelightMeasurement.timestampSeconds);
+        }
+        else{
+            System.out.println("NO LIMELIGHT TARGET");
         }
         llpublisher.set(limelightMeasurement.pose);
         m_poseEstimator.update(
