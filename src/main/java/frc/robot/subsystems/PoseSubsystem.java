@@ -48,7 +48,7 @@ public class PoseSubsystem extends SubsystemBase {
 
 
     public PoseSubsystem() {
-        m_poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(0.7,0.7,9999999));
+        m_poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(0.3,0.3,Math.PI/12));
         // Switch to pipeline 0
         LimelightHelpers.setPipelineIndex("", 0);
         // Set a custom crop window for improved performance (-1 to 1 for each value)
@@ -63,6 +63,7 @@ public class PoseSubsystem extends SubsystemBase {
                 -20.0,   // Pitch (degrees)
                 180.0     // Yaw (degrees)
         );
+        LimelightHelpers.setLEDMode_ForceOn("");
 
 // Set AprilTag offset tracking point (meters)
         LimelightHelpers.setFiducial3DOffset("",
@@ -123,6 +124,8 @@ public class PoseSubsystem extends SubsystemBase {
             .getStructTopic("LimelightPose", Pose2d.struct).publish();
 
 
+    boolean hadTarget = false;
+
     //update loop event
     @Override
     public void periodic() {
@@ -137,10 +140,17 @@ public class PoseSubsystem extends SubsystemBase {
         }
         // Update the odometry in the periodic block
         if(LimelightHelpers.getTV("")) { //IF TARGET
+            if(!hadTarget){
+                hadTarget=true;
+                System.out.println("Limelight target acquired!");
+            }
             m_poseEstimator.addVisionMeasurement(limelightMeasurement.pose, limelightMeasurement.timestampSeconds);
         }
         else{
-            System.out.println("NO LIMELIGHT TARGET");
+            if(hadTarget) {
+                System.out.println("NO LIMELIGHT TARGET");
+                hadTarget=false;
+            }
         }
         llpublisher.set(limelightMeasurement.pose);
         m_poseEstimator.update(

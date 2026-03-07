@@ -181,7 +181,7 @@ public final class Autos {
         return new SequentialCommandGroup(
                 ds.runOnce(()-> ds.resetOdometry(INITIAL_POSE)), // correctly set Auto's start pos, in sim and irl!
                 ds.driveAtTargetPose(new Pose2d(2.8,4, new Rotation2d(Math.PI) )),
-                fs.spinUpCommand().until(() -> fs.isAtSpeed(Constants.FuelConstants.SHOOTER_STRONG_SPEED)),
+                fs.spinUpCommand().until(() -> fs.isAtSpeed(Constants.FuelConstants.SHOOTER_STRONG_SPEED)).withTimeout(2),
                 fs.shootAtTarget(0).withTimeout(6),
                 fs.runOnce(()->fs.stop()),
                 ds.driveAtTargetPose(new Pose2d(3.633,5.41, Rotation2d.kZero)),
