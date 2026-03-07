@@ -121,7 +121,14 @@ public class CANFuelSubsystem extends SubsystemBase {
       }
   }
 
-  public void funcShootAtTarget(){
+  public void funcShootAtTarget(double overrideVelocity){
+      if(hitVelocity<0){
+          return;
+      }
+      if(overrideVelocity !=0){
+          hitVelocity=overrideVelocity;
+          runFeederAutoAim=true;
+      }
       SmartDashboard.putNumber("AutoAimAngV",hitVelocity);
 
       if(runFeederAutoAim){
@@ -133,9 +140,8 @@ public class CANFuelSubsystem extends SubsystemBase {
           feederRoller.set(0);
 
       }
-      if(hitVelocity<0){
-          return;
-      }
+
+
       double current = -shooterWheels.getVelocity().getValueAsDouble();
       double error = hitVelocity - current;
 
@@ -148,8 +154,8 @@ public class CANFuelSubsystem extends SubsystemBase {
 
       shooterWheels.set(-output);
   }
-  public Command shootAtTarget(){
-      return run(()->funcShootAtTarget());
+  public Command shootAtTarget(double overrideVelocity){
+      return run(()->funcShootAtTarget(0));
   }
 
   // A method to stop the rollers

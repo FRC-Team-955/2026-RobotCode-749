@@ -86,6 +86,7 @@ public class RobotContainer {
         autoChooser.addOption("[TEST] go back then shoot", Autos.boringAuto(driveSubsystem, ballSubsystem));
         autoChooser.addOption("[TEST] weak shoot", Autos.weakShoot(driveSubsystem, ballSubsystem));
         autoChooser.addOption("[TEST] P2P AUTO", Autos.P2PAutoTest(driveSubsystem, ballSubsystem));
+        autoChooser.addOption("[TEST] CHAOS THEORY AUTO", Autos.ChaosTheoryAuto(driveSubsystem, ballSubsystem));
         SmartDashboard.putData(autoChooser);
     }
 

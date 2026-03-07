@@ -347,9 +347,9 @@ public class CANDriveSubsystem extends SubsystemBase {
 
         turn = MathUtil.clamp(turn, -0.6, 0.6);
 
-        if(Math.abs(currentAngle-targetAngle) > Math.PI/16){
+        if(Math.abs(MathUtil.angleModulus(currentAngle-targetAngle)) > Math.PI/16){
 
-            forward = 0;
+            forward = 0.1;
         }
         forward = MathUtil.clamp(forward,-2.8,2.8);
         drive.arcadeDrive(-forward, -turn);
