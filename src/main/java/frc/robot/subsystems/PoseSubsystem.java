@@ -48,7 +48,7 @@ public class PoseSubsystem extends SubsystemBase {
 
 
     public PoseSubsystem() {
-        m_poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(0.5,0.5,Math.PI/7)); // yaw angle +; xy are ok
+        m_poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(0.5,0.5,Math.PI/6)); // yaw angle +; xy are ok
         // Switch to pipeline 0
         LimelightHelpers.setPipelineIndex("", 0); // Default Pipeline
         // Set a custom crop window for improved performance (-1 to 1 for each value)
@@ -57,7 +57,7 @@ public class PoseSubsystem extends SubsystemBase {
 // Change the camera pose relative to robot center (x forward, y left, z up, degrees)
         // OUR LIMELIGHT IS ON THE BACK, FACING BACKWARDS
         LimelightHelpers.setCameraPose_RobotSpace("",
-                -0.32,    // Forward offset (meters)
+                -0.34,    // Forward offset (meters)
                 0.0,    // Side offset (meters)
                 0.19,    // Height offset (meters)
                 0.0,    // Roll (degrees)
