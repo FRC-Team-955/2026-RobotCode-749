@@ -130,14 +130,14 @@ public class PoseSubsystem extends SubsystemBase {
     //update loop event
     @Override
     public void periodic() {
-        LimelightHelpers.SetRobotOrientation("", m_poseEstimator.getEstimatedPosition().getRotation().getDegrees()+180,0,0,0,0,0);
+        //LimelightHelpers.SetRobotOrientation("", m_poseEstimator.getEstimatedPosition().getRotation().getDegrees()+180,0,0,0,0,0);
         LimelightHelpers.PoseEstimate limelightMeasurement;
         if (RobotState.isTestMode() || RobotState.isRedAlliance()){
 
-            limelightMeasurement= LimelightHelpers.getBotPoseEstimate_wpiRed_MegaTag2("");
+            limelightMeasurement= LimelightHelpers.getBotPoseEstimate_wpiRed("");
         }
         else{
-            limelightMeasurement= LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("");
+            limelightMeasurement= LimelightHelpers.getBotPoseEstimate_wpiBlue("");
         }
         // Update the odometry in the periodic block
         if(LimelightHelpers.getTV("")) { //IF TARGET

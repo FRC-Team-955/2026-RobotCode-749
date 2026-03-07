@@ -23,7 +23,7 @@ public class LEDSystem {
     private static final Distance kLedSpacing = Meters.of(1 / 120.0);
 
     // Create a new pattern that scrolls the rainbow pattern across the LED strip, moving at a speed
-    // of 1 meter per second.
+    // of 0.27 meter per second.
     private final LEDPattern m_scrollingRainbow =
             m_rainbow.scrollAtAbsoluteSpeed(MetersPerSecond.of(0.27), kLedSpacing);
 
