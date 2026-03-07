@@ -223,8 +223,8 @@ public class CANDriveSubsystem extends SubsystemBase {
 
     public void increaseSens() {
         muffle += 5;
-        if (muffle > 100) {
-            muffle = 100;
+        if (muffle > 120) {
+            muffle = 120;
         }
     }
 
@@ -413,10 +413,10 @@ public class CANDriveSubsystem extends SubsystemBase {
 
     public Command shake(){
         return new SequentialCommandGroup(
-                driveArcade(()->0,()->1,()->0).withTimeout(0.2),
-                driveArcade(()->0,()->-1,()->0).withTimeout(0.2),
-                driveArcade(()->0,()->-1,()->0).withTimeout(0.2),
-                driveArcade(()->0,()->1,()->0).withTimeout(0.2),
+                driveArcade(()->0,()->0.72,()->0).withTimeout(0.1),
+                driveArcade(()->0,()->-0.72,()->0).withTimeout(0.1),
+                driveArcade(()->0,()->-0.72,()->0).withTimeout(0.1),
+                driveArcade(()->0,()->0.72,()->0).withTimeout(0.1),
                 driveArcade(()->0,()->0,()->0).withTimeout(0.02)
         );
     }

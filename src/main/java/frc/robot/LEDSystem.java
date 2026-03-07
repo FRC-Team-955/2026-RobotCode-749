@@ -36,10 +36,15 @@ public class LEDSystem {
         m_led.start();
     }
 
-    public void RAINBOW(){
-        m_scrollingRainbow.applyTo(m_ledBuffer);
-        // Set the LEDs
-        m_led.setData(m_ledBuffer);
+    public void shooterLeds(){
+        if(RobotState.shooterRatio >= 1|| RobotState.shooterRatio <0) {
+            m_scrollingRainbow.applyTo(m_ledBuffer);
+            // Set the LEDs
+            m_led.setData(m_ledBuffer);
+        }
+        else{
+            // todo show %
+        }
     }
 
 

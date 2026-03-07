@@ -19,6 +19,8 @@ public class RobotState {
     public static double ROBOT_VX=0;
     public static double ROBOT_VY = 0;
 
+    public static double shooterRatio = -1;
+
     public static boolean isRedAlliance() {
         return DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue).equals(DriverStation.Alliance.Red);
     }

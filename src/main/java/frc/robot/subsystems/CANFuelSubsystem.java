@@ -163,6 +163,7 @@ public class CANFuelSubsystem extends SubsystemBase {
     feederRoller.set(0);
     intakeLauncherRoller.set(0);
     shooterWheels.setVoltage(0);
+    shooterRatio=-1;
   }
 
   // A method to spin up the launcher roller while spinning the feeder roller to
@@ -173,6 +174,8 @@ public class CANFuelSubsystem extends SubsystemBase {
     intakeLauncherRoller
         .setVoltage(-SmartDashboard.getNumber("Launching launcher roller value", LAUNCHING_LAUNCHER_VOLTAGE));
     shooterWheels.setVoltage(voltage);
+
+
   }
 
   // A command factory to turn the spinUp method into a command that requires this
@@ -188,6 +191,10 @@ public class CANFuelSubsystem extends SubsystemBase {
   }
 
   public boolean isAtSpeed(double speed){
+      shooterRatio = (-shooterWheels.getVelocity().getValueAsDouble()/speed);
+      if(shooterRatio>1){
+          shooterRatio=-2;
+      }
       return (((-shooterWheels.getVelocity().getValueAsDouble())- speed) > -1.2);
   }
 
@@ -207,7 +214,7 @@ public class CANFuelSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
 
-
+        SmartDashboard.putNumber("Shooter %", shooterRatio);
       counter++;
     // This method will be called once per scheduler run
       SmartDashboard.putNumber("Shooter Velocity", -shooterWheels.getVelocity().getValueAsDouble()); // 58 running, ~61(?) for spinup

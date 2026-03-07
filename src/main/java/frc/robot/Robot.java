@@ -18,7 +18,6 @@ import frc.robot.subsystems.CANDriveSubsystem;
 import frc.robot.subsystems.CANFuelSubsystem;
 import frc.robot.subsystems.PoseSubsystem;
 
-import static frc.robot.RobotState.GLOBAL_POSE;
 import static frc.robot.RobotState.INITIAL_POSE;
 
 /**
@@ -84,7 +83,7 @@ public class Robot extends TimedRobot {
     // robot's periodic
     // block in order for anything in the Command-based framework to work.
     CommandScheduler.getInstance().run();
-      LEDS.RAINBOW();
+      LEDS.shooterLeds();
   }
 
   /** This function is called once each time the robot enters Disabled mode. */
