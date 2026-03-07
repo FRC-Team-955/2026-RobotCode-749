@@ -48,13 +48,14 @@ public class PoseSubsystem extends SubsystemBase {
 
 
     public PoseSubsystem() {
-        m_poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(0.3,0.3,Math.PI/12));
+        m_poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(0.3,0.3,Math.PI/24));
         // Switch to pipeline 0
         LimelightHelpers.setPipelineIndex("", 0);
         // Set a custom crop window for improved performance (-1 to 1 for each value)
         //LimelightHelpers.setCropWindow("", -0.5, 0.5, -0.5, 0.5);
 
 // Change the camera pose relative to robot center (x forward, y left, z up, degrees)
+        // OUR LIMELIGHT IS ON THE BACK, FACING BACKWARDS
         LimelightHelpers.setCameraPose_RobotSpace("",
                 -0.28,    // Forward offset (meters)
                 0.0,    // Side offset (meters)
@@ -153,6 +154,7 @@ public class PoseSubsystem extends SubsystemBase {
             }
         }
         llpublisher.set(limelightMeasurement.pose);
+
         m_poseEstimator.update(
                 gyro.getRotation2d(), l.getAsDouble(), r.getAsDouble()); //use Rotation2d (gyroAngle) for reals
         if (Constants.DEBUG == 1){
