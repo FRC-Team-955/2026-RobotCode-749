@@ -17,6 +17,7 @@ public class LEDSystem {
     AddressableLEDBuffer m_ledBuffer;
 
     private final LEDPattern m_rainbow = LEDPattern.rainbow(192, 96);
+    private final LEDPattern m_percent = LEDPattern.progressMaskLayer(()->RobotState.shooterRatio);
 
     // Our LED strip has a density of 120 LEDs per meter
     private static final Distance kLedSpacing = Meters.of(1 / 120.0);
@@ -43,7 +44,9 @@ public class LEDSystem {
             m_led.setData(m_ledBuffer);
         }
         else{
-            // todo show %
+
+            m_percent.applyTo(m_ledBuffer);
+            m_led.setData(m_ledBuffer);
         }
     }
 

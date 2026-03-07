@@ -112,6 +112,7 @@ public class CANFuelSubsystem extends SubsystemBase {
 
   // A method to set the rollers to values for launching.
   public void launch(DoubleSupplier voltage) {
+      shooterRatio =1;
     feederRoller.setVoltage(SmartDashboard.getNumber("Launching feeder roller value", LAUNCHING_FEEDER_VOLTAGE)); //
     intakeLauncherRoller
         .setVoltage(-SmartDashboard.getNumber("Launching launcher roller value", -LAUNCHING_LAUNCHER_VOLTAGE));
@@ -122,6 +123,7 @@ public class CANFuelSubsystem extends SubsystemBase {
   }
 
   public void funcShootAtTarget(double overrideVelocity){
+      shooterRatio=1;
       if(hitVelocity<0){
           return;
       }
