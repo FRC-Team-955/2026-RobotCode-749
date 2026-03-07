@@ -6,8 +6,11 @@ package frc.robot;
 
 import edu.wpi.first.hal.HAL;
 import edu.wpi.first.hal.FRCNetComm.tResourceType;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.subsystems.CANClimberSubsystem;
@@ -28,6 +31,17 @@ import static frc.robot.RobotState.INITIAL_POSE;
  * project.
  */
 
+/**
+ * TODO:
+ * add less muffle to rotation than to drive :)
+ * rebind muffle to operator and allow more control :)
+ *  - display percentage you are running at :)
+ *  - have keybind for 100 and 50 (drive values) :)
+ * add shake command for operator or driver?
+ *  - override shooting or no...
+ * add on screen timer for cycles
+ */
+
 public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
 
@@ -37,6 +51,7 @@ public class Robot extends TimedRobot {
     private final CANDriveSubsystem driveSubsystem = new CANDriveSubsystem(poseSubsystem);
     public final CANClimberSubsystem climberSubsystem = new CANClimberSubsystem();
     LEDSystem LEDS = new LEDSystem();
+    private Timer timer = new Timer();
   /**
    * This function is run when the robot is first started up and should be used
    * for any
@@ -44,6 +59,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
+    timer.reset();
       climberSubsystem.resetMode();
     climberSubsystem.initSetPoint();
     // Instantiate our RobotContainer. This will perform all our button bindings,
@@ -124,6 +140,8 @@ public class Robot extends TimedRobot {
   public void teleopInit() {
       driveSubsystem.resetSetPoints();
       climberSubsystem.resetMode();
+      timer.reset();
+    timer.start();
     // This makes sure that the autonomous stops running when
     // teleop starts running. If you want the autonomous to
     // continue until interrupted by another command, remove
@@ -137,6 +155,14 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
+    if (timer.get() < 10) {
+      SmartDashboard.putNumber("Time Until Hub Change", (double) Math.round(10.0 * (10 - timer.get())) /10.0);
+
+    } else if (timer.get() < 110) {
+      SmartDashboard.putNumber("Time Until Hub Change", (double) Math.round(10.0 * (25 - MathUtil.inputModulus(timer.get() - 10, 0, 25))) /10.0);
+    } else if (timer.get() < 140) {
+      SmartDashboard.putNumber("Time Until Hub Change", (double) Math.round(10.0 * (140 - timer.get())) /10.0);
+    } // 10 25 25 25 25 30
 
   }
 

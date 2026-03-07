@@ -66,6 +66,8 @@ public class CANDriveSubsystem extends SubsystemBase {
     PIDController turnPIDAuto = new PIDController(3.6,KI,0.35);
     PIDController forwardPIDAuto = new PIDController(3.5,KI,0.35);
 
+    double muffle = 100;
+
 /// TODO: TUNE THIS
     DifferentialDrivetrainSim drivetrainSim = new DifferentialDrivetrainSim(
             DCMotor.getNEO(2),       // 2 NEO motors on each side of the drivetrain.
@@ -168,6 +170,7 @@ public class CANDriveSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("lPIDPoint", leftPID.getSetpoint());
         SmartDashboard.putNumber("rPIDPoint", rightPID.getSetpoint());
 
+        SmartDashboard.putNumber("percentage", muffle);
 
         ///  SIM AND NON-SIM GLOBAL VELOCITIES
          {
@@ -217,11 +220,34 @@ public class CANDriveSubsystem extends SubsystemBase {
         System.out.print("LF: "); System.out.print(leftFollower.getAppliedOutput()); System.out.print(" RF: ");System.out.println(rightFollower.getAppliedOutput());
     }
 
+    public void increaseSens() {
+        muffle += 5;
+        if (muffle > 100) {
+            muffle = 100;
+        }
+    }
+
+    public void decreaseSens() {
+        muffle -= 5;
+        if (muffle < 5) {
+            muffle = 5;
+        }
+    }
+
+    public void sens100() {
+        muffle = 100;
+    }
+
+    public void sens50() {
+        muffle = 50;
+    }
+
     // Command factory to create command to drive the robot with joystick inputs.
     public Command driveArcade(DoubleSupplier xSpeed, DoubleSupplier zRotation, DoubleSupplier muffle) {
         return run(() -> {
-            double limitedX = ((1-muffle.getAsDouble())/2 + 0.5)*limit.calculate(xSpeed.getAsDouble());
-            double rot = ((1-muffle.getAsDouble())/2 + 0.5)*zRotation.getAsDouble();
+            DoubleSupplier percent = () -> this.muffle;
+            double limitedX = (percent.getAsDouble()/100)*limit.calculate(xSpeed.getAsDouble());
+            double rot = (percent.getAsDouble()/200 + 0.5)*zRotation.getAsDouble();
 
             updateSetPoints(limitedX + rot, limitedX - rot);
             drive.arcadeDrive(limitedX, rot);

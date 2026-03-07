@@ -133,9 +133,17 @@ public class RobotContainer {
 
         operatorController.x().onTrue(driveSubsystem.runOnce(()->driveSubsystem.resetOdometry(INITIAL_POSE))); // op x on click is restart poseSubsystem
 
+        operatorController.povUp()
+                .onTrue(driveSubsystem.runOnce(() -> driveSubsystem.increaseSens()));
 
+        operatorController.povDown()
+                .onTrue(driveSubsystem.runOnce(() -> driveSubsystem.decreaseSens()));
 
+        operatorController.povLeft()
+                .onTrue(driveSubsystem.runOnce(() -> driveSubsystem.sens100()));
 
+        operatorController.povRight()
+                .onTrue(driveSubsystem.runOnce(() -> driveSubsystem.sens50()));
 
 
         // Set the default command for the drive subsystem to the command provided by
