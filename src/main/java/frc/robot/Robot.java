@@ -31,17 +31,6 @@ import static frc.robot.RobotState.INITIAL_POSE;
  * project.
  */
 
-/**
- * TODO:
- * add less muffle to rotation than to drive :)
- * rebind muffle to operator and allow more control :)
- *  - display percentage you are running at :)
- *  - have keybind for 100 and 50 (drive values) :)
- * add shake command for operator or driver?
- *  - override shooting or no...
- * add on screen timer for cycles
- */
-
 public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
 
