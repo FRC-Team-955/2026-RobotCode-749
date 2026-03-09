@@ -48,7 +48,7 @@ public class PoseSubsystem extends SubsystemBase {
 
 
     public PoseSubsystem() {
-        m_poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(0.5,0.5,Math.PI/6)); // yaw angle +; xy are ok
+        m_poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(0.28,0.28,Math.PI/6)); // yaw angle +; xy are ok
         // Switch to pipeline 0
         LimelightHelpers.setPipelineIndex("", 0); // Default Pipeline
         // Set a custom crop window for improved performance (-1 to 1 for each value)
@@ -87,7 +87,7 @@ public class PoseSubsystem extends SubsystemBase {
 
 
 
-    //SELF EXPLANATORY...... but kinda no works
+    //SELF EXPLANATORY
     public void resetOdometry(Pose2d a){
         m_poseEstimator.resetPose(a);
         GLOBAL_POSE = a;
@@ -173,25 +173,11 @@ public class PoseSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("EPOS_dLE", l.getAsDouble()-OldL);
         SmartDashboard.putNumber("EPOS_dRE", r.getAsDouble()-OldR);
 
-
-
-
-
-
         GLOBAL_POSE = m_poseEstimator.getEstimatedPosition();
         publisher.set(GLOBAL_POSE);
 
-
-
-
         OldL = l.getAsDouble();
         OldR = r.getAsDouble();
-
-
-
-
-
-
 
 
     }
