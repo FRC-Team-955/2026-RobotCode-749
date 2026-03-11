@@ -194,7 +194,7 @@ public final class Autos {
     public static Command ChaosTheoryAuto(CANDriveSubsystem ds, CANFuelSubsystem fs){
         return new SequentialCommandGroup(
                 ds.runOnce(()-> ds.resetOdometry(INITIAL_POSE)), // correctly set Auto's start pos, in sim and irl!
-                ds.driveAtTargetPose(new Pose2d(3.6,4, new Rotation2d(-2.23) )),
+                ds.driveAtTargetPose(new Pose2d(3.6,4, new Rotation2d(fs.toFaceHub()) )),
                 ds.driveAtTargetPose(new Pose2d(0.3,0.7, new Rotation2d() )),
                 fs.run(()->fs.intake()).withTimeout(6),
                 ds.driveAtTargetPose(new Pose2d(0.8,1, new Rotation2d(0.6+Math.PI) )),
