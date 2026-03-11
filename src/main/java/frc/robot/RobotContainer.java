@@ -111,10 +111,10 @@ public class RobotContainer {
         operatorController.leftBumper()
                 .whileTrue(ballSubsystem.runEnd(() -> ballSubsystem.intake(), () -> ballSubsystem.stop()));
 
-        //driverController.y().whileTrue(ballSubsystem.shootAtTarget().finallyDo(()->ballSubsystem.stop()));
+        driverController.y().whileTrue(ballSubsystem.shootAtTarget(0).finallyDo(()->ballSubsystem.stop()));
         // sorry not sorry arin :(
 
-        driverController.y().onTrue(driveSubsystem.shake());
+        //driverController.y().onTrue(driveSubsystem.shake());
 
         // While the right bumper on the operator controller is held, spin up for 1
         // second, then launch fuel. When the button is released, stop.
