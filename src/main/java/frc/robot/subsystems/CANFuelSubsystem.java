@@ -13,10 +13,13 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.SparkMax;
 
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
+import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -42,7 +45,8 @@ public class CANFuelSubsystem extends SubsystemBase {
 
 
   ShooterSim SS = new ShooterSim();
-    ArrayList<Pose3d> targetList = new ArrayList<>();
+
+    Pose3d target;
 
     public void setBrakeMode() {
         shooterWheels.setNeutralMode(NeutralModeValue.Brake);
@@ -53,13 +57,9 @@ public class CANFuelSubsystem extends SubsystemBase {
   /** Creates a new CANBallSubsystem. */
   public CANFuelSubsystem() {
 
-      targetList.add(new Pose3d(4.01,4.03,1.8288,new Rotation3d()));
-      targetList.add(new Pose3d(4.319,3.505,1.8288,new Rotation3d()));
-      targetList.add(new Pose3d(4.928,3.508,1.8288,new Rotation3d()));
-      targetList.add(new Pose3d(5.230,4.038,1.8288,new Rotation3d()));
-      targetList.add(new Pose3d(4.922,4.565,1.8288,new Rotation3d()));
-      targetList.add(new Pose3d(4.312,4.561,1.8288,new Rotation3d()));
-      targetList.add(new Pose3d(4.01,4.03,1.8288,new Rotation3d()));
+
+
+      target = new Pose3d((4.01+5.23)/2, 4,1.8288, new Rotation3d());
 
 
     // create brushLESS motors for each of the motors on the launcher mechanism
@@ -205,10 +205,9 @@ public class CANFuelSubsystem extends SubsystemBase {
   }
 
 
-    StructArrayPublisher<Pose3d> arrayPublisher = NetworkTableInstance.getDefault()
-            .getStructArrayTopic("CurrentPathShotORBestInSIM", Pose3d.struct).publish();
-    StructArrayPublisher<Pose3d> tarrayPublisher = NetworkTableInstance.getDefault()
-            .getStructArrayTopic("TargetOutline", Pose3d.struct).publish();
+
+    StructPublisher<Pose3d> targetPublisher = NetworkTableInstance.getDefault()
+            .getStructTopic("target", Pose3d.struct).publish();
     int counter = 0;
     int calculateEvery = 15; //3.3x a second
 
@@ -224,48 +223,32 @@ public class CANFuelSubsystem extends SubsystemBase {
 
       if(counter == calculateEvery) {
 
-          ArrayList<Pose3d> trajectory;
-          //System.out.print("ROBOT VX: "); System.out.println(ROBOT_VX);
-         // System.out.print("ROBOT VY: "); System.out.println(ROBOT_VY);
-          if (!isSim()) {
 
-              trajectory = SS.SimShot(Math.abs(shooterWheels.getVelocity().getValueAsDouble()), RobotState.GLOBAL_POSE, ROBOT_VX, ROBOT_VY);
-              if(SS.IsHit(trajectory,targetList)){
-                  System.out.println("CURRENT SHOT HITS!");
-                  runFeederAutoAim = true;
-              }
-              else{
-
-                  System.out.println("Current shot misses");
-                  runFeederAutoAim = false;
-              }
-              arrayPublisher.set(trajectory.toArray(new Pose3d[0]));
-              double bestGuessVelocity = SS.getShooterVel(GLOBAL_POSE, ROBOT_VX, ROBOT_VY, targetList);
-              if (bestGuessVelocity < 0) {
-                  System.out.println("No shot can be made.");
-
-                    hitVelocity = -1;
-              } else {
-                  System.out.print("GOOD POSE! Can Hit With AngV: ");
-                  System.out.print(bestGuessVelocity); System.out.print(" (Currently at: ");System.out.print(Math.abs(shooterWheels.getVelocity().getValueAsDouble())); System.out.println(" )");
-                  hitVelocity =  bestGuessVelocity; //POSITIVE
-              }
-          } else { //if simulation, just use best possible
-              double bestGuessVelocity = SS.getShooterVel(GLOBAL_POSE, ROBOT_VX, ROBOT_VY, targetList);
-              if (bestGuessVelocity < 0) {
-                  System.out.println("No shot can be made.");
-                  trajectory = new ArrayList<Pose3d>();
-
-
-              } else {
-                  System.out.print("HIT! Target AngV: ");
-                  System.out.println(bestGuessVelocity);
-                  trajectory = SS.SimShot(bestGuessVelocity, RobotState.GLOBAL_POSE, ROBOT_VX, ROBOT_VY);
-              }
-              arrayPublisher.set(trajectory.toArray(new Pose3d[0]));
-
+          double cV = SS.getShooterVel(GLOBAL_POSE,target);
+          SmartDashboard.putNumber("shooter target vel",cV);
+          boolean closeEnoughAngle = (Math.abs(MathUtil.angleModulus(SS.toFaceHub().getRadians() - MathUtil.angleModulus(GLOBAL_POSE.getRotation().getRadians()))) <Math.PI/36);
+          double currentAngV = -shooterWheels.getVelocity().getValueAsDouble();
+          if(isSim()){
+              currentAngV=cV;
           }
-          tarrayPublisher.set(targetList.toArray(new Pose3d[0]));
+
+            if(Math.abs(cV-currentAngV) < 2  && cV>0 ){
+                //probably hits
+                if( closeEnoughAngle) {
+                    runFeederAutoAim = true;
+                    System.out.println("Auto aim OK");
+                }
+                else{
+                    System.out.println("BAD ANGLE TO HUB!");
+                }
+            }
+            else{
+                runFeederAutoAim=false;
+                System.out.println("Can't hit from here!");
+            }
+
+
+          targetPublisher.set(target);
           counter = 0;
       }
 
