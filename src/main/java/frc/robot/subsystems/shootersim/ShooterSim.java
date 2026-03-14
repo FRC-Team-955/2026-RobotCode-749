@@ -35,7 +35,7 @@ public class ShooterSim {
     }
 
     public double getShooterVel(Pose2d robotPose, Pose3d target){
-        double cV = DistanceToAngV.getLinear(Math.sqrt(Math.pow(target.getX()- robotPose.getX(),2)+Math.pow(target.getY()- robotPose.getY(),2)));
+        double cV = DistanceToAngV.getLinear(Math.sqrt(Math.pow(target.getX() - robotPose.getX(),2)+Math.pow(target.getY() - robotPose.getY(),2)));
         if (cV > MIN_OUTPUT && cV<MAX_OUTPUT){
             return cV;
         }
@@ -43,7 +43,6 @@ public class ShooterSim {
     }
 
     public Rotation2d toFaceHub(){
-        //new Pose3d(4.62017, 4.03450, 1.8288, new Rotation3d()); //Center of target
         double x = 4.62017 - GLOBAL_POSE.getX();
         double y  = 4.0345 - GLOBAL_POSE.getY();
         return new Rotation2d(Math.atan2(y,x)+Math.PI);

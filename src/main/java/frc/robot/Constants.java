@@ -65,7 +65,7 @@ public final class  Constants {
       public static final double INTAKE_SCALE = -1.00;
       public static final double LAUNCH_SCALE = 0.749; //set to -0.955 for real?
     public static final double INTAKING_FEEDER_VOLTAGE = 12*INTAKE_SCALE;
-    public static final double INTAKING_INTAKE_VOLTAGE = 12*INTAKE_SCALE;
+    public static final double INTAKING_INTAKE_VOLTAGE = 10*INTAKE_SCALE;
     public static final double LAUNCHING_FEEDER_VOLTAGE = (9)*LAUNCH_SCALE; //
     public static final double LAUNCHING_LAUNCHER_VOLTAGE = 12*LAUNCH_SCALE;
     public static final double FEEDER_SPIN_UP_VOLTAGE = (-6)*LAUNCH_SCALE; //
@@ -75,6 +75,7 @@ public final class  Constants {
       public static final double SHOOTER_STRONG_SPEED = 58;
       public static final double SHOOTER_WEAK_SPEED = 40;
       public static final double CORNER_HIT_VELOCITY = 70;
+      public static final double SHOOTING_INTAKE_VOLTAGE = -12;
 
   }
     public static class ClimbConstants {

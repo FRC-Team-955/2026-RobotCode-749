@@ -78,6 +78,7 @@ public class CANFuelSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("Launching feeder roller value", LAUNCHING_FEEDER_VOLTAGE);
     SmartDashboard.putNumber("Launching launcher roller value", LAUNCHING_LAUNCHER_VOLTAGE);
     SmartDashboard.putNumber("Spin-up feeder roller value", FEEDER_SPIN_UP_VOLTAGE);
+    SmartDashboard.putNumber("Shooting intake roller value", SHOOTING_INTAKE_VOLTAGE);
 
     // create the configuration for the feeder roller, set a current limit and apply
     // the config to the controller
@@ -107,7 +108,7 @@ public class CANFuelSubsystem extends SubsystemBase {
     feederRoller
         .setVoltage(-SmartDashboard.getNumber("Intaking feeder roller value", INTAKING_FEEDER_VOLTAGE));
     intakeLauncherRoller
-        .setVoltage( -SmartDashboard.getNumber("Intaking launcher roller value", INTAKING_INTAKE_VOLTAGE));
+        .setVoltage( -SmartDashboard.getNumber("Shooting intake roller value", SHOOTING_INTAKE_VOLTAGE));
   }
 
   // A method to set the rollers to values for launching.
