@@ -7,6 +7,7 @@ package frc.robot;
 
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
@@ -18,7 +19,7 @@ import edu.wpi.first.math.util.Units;
  * It is advised to statically import this class (or one of its inner classes)
  * wherever the constants are needed, to reduce verbosity.
  */
-public final class  Constants {
+public final class Constants {
     public static int DEBUG = 0;
 
 
@@ -64,9 +65,9 @@ public final class  Constants {
     // See the Software Guide for tuning information
       public static final double INTAKE_SCALE = -1.00;
       public static final double LAUNCH_SCALE = 0.749; //set to -0.955 for real?
-    public static final double INTAKING_FEEDER_VOLTAGE = 12*INTAKE_SCALE;
-    public static final double INTAKING_INTAKE_VOLTAGE = 10*INTAKE_SCALE;
-    public static final double LAUNCHING_FEEDER_VOLTAGE = (9)*LAUNCH_SCALE; //
+    public static final double INTAKING_FEEDER_VOLTAGE = 7*INTAKE_SCALE;
+    public static final double INTAKING_INTAKE_VOLTAGE = 4*INTAKE_SCALE;
+    public static final double LAUNCHING_FEEDER_VOLTAGE = (8)*LAUNCH_SCALE; //
     public static final double LAUNCHING_LAUNCHER_VOLTAGE = 12*LAUNCH_SCALE;
     public static final double FEEDER_SPIN_UP_VOLTAGE = (-6)*LAUNCH_SCALE; //
       public static final double SHOOTER_SPIN_UP_VOLTAGE = -10.2;

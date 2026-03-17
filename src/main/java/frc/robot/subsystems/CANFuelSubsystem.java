@@ -43,7 +43,6 @@ public class CANFuelSubsystem extends SubsystemBase {
   private double hitVelocity = -1;
 
 
-
   ShooterSim SS = new ShooterSim();
 
     Pose3d target;
@@ -56,7 +55,6 @@ public class CANFuelSubsystem extends SubsystemBase {
     }
   /** Creates a new CANBallSubsystem. */
   public CANFuelSubsystem() {
-
 
 
       target = new Pose3d((4.01+5.23)/2, 4,1.8288, new Rotation3d());
@@ -99,7 +97,7 @@ public class CANFuelSubsystem extends SubsystemBase {
   public void intake() {
     feederRoller.setVoltage(SmartDashboard.getNumber("Intaking feeder roller value", INTAKING_FEEDER_VOLTAGE));
     intakeLauncherRoller
-        .setVoltage(SmartDashboard.getNumber("Intaking intake roller value", INTAKING_INTAKE_VOLTAGE)); // minus
+        .setVoltage(SmartDashboard.getNumber("Intaking intake roller value", INTAKING_INTAKE_VOLTAGE));
   }
 
   // A method to set the rollers to values for ejecting fuel out the intake. Uses

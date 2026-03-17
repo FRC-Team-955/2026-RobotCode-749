@@ -127,6 +127,7 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopInit() {
       driveSubsystem.resetSetPoints();
+      driveSubsystem.startTimer();
       climberSubsystem.resetMode();
       timer.reset();
     timer.start();

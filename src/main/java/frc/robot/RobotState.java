@@ -10,7 +10,6 @@ import edu.wpi.first.wpilibj.RobotBase;
 // Also for stuff to be put on DS, to be accessd all over in the code
 public class RobotState {
 
-
     public static Pose2d addPose(Pose2d a, Pose2d b){
         return new Pose2d(a.getX()+b.getX(), a.getY()+b.getY(), new Rotation2d(a.getRotation().getRadians()+b.getRotation().getRadians()));
     }
@@ -36,6 +35,4 @@ public class RobotState {
     public static boolean isSim(){
         return RobotBase.isSimulation();
     }
-
-
 }

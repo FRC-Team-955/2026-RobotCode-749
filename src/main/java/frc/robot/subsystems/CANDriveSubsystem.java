@@ -30,6 +30,8 @@ import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -63,11 +65,14 @@ public class CANDriveSubsystem extends SubsystemBase {
 
     public final PIDController leftPID = new PIDController(KP, KI, KD);
     public final PIDController rightPID = new PIDController(KP, KI, KD);
+    public final Field2d field = new Field2d();
 
     PIDController turnPIDAuto = new PIDController(3.6,KI,0.35);
     PIDController forwardPIDAuto = new PIDController(3.5,KI,0.35);
 
     double muffle = 100;
+
+    private Timer timer = new Timer();
 
 /// TODO: TUNE THIS
     DifferentialDrivetrainSim drivetrainSim = new DifferentialDrivetrainSim(
@@ -89,6 +94,7 @@ public class CANDriveSubsystem extends SubsystemBase {
     public CANDriveSubsystem(PoseSubsystem ps) {
         this.ps = ps;
         drivetrainSim.setPose(INITIAL_POSE);
+
         // create brushed motors for drive
         leftLeader = new SparkMax(LEFT_LEADER_ID, MotorType.kBrushless);
         leftFollower = new SparkMax(LEFT_FOLLOWER_ID, MotorType.kBrushless);
@@ -153,7 +159,7 @@ public class CANDriveSubsystem extends SubsystemBase {
         turnPIDAuto.setTolerance(Math.toRadians(2));
         forwardPIDAuto.setTolerance(0.05);
 
-
+        // field.setRobotPose(put robot pose here ); idk justin stuffs
 
     }
 
@@ -170,7 +176,7 @@ public class CANDriveSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("rightSetPoint", rSetPoint);
         SmartDashboard.putNumber("lPIDPoint", leftPID.getSetpoint());
         SmartDashboard.putNumber("rPIDPoint", rightPID.getSetpoint());
-
+        // SmartDashboard.putData("Field2d", field); idk justin stuffs
         SmartDashboard.putNumber("percentage", muffle);
 
         ///  SIM AND NON-SIM GLOBAL VELOCITIES
@@ -219,6 +225,24 @@ public class CANDriveSubsystem extends SubsystemBase {
         drive.arcadeDrive(xSpeed.getAsDouble(), zRotation.getAsDouble());
         System.out.print("L: "); System.out.print(leftLeader.getAppliedOutput()); System.out.print(" R: ");System.out.println(rightLeader.getAppliedOutput());
         System.out.print("LF: "); System.out.print(leftFollower.getAppliedOutput()); System.out.print(" RF: ");System.out.println(rightFollower.getAppliedOutput());
+    }
+
+    public void startTimer() {
+        timer.reset();
+        timer.start();
+    }
+
+    public void shake() {
+        drive.arcadeDrive(0, 0.3*(0.5-MathUtil.inputModulus(timer.get()*5, 0, 1)));
+    } // change the 0.3 to make the magnitude larger (how fast the motors run)
+    // change the 5 in timer.get*5 to increase frequency (how often/fast the robot shakes)
+
+    public void stopShake() {
+        drive.arcadeDrive(0,0);
+    }
+
+    public void endTimer() {
+        timer.stop();
     }
 
     public void increaseSens() {
@@ -411,7 +435,7 @@ public class CANDriveSubsystem extends SubsystemBase {
         return run(()->funcDriveAtTargetPose(target)).until(()->isSettledAtPose(GLOBAL_POSE,target)).finallyDo(() -> drive.tankDrive(0, 0));
     }
 
-    public Command shake(){
+    public Command shakebad(){
         return new SequentialCommandGroup(
                 driveArcade(()->0,()->0.72,()->0).withTimeout(0.1),
                 driveArcade(()->0,()->-0.72,()->0).withTimeout(0.1),
