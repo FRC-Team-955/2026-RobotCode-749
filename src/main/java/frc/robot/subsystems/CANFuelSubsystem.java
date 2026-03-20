@@ -118,7 +118,7 @@ public class CANFuelSubsystem extends SubsystemBase {
       shooterWheels.setVoltage(voltage.getAsDouble()); ///brake mode makes this stop
       if(isSim()){
           System.out.println("ARIN IS NOT DUMB");
-      }
+      } // need to make it so this also triggers shake command
   }
 
   public void funcShootAtTarget(double overrideVelocity){
