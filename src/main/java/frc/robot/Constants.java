@@ -41,7 +41,7 @@ public final class Constants {
     public static final double PID_CONSTANT = 1;
     public static final double KP = 4;
     public static final double KI = 0;
-    public static final double KD = 0.2;
+    public static final double KD = 0.6;
     // Current limit for drivetrain motors. 60A is a reasonable maximum to reduce
     // likelihood of tripping breakers or damaging CIM motors
     public static final int DRIVE_MOTOR_CURRENT_LIMIT = 60;
@@ -72,9 +72,9 @@ public final class Constants {
     public static final double FEEDER_SPIN_UP_VOLTAGE = (-6)*LAUNCH_SCALE; //
       public static final double SHOOTER_SPIN_UP_VOLTAGE = -10.2;
       public static final double SHOOTER_LAUNCH_VOLTAGE = -6.7;
-      public static final double SHOOTER_WEAK_LAUNCH_VOLTAGE = -5.5;
+      public static final double SHOOTER_WEAK_LAUNCH_VOLTAGE = -5.2;
       public static final double SHOOTER_STRONG_SPEED = 58;
-      public static final double SHOOTER_WEAK_SPEED = 40;
+      public static final double SHOOTER_WEAK_SPEED = 37;
       public static final double CORNER_HIT_VELOCITY = 70;
       public static final double SHOOTING_INTAKE_VOLTAGE = -12;
 

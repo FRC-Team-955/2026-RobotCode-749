@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems;
 
+import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
 
@@ -36,6 +37,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants;
 import frc.robot.RobotState;
 
@@ -233,7 +235,8 @@ public class CANDriveSubsystem extends SubsystemBase {
     }
 
     public void shake() {
-        drive.arcadeDrive(0, 0.3*(0.5-MathUtil.inputModulus(timer.get()*5, 0, 1)));
+        double shake = 0.6*(0.5-Math.round(MathUtil.inputModulus(timer.get()*5, 0, 1)));
+        drive.arcadeDrive(shake, 0); // 2x per sec
     } // change the 0.3 to make the magnitude larger (how fast the motors run)
     // change the 5 in timer.get*5 to increase frequency (how often/fast the robot shakes)
 
@@ -268,14 +271,22 @@ public class CANDriveSubsystem extends SubsystemBase {
     }
 
     // Command factory to create command to drive the robot with joystick inputs.
-    public Command driveArcade(DoubleSupplier xSpeed, DoubleSupplier zRotation, DoubleSupplier muffle) {
+    public Command driveArcade(DoubleSupplier xSpeed, DoubleSupplier zRotation, BooleanSupplier shake) {
         return run(() -> {
             DoubleSupplier percent = () -> this.muffle;
             double limitedX = (percent.getAsDouble()/100)*limit.calculate(xSpeed.getAsDouble());
             double rot = (percent.getAsDouble()/200 + 0.5)*zRotation.getAsDouble();
+            double isShake;
+            double shakeSpeed = 0;
+            if (shake.getAsBoolean()) {
+                isShake = 1;
+                shakeSpeed = 0.6*(0.5-Math.round(MathUtil.inputModulus(timer.get()*5, 0, 1)));
+            } else {
+                isShake = 0;
+            }
 
             updateSetPoints(limitedX + rot, limitedX - rot);
-            drive.arcadeDrive(limitedX, rot);
+            drive.arcadeDrive(limitedX + isShake*shakeSpeed, rot);
         });
     }
 
@@ -316,6 +327,16 @@ public class CANDriveSubsystem extends SubsystemBase {
             drive.tankDrive(MathUtil.clamp(leftPID.calculate(leftEncoder.getAsDouble()), -1 * PID_DRIVE_CAP, PID_DRIVE_CAP),
                     MathUtil.clamp(rightPID.calculate(rightEncoder.getAsDouble()), -1 * PID_DRIVE_CAP, PID_DRIVE_CAP));
         }).until(() -> {
+            return Math.abs(leftPID.getError()) < 0.1 && Math.abs(rightPID.getError()) < 0.1;
+        });
+    }
+
+    public Command autoSlowDrivePID(DoubleSupplier leftEncoder, DoubleSupplier rightEncoder) {
+        return this.run(() -> {
+            drive.tankDrive(MathUtil.clamp(leftPID.calculate(leftEncoder.getAsDouble()), -0.8 * PID_DRIVE_CAP, 0.8*PID_DRIVE_CAP),
+                    MathUtil.clamp(rightPID.calculate(rightEncoder.getAsDouble()), -0.8 * PID_DRIVE_CAP, 0.8*PID_DRIVE_CAP));
+                }
+        ).until(() -> {
             return Math.abs(leftPID.getError()) < 0.1 && Math.abs(rightPID.getError()) < 0.1;
         });
     }
@@ -433,16 +454,6 @@ public class CANDriveSubsystem extends SubsystemBase {
 
     public Command driveAtTargetPose(Pose2d target){
         return run(()->funcDriveAtTargetPose(target)).until(()->isSettledAtPose(GLOBAL_POSE,target)).finallyDo(() -> drive.tankDrive(0, 0));
-    }
-
-    public Command shakebad(){
-        return new SequentialCommandGroup(
-                driveArcade(()->0,()->0.72,()->0).withTimeout(0.1),
-                driveArcade(()->0,()->-0.72,()->0).withTimeout(0.1),
-                driveArcade(()->0,()->-0.72,()->0).withTimeout(0.1),
-                driveArcade(()->0,()->0.72,()->0).withTimeout(0.1),
-                driveArcade(()->0,()->0,()->0).withTimeout(0.02)
-        );
     }
 
 

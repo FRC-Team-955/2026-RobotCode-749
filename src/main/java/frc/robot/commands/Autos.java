@@ -15,25 +15,6 @@ import frc.robot.subsystems.CANDriveSubsystem;
 import static frc.robot.RobotState.INITIAL_POSE;
 
 public final class Autos {
-    // Example autonomous command which drives forward for 1 second.
-    public static Command exampleAuto(CANDriveSubsystem driveSubsystem, CANFuelSubsystem ballSubsystem) {
-        return new SequentialCommandGroup(
-                // Drive backwards for .25 seconds. The driveArcadeAuto command factory
-                // creates a command which does not end which allows us to control
-                // the timing using the withTimeout decorator
-                driveSubsystem.driveArcade(() -> 0.5, () -> 0, () -> 0).withTimeout(.25),  // make faster?
-                // Stop driving. This line uses the regular driveArcade command factory so it
-                // ends immediately after commanding the motors to stop
-                driveSubsystem.driveArcade(() -> 0, () -> 0, () -> 0),
-                // Spin up the launcher for 1 second and then launch balls for 9 seconds, for a
-                // total of 10 seconds
-                ballSubsystem.spinUpCommand().until(()->ballSubsystem.isAtSpeed(Constants.FuelConstants.SHOOTER_STRONG_SPEED)),
-                ballSubsystem.launchCommand(() -> Constants.FuelConstants.SHOOTER_LAUNCH_VOLTAGE).withTimeout(2),
-                // ballSubsystem.spinUpCommand().withTimeout(1), // longer spinup time for more consistency?
-                // ballSubsystem.launchCommand().withTimeout(9),  // might not need
-                // Stop running the launcher
-                ballSubsystem.runOnce(() -> ballSubsystem.stop()));
-    }
 
     public static Command PIDAuto(CANDriveSubsystem driveSubsystem, CANFuelSubsystem ballSubsystem) {
         return new SequentialCommandGroup(
@@ -124,6 +105,18 @@ public final class Autos {
         );
     }
 
+    public static Command centerShootClimb(CANDriveSubsystem driveSubsystem, CANFuelSubsystem ballSubsystem) {
+        return new SequentialCommandGroup(
+                driveSubsystem.setPIDSetpoints(() -> -0.5, () -> -0.5),
+                driveSubsystem.autoDrivePID(driveSubsystem.giveLeftEncoder(), driveSubsystem.giveRightEncoder()).withTimeout(2),
+                ballSubsystem.spinUpCommand().until(() -> ballSubsystem.isAtSpeed(Constants.FuelConstants.SHOOTER_WEAK_SPEED)),
+                ballSubsystem.launchCommand(() -> Constants.FuelConstants.SHOOTER_WEAK_LAUNCH_VOLTAGE).withTimeout(4),
+                ballSubsystem.runOnce(() -> ballSubsystem.stop()),
+                driveSubsystem.setPIDSetpoints(() -> -2.2, () -> -2.2),
+                driveSubsystem.autoDrivePID(driveSubsystem.giveLeftEncoder(), driveSubsystem.giveRightEncoder()).withTimeout(2) // add later im lazy
+        );
+    }
+
     public static Command expCenterShootL(CANDriveSubsystem driveSubsystem, CANFuelSubsystem ballSubsystem) {
         return new SequentialCommandGroup(
                 driveSubsystem.setPIDSetpoints(() -> -0.5, () -> -0.5),
@@ -147,13 +140,26 @@ public final class Autos {
                 ballSubsystem.spinUpCommand().until(() -> ballSubsystem.isAtSpeed(Constants.FuelConstants.SHOOTER_WEAK_SPEED)),
                 ballSubsystem.launchCommand(() -> Constants.FuelConstants.SHOOTER_WEAK_LAUNCH_VOLTAGE).withTimeout(4),
                 ballSubsystem.runOnce(() -> ballSubsystem.stop()),
-                driveSubsystem.setPIDSetpoints(() -> 0, () -> 0.4),
+                driveSubsystem.setPIDSetpoints(() -> -0.53, () -> 0.53),
                 driveSubsystem.autoDrivePID(driveSubsystem.giveLeftEncoder(), driveSubsystem.giveRightEncoder()).withTimeout(2),
-                driveSubsystem.setPIDSetpoints(() -> 0.5, () -> 0.5),
+                driveSubsystem.setPIDSetpoints(() -> 1.5, () -> 1.5),
                 driveSubsystem.autoDrivePID(driveSubsystem.giveLeftEncoder(), driveSubsystem.giveRightEncoder()).withTimeout(2),
-                driveSubsystem.setPIDSetpoints(() -> 0.4, () -> 0),
+                driveSubsystem.setPIDSetpoints(() -> -0.55, () -> 0.55),
+                driveSubsystem.autoDrivePID(driveSubsystem.giveLeftEncoder(), driveSubsystem.giveRightEncoder()).withTimeout(2),
+                driveSubsystem.setPIDSetpoints(() -> -3, () -> -3),
+                driveSubsystem.autoSlowDrivePID(driveSubsystem.giveLeftEncoder(), driveSubsystem.giveRightEncoder()).withTimeout(2),
+                driveSubsystem.setPIDSetpoints(() -> -0.75, () -> -0.75),
+                driveSubsystem.autoDrivePID(driveSubsystem.giveLeftEncoder(), driveSubsystem.giveRightEncoder()).withTimeout(2),
+                driveSubsystem.setPIDSetpoints(() -> 0, () -> -1.2),
+                driveSubsystem.autoDrivePID(driveSubsystem.giveLeftEncoder(), driveSubsystem.giveRightEncoder()).withTimeout(2),
+                driveSubsystem.setPIDSetpoints(() -> -0.4, () -> -1.4),
+                driveSubsystem.autoDrivePID(driveSubsystem.giveLeftEncoder(), driveSubsystem.giveRightEncoder()).withTimeout(2),
+                driveSubsystem.setPIDSetpoints(() -> -0.4, () -> -0.4),
                 driveSubsystem.autoDrivePID(driveSubsystem.giveLeftEncoder(), driveSubsystem.giveRightEncoder()).withTimeout(2)
-        );
+
+
+
+                );
     }
 
     public static Command boringAuto(CANDriveSubsystem driveSubsystem, CANFuelSubsystem ballSubsystem) {

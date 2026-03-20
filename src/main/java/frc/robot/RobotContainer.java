@@ -103,8 +103,6 @@ public class RobotContainer {
              stuff for tuning
          */
 
-        driverController.b()
-                        .whileTrue(driveSubsystem.runEnd(() -> driveSubsystem.shake(), () -> driveSubsystem.stopShake()));
 
         driverController.rightBumper()
                         .whileTrue(climberSubsystem.runEnd(() -> climberSubsystem.goUp(), () -> climberSubsystem.stop()));
@@ -128,9 +126,19 @@ public class RobotContainer {
                         .andThen(ballSubsystem.launchCommand(() -> Constants.FuelConstants.SHOOTER_LAUNCH_VOLTAGE))
                         .finallyDo(() -> ballSubsystem.stop()));
 
-        operatorController.y()
+        operatorController.x()
                 .whileTrue(ballSubsystem.spinUpCommand().until(()->ballSubsystem.isAtSpeed(Constants.FuelConstants.SHOOTER_WEAK_SPEED))
                         .andThen(ballSubsystem.launchCommand(() -> Constants.FuelConstants.SHOOTER_WEAK_LAUNCH_VOLTAGE))
+                        .finallyDo(() -> ballSubsystem.stop()));
+
+        operatorController.y()
+                        .whileTrue(ballSubsystem.spinUpCommand().until(() -> ballSubsystem.isAtSpeed(Constants.FuelConstants.SHOOTER_WEAK_SPEED*1.1))
+                                .andThen(ballSubsystem.launchCommand(() -> Constants.FuelConstants.SHOOTER_WEAK_LAUNCH_VOLTAGE*1.1))
+                                .finallyDo(() -> ballSubsystem.stop()));
+
+        operatorController.b()
+                .whileTrue(ballSubsystem.spinUpCommand().until(() -> ballSubsystem.isAtSpeed(Constants.FuelConstants.SHOOTER_WEAK_SPEED*1.2))
+                        .andThen(ballSubsystem.launchCommand(() -> Constants.FuelConstants.SHOOTER_WEAK_LAUNCH_VOLTAGE*1.2))
                         .finallyDo(() -> ballSubsystem.stop()));
 
         // While the A button is held on the operator controller, eject fuel back out
@@ -138,7 +146,7 @@ public class RobotContainer {
         operatorController.a()
                 .whileTrue(ballSubsystem.runEnd(() -> ballSubsystem.eject(), () -> ballSubsystem.stop()));
 
-        operatorController.x().onTrue(driveSubsystem.runOnce(()->driveSubsystem.resetOdometry(INITIAL_POSE))); // op x on click is restart poseSubsystem
+        // operatorController.x().onTrue(driveSubsystem.runOnce(()->driveSubsystem.resetOdometry(INITIAL_POSE))); // op x on click is restart poseSubsystem - haha i commented it out
 
         operatorController.povUp()
                 .onTrue(driveSubsystem.runOnce(() -> driveSubsystem.increaseSens()));
@@ -168,7 +176,7 @@ public class RobotContainer {
             driveSubsystem.driveArcade(
                     () -> driverController.getRawAxis(1) * DRIVE_SCALING,
                     () -> driverController.getRawAxis(0) * ROTATION_SCALING,
-                    () -> driverController.getRightTriggerAxis() // im sorry idk what to put here arin
+                    () -> driverController.b().getAsBoolean() // im sorry idk what to put here arin
             ));
             //driveSubsystem.setDefaultCommand(driveSubsystem.driveAtTargetPose(new Pose2d(1,1,new Rotation2d())));
         }
@@ -177,7 +185,7 @@ public class RobotContainer {
             driveSubsystem.driveArcade(
                     () -> driverController.getLeftY() * DRIVE_SCALING,
                     () -> driverController.getRightX() * ROTATION_SCALING,
-                    () -> driverController.getRightTriggerAxis()));
+                    () -> driverController.b().getAsBoolean()));
         }
 
 
