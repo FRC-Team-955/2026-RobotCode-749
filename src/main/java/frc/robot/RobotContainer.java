@@ -185,7 +185,7 @@ public class RobotContainer {
             driveSubsystem.driveArcade(
                     () -> driverController.getLeftY() * DRIVE_SCALING,
                     () -> driverController.getRightX() * ROTATION_SCALING,
-                    () -> driverController.b().getAsBoolean()));
+                    () -> operatorController.x().getAsBoolean() || operatorController.y().getAsBoolean() || operatorController.b().getAsBoolean() || operatorController.rightBumper().getAsBoolean()));
         }
 
 
