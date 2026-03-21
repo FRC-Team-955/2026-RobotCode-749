@@ -16,7 +16,7 @@ import frc.robot.Constants;
 import static frc.robot.Constants.ClimbConstants.ENCODER_CAP;
 
 
-public class CANClimberSubsystem extends SubsystemBase {
+public class  CANClimberSubsystem extends SubsystemBase {
     private final SparkMax climber;
 
     private final RelativeEncoder climberEncoder;
