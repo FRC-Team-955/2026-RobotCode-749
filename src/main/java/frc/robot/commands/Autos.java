@@ -155,7 +155,24 @@ public final class Autos {
                 driveSubsystem.setPIDSetpoints(() -> -0.4, () -> -1.4),
                 driveSubsystem.autoDrivePID(driveSubsystem.giveLeftEncoder(), driveSubsystem.giveRightEncoder()).withTimeout(2),
                 driveSubsystem.setPIDSetpoints(() -> -0.4, () -> -0.4),
+                driveSubsystem.autoDrivePID(driveSubsystem.giveLeftEncoder(), driveSubsystem.giveRightEncoder()).withTimeout(2),
+                driveSubsystem.setPIDSetpoints(() -> -0.8, () -> -2.8),
+                driveSubsystem.autoDrivePID(driveSubsystem.giveLeftEncoder(), driveSubsystem.giveRightEncoder()).withTimeout(2),
+                driveSubsystem.setPIDSetpoints(() -> -1.75, () -> -1.75),
                 driveSubsystem.autoDrivePID(driveSubsystem.giveLeftEncoder(), driveSubsystem.giveRightEncoder()).withTimeout(2)
+//                driveSubsystem.setPIDSetpoints(() -> -1.2, () -> 0),
+//                driveSubsystem.autoDrivePID(driveSubsystem.giveLeftEncoder(), driveSubsystem.giveRightEncoder()).withTimeout(2),
+//                driveSubsystem.setPIDSetpoints(() -> -3, () -> -3),
+//                driveSubsystem.autoDrivePID(driveSubsystem.giveLeftEncoder(), driveSubsystem.giveRightEncoder()).withTimeout(2),
+//                driveSubsystem.setPIDSetpoints(() -> 0.55, () -> -0.55),
+//                driveSubsystem.autoDrivePID(driveSubsystem.giveLeftEncoder(), driveSubsystem.giveRightEncoder()).withTimeout(2),
+//                driveSubsystem.setPIDSetpoints(() -> 1.5, () -> -1.5),
+//                driveSubsystem.autoDrivePID(driveSubsystem.giveLeftEncoder(), driveSubsystem.giveRightEncoder()).withTimeout(2),
+//                driveSubsystem.setPIDSetpoints(() -> 0.53, () -> -0.53),
+//                driveSubsystem.autoDrivePID(driveSubsystem.giveLeftEncoder(), driveSubsystem.giveRightEncoder()).withTimeout(2),
+//                ballSubsystem.spinUpCommand().until(() -> ballSubsystem.isAtSpeed(Constants.FuelConstants.SHOOTER_WEAK_SPEED)),
+//                ballSubsystem.launchCommand(() -> Constants.FuelConstants.SHOOTER_WEAK_LAUNCH_VOLTAGE).withTimeout(4),
+//                ballSubsystem.runOnce(() -> ballSubsystem.stop())
 
 
 
