@@ -8,7 +8,6 @@ import edu.wpi.first.hal.HAL;
 import edu.wpi.first.hal.FRCNetComm.tResourceType;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DataLogManager;
-import edu.wpi.first.wpilibj.LEDPattern;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -48,6 +47,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
+    LEDS.rainbow();
     timer.reset();
       climberSubsystem.resetMode();
     climberSubsystem.initSetPoint();
@@ -84,19 +84,21 @@ public class Robot extends TimedRobot {
     // robot's periodic
     // block in order for anything in the Command-based framework to work.
     CommandScheduler.getInstance().run();
-      //LEDS.shooterLeds();
+      // LEDS.shooterLeds(); uh so we can do other stuff ig
+    LEDS.setLEDs();
   }
 
   /** This function is called once each time the robot enters Disabled mode. */
   @Override
   public void disabledInit() {
     fuelSubsystem.setBrakeMode();
-    LEDS.iwantrainbownow();
+    LEDS.rainbow();
   }
 
   @Override
   public void disabledPeriodic() {
-
+    LEDS.rainbow();
+    LEDS.setLEDs();
   }
 
   /**
@@ -146,14 +148,73 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
+    LEDS.rainbow();
     if (timer.get() < 10) {
-      SmartDashboard.putNumber("Time Until Hub Change", (double) Math.round(10.0 * (10 - timer.get())) /10.0);
+      double x = Math.round(10.0 * (10 - timer.get())) /10.0;
+      SmartDashboard.putNumber("Time Until Hub Change", x);
+      if (x < 6.0) {
+        if (x < 3.0) {
+          if (Math.round(MathUtil.inputModulus(4 * (10 - x), 0, 1)) == 0) {
+            LEDS.pink();
+          } else {
+            LEDS.orange();
+          }
+        } else {
+          if (Math.round(MathUtil.inputModulus(2 * (10 - x), 0, 1)) == 0) {
+            LEDS.pink();
+          } else {
+            LEDS.orange();
+          }
+        }
+      } else {
+        LEDS.pink();
+      }
 
     } else if (timer.get() < 110) {
-      SmartDashboard.putNumber("Time Until Hub Change", (double) Math.round(10.0 * (25 - MathUtil.inputModulus(timer.get() - 10, 0, 25))) /10.0);
+      double y = Math.round(10.0 * (25 - MathUtil.inputModulus(timer.get() - 10, 0, 25))) /10.0;
+      SmartDashboard.putNumber("Time Until Hub Change", y);
+      if (y < 6.0) {
+        if (y < 3.0) {
+          if (Math.round(MathUtil.inputModulus(4 * (25 - y), 0, 1)) == 0) {
+            LEDS.pink();
+          } else {
+            LEDS.orange();
+          }
+        } else {
+          if (Math.round(MathUtil.inputModulus(2 * (25 - y), 0, 1)) == 0) {
+            LEDS.pink();
+          } else {
+            LEDS.orange();
+          }
+        }
+      } else {
+          LEDS.pink();
+      }
     } else if (timer.get() < 140) {
-      SmartDashboard.putNumber("Time Until Hub Change", (double) Math.round(10.0 * (140 - timer.get())) /10.0);
-    } // 10 25 25 25 25 30
+      double z = Math.round(10.0 * (30 - MathUtil.inputModulus(timer.get() - 110, 0, 30))) /10.0;
+      SmartDashboard.putNumber("Time Until Hub Change", z);
+      if (z < 6.0) {
+        if (z < 3.0) {
+          if (Math.round(MathUtil.inputModulus(4 * (30 - z), 0, 1)) == 0) {
+            LEDS.pink();
+          } else {
+            LEDS.orange();
+          }
+        } else {
+          if (Math.round(MathUtil.inputModulus(2 * (30 - z), 0, 1)) == 0) {
+            LEDS.pink();
+          } else {
+            LEDS.orange();
+          }
+        }
+      } else {
+        LEDS.pink();
+      }
+    } else {
+      LEDS.pink();
+    }
+
+    LEDS.setLEDs();
 
   }
 

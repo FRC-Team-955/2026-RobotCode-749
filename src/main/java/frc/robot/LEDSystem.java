@@ -4,6 +4,7 @@ import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.LEDPattern;
+import edu.wpi.first.wpilibj.util.Color;
 
 
 import static edu.wpi.first.units.Units.Meters;
@@ -26,6 +27,8 @@ public class LEDSystem {
     // of 0.27 meter per second.
     private final LEDPattern m_scrollingRainbow =
             m_rainbow.scrollAtAbsoluteSpeed(MetersPerSecond.of(0.27), kLedSpacing);
+    private final LEDPattern pink = LEDPattern.solid(Color.kDeepPink);
+    private final LEDPattern orange = LEDPattern.solid(Color.kOrange);
 
     public LEDSystem(){
         m_led =  new AddressableLED(0);
@@ -35,6 +38,22 @@ public class LEDSystem {
         // Set the data
         m_led.setData(m_ledBuffer);
         m_led.start();
+    }
+
+    public void pink() {
+        pink.applyTo(m_ledBuffer);
+    }
+
+    public void orange() {
+        orange.applyTo(m_ledBuffer);
+    }
+
+    public void rainbow() {
+        m_scrollingRainbow.applyTo(m_ledBuffer);
+    }
+
+    public void setLEDs() {
+        m_led.setData(m_ledBuffer);
     }
 
     public void shooterLeds(){
@@ -53,5 +72,7 @@ public class LEDSystem {
     public void iwantrainbownow(){
         m_scrollingRainbow.applyTo(m_ledBuffer);
     }
+
+
 
 }
