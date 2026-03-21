@@ -28,7 +28,7 @@ public class CANClimberSubsystem extends SubsystemBase {
 
     DigitalInput limitSwitch = new DigitalInput(Constants.ClimbConstants.LIMITSWITCH_ID);
 
-    public CANClimberSubsystem() {
+    public  CANClimberSubsystem() {
         climber = new SparkMax(Constants.ClimbConstants.CLIMBER_ID, SparkLowLevel.MotorType.kBrushless);
         climberEncoder = climber.getEncoder();
         SparkMaxConfig config = new SparkMaxConfig();
