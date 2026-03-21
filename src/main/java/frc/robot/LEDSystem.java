@@ -16,7 +16,7 @@ public class LEDSystem {
     // Length is expensive to set, so only set it once, then just update data
     AddressableLEDBuffer m_ledBuffer;
 
-    private final LEDPattern m_rainbow = LEDPattern.rainbow(192, 96);
+    private final LEDPattern m_rainbow = LEDPattern.rainbow(255, 96);
     private final LEDPattern m_percent = LEDPattern.progressMaskLayer(()->RobotState.shooterRatio);
 
     // Our LED strip has a density of 120 LEDs per meter
@@ -50,6 +50,8 @@ public class LEDSystem {
         }
     }
 
-
+    public void iwantrainbownow(){
+        m_scrollingRainbow.applyTo(m_ledBuffer);
+    }
 
 }
