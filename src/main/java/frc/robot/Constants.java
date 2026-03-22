@@ -24,7 +24,21 @@ public final class Constants {
 
 
   public static final class DriveConstants {
-     public static final double DBASE_WIDTH = Units.inchesToMeters(21.5); // meters
+      public static final double DBASE_WIDTH = Units.inchesToMeters(21.5); // meters
+      public static final double DBASE_WIDTH_WITH_BUMPERS = Units.inchesToMeters(33.0);
+      public static final double DBASE_LENGTH_WITH_BUMPERS = Units.inchesToMeters(32.8);
+      public static final Translation2d DBASE_CENTER = new Translation2d(DBASE_LENGTH_WITH_BUMPERS/2, DBASE_WIDTH_WITH_BUMPERS/2);
+              // going to remove this distance from the pose of the bump corners for siming autos
+      
+      public static final Translation2d LEFT_BUMP_CORNER = new Translation2d(4, 6.48); // 4 m, 6.48 m
+      public static final Translation2d RIGHT_BUMP_CORNER = new Translation2d(4, 1.58) // x = 4 m, y = 1.58 m
+              // these points are based on the corner of the field located by the outpost on each alliance***
+
+      public static final Translation2d LEFT_BUMP_START = new Translation2d(LEFT_BUMP_CORNER.getMeasureX() - DBASE_CENTER.getMeasureX(),
+                                                                                LEFT_BUMP_CORNER.getMeasureY() - DBASE_CENTER.getMeasureY());
+      public static final Translation2d RIGHT_BUMP_START = new Translation2d(RIGHT_BUMP_CORNER.getMeasureX() - DBASE_CENTER.getMeasureX(),
+                                                                                 RIGHT_BUMP_CORNER.getMeasureY() + DBASE_CENTER.getMeasureY());
+
 
     // Motor controller IDs for drivetrain motors
     public static final int LEFT_LEADER_ID = 2;
