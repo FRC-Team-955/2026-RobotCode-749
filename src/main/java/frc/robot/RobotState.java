@@ -5,7 +5,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
 
-import frc.robot.Constants.SimConstants;
+import frc.robot.Constants.PoseConstants;
 
 // Just a class to contain annoying functions we dont wanna put everywhere related to game state!
 // Also for stuff to be put on DS, to be accessd all over in the code
