@@ -12,7 +12,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
 
 import static frc.robot.Constants.OperatorConstants.*;
-import static frc.robot.RobotState.INITIAL_POSE;
+import static frc.robot.RobotState.initialPose;
 
 import frc.robot.commands.Autos;
 import frc.robot.subsystems.CANClimberSubsystem;
@@ -63,7 +63,7 @@ public class RobotContainer {
 
 
 
-    poseSubsystem.resetOdometry(INITIAL_POSE);  /// TODO: TUNE THIS
+    poseSubsystem.resetOdometry(initialPose);  /// TODO: TUNE THIS
 
 
         configureBindings(); //controller bindings
@@ -146,7 +146,7 @@ public class RobotContainer {
         operatorController.a()
                 .whileTrue(ballSubsystem.runEnd(() -> ballSubsystem.eject(), () -> ballSubsystem.stop()));
 
-        // operatorController.x().onTrue(driveSubsystem.runOnce(()->driveSubsystem.resetOdometry(INITIAL_POSE))); // op x on click is restart poseSubsystem - haha i commented it out
+        // operatorController.x().onTrue(driveSubsystem.runOnce(()->driveSubsystem.resetOdometry(initialPose))); // op x on click is restart poseSubsystem - haha i commented it out
 
         operatorController.povUp()
                 .onTrue(driveSubsystem.runOnce(() -> driveSubsystem.increaseSens()));

@@ -12,7 +12,7 @@ import frc.robot.Constants;
 import frc.robot.subsystems.CANFuelSubsystem;
 import frc.robot.subsystems.CANDriveSubsystem;
 
-import static frc.robot.RobotState.INITIAL_POSE;
+import static frc.robot.RobotState.initialPose;
 
 public final class Autos {
 
@@ -36,8 +36,9 @@ public final class Autos {
     }
 
     public static Command rBumpShoot(CANDriveSubsystem driveSubsystem, CANFuelSubsystem ballSubsystem) {
+        initialPose = INITIAL_POSE_RIGHT_BUMP;
         return new SequentialCommandGroup(
-                driveSubsystem.runOnce(() -> driveSubsystem.resetOdometry(new Pose2d(x, y, new Rotation2d(rot))),
+                driveSubsystem.runOnce(() -> driveSubsystem.resetOdometry(initialPose),
                 driveSubsystem.setPIDSetpoints(() -> 0, () -> -0.67),
                 driveSubsystem.autoDrivePID(driveSubsystem.giveLeftEncoder(), driveSubsystem.giveRightEncoder()).withTimeout(3),
                 ballSubsystem.spinUpCommand().until(() -> ballSubsystem.isAtSpeed(48)),
@@ -47,8 +48,9 @@ public final class Autos {
     }
 
     public static Command lBumpShoot(CANDriveSubsystem driveSubsystem, CANFuelSubsystem ballSubsystem) {
+        initialPose = INITIAL_POSE_LEFT_BUMP;
         return new SequentialCommandGroup(
-                driveSubsystem.runOnce(() -> driveSubsystem.resetOdometry(new Pose2d(x, y, new Rotation2d(rot))),
+                driveSubsystem.runOnce(() -> driveSubsystem.resetOdometry(initialPose),
                 driveSubsystem.setPIDSetpoints(() -> -0.67, () -> 0),
                 driveSubsystem.autoDrivePID(driveSubsystem.giveLeftEncoder(), driveSubsystem.giveRightEncoder()).withTimeout(3),
                 ballSubsystem.spinUpCommand().until(() -> ballSubsystem.isAtSpeed(48)),
@@ -58,8 +60,9 @@ public final class Autos {
     }
 
     public static Command expRBump(CANDriveSubsystem driveSubsystem, CANFuelSubsystem ballSubsystem) {
+        initialPose = INITIAL_POSE_RIGHT_BUMP;
         return new SequentialCommandGroup(
-                driveSubsystem.runOnce(() -> driveSubsystem.resetOdometry(new Pose2d(x, y, new Rotation2d(rot))),
+                driveSubsystem.runOnce(() -> driveSubsystem.resetOdometry(initialPose),
                 driveSubsystem.setPIDSetpoints(() -> 0, () -> -0.67),
                 driveSubsystem.autoDrivePID(driveSubsystem.giveLeftEncoder(), driveSubsystem.giveRightEncoder()).withTimeout(3),
                 ballSubsystem.spinUpCommand().until(() -> ballSubsystem.isAtSpeed(48)),
@@ -75,8 +78,9 @@ public final class Autos {
     }
 
     public static Command expLBump(CANDriveSubsystem driveSubsystem, CANFuelSubsystem ballSubsystem) {
+        initialPose = INITIAL_POSE_LEFT_BUMP;
         return new SequentialCommandGroup(
-                driveSubsystem.runOnce(() -> driveSubsystem.resetOdometry(new Pose2d(x, y, new Rotation2d(rot))),
+                driveSubsystem.runOnce(() -> driveSubsystem.resetOdometry(initialPose),
                 driveSubsystem.setPIDSetpoints(() -> -0.67, () -> 0),
                 driveSubsystem.autoDrivePID(driveSubsystem.giveLeftEncoder(), driveSubsystem.giveRightEncoder()).withTimeout(3),
                 ballSubsystem.spinUpCommand().until(() -> ballSubsystem.isAtSpeed(48)),
@@ -92,8 +96,9 @@ public final class Autos {
     }
 
     public static Command lBumpShootP2P(CANDriveSubsystem driveSubsystem, CANFuelSubsystem ballSubsystem) {
+        initialPose = INITIAL_POSE_LEFT_BUMP;
         return new SequentialCommandGroup(
-                driveSubsystem.runOnce(() -> driveSubsystem.resetOdometry(new Pose2d(x, y, new Rotation2d(rot))),
+                driveSubsystem.runOnce(() -> driveSubsystem.resetOdometry(initialPose),
                 driveSubsystem.runOnce(()-> driveSubsystem.resetOdometry(new Pose2d(3.66,6,Rotation2d.k180deg))),
                 driveSubsystem.driveAtTargetPose(new Pose2d(3.66,6, new Rotation2d(2.02))),
                 ballSubsystem.spinUpCommand().until(() -> ballSubsystem.isAtSpeed(48)), // EVENTUALLY replace with ballSubsystem.shootAtTarget()!!!!
@@ -103,8 +108,9 @@ public final class Autos {
     }
 
     public static Command centerShoot(CANDriveSubsystem driveSubsystem, CANFuelSubsystem ballSubsystem) {
+        initialPose = INITIAL_POSE_CENTER_HUB;
         return new SequentialCommandGroup(
-                driveSubsystem.runOnce(() -> driveSubsystem.resetOdometry(new Pose2d(x, y, new Rotation2d(rot))),
+                driveSubsystem.runOnce(() -> driveSubsystem.resetOdometry(initialPose),
                 driveSubsystem.setPIDSetpoints(() -> -0.5, () -> -0.5),
                 driveSubsystem.autoDrivePID(driveSubsystem.giveLeftEncoder(), driveSubsystem.giveRightEncoder()).withTimeout(2),
                 ballSubsystem.spinUpCommand().until(() -> ballSubsystem.isAtSpeed(Constants.FuelConstants.SHOOTER_WEAK_SPEED)),
@@ -114,8 +120,9 @@ public final class Autos {
     }
 
     public static Command centerShootClimb(CANDriveSubsystem driveSubsystem, CANFuelSubsystem ballSubsystem) {
+        initialPose = INITIAL_POSE_CENTER_HUB;
         return new SequentialCommandGroup(
-                driveSubsystem.runOnce(() -> driveSubsystem.resetOdometry(new Pose2d(x, y, new Rotation2d(rot))),
+                driveSubsystem.runOnce(() -> driveSubsystem.resetOdometry(initialPose),
                 driveSubsystem.setPIDSetpoints(() -> -0.5, () -> -0.5),
                 driveSubsystem.autoDrivePID(driveSubsystem.giveLeftEncoder(), driveSubsystem.giveRightEncoder()).withTimeout(2),
                 ballSubsystem.spinUpCommand().until(() -> ballSubsystem.isAtSpeed(Constants.FuelConstants.SHOOTER_WEAK_SPEED)),
@@ -127,8 +134,9 @@ public final class Autos {
     }
 
     public static Command expCenterShootL(CANDriveSubsystem driveSubsystem, CANFuelSubsystem ballSubsystem) {
+        initialPose = INITIAL_POSE_CENTER_HUB;
         return new SequentialCommandGroup(
-                driveSubsystem.runOnce(() -> driveSubsystem.resetOdometry(new Pose2d(x, y, new Rotation2d(rot))),
+                driveSubsystem.runOnce(() -> driveSubsystem.resetOdometry(initialPose),
                 driveSubsystem.setPIDSetpoints(() -> -0.5, () -> -0.5),
                 driveSubsystem.autoDrivePID(driveSubsystem.giveLeftEncoder(), driveSubsystem.giveRightEncoder()).withTimeout(2),
                 ballSubsystem.spinUpCommand().until(() -> ballSubsystem.isAtSpeed(Constants.FuelConstants.SHOOTER_WEAK_SPEED)),
@@ -144,8 +152,9 @@ public final class Autos {
     }
 
     public static Command expCenterShootR(CANDriveSubsystem driveSubsystem, CANFuelSubsystem ballSubsystem) {
+        initialPose = INITIAL_POSE_CENTER_HUB;
         return new SequentialCommandGroup(
-                driveSubsystem.runOnce(() -> driveSubsystem.resetOdometry(new Pose2d(x, y, new Rotation2d(rot))),
+                driveSubsystem.runOnce(() -> driveSubsystem.resetOdometry(initialPose),
                 driveSubsystem.setPIDSetpoints(() -> -0.5, () -> -0.5),
                 driveSubsystem.autoDrivePID(driveSubsystem.giveLeftEncoder(), driveSubsystem.giveRightEncoder()).withTimeout(2),
                 ballSubsystem.spinUpCommand().until(() -> ballSubsystem.isAtSpeed(Constants.FuelConstants.SHOOTER_WEAK_SPEED)),
@@ -185,7 +194,9 @@ public final class Autos {
     }
 
     public static Command weakShoot(CANDriveSubsystem driveSubsystem, CANFuelSubsystem ballSubsystem) {
+        initialPose = INITIAL_POSE_CENTER_HUB;
         return new SequentialCommandGroup(
+                driveSubsystem.runOnce(() -> driveSubsystem.resetOdometry(initialPose),
                 driveSubsystem.setPIDSetpoints(() -> -0.5, () -> -0.5),
                 driveSubsystem.autoDrivePID(driveSubsystem.giveLeftEncoder(), driveSubsystem.giveRightEncoder()).withTimeout(2),
                 ballSubsystem.spinUpCommand().until(() -> ballSubsystem.isAtSpeed(Constants.FuelConstants.SHOOTER_WEAK_SPEED)),
@@ -196,8 +207,9 @@ public final class Autos {
 
 
     public static Command P2PAutoTest(CANDriveSubsystem ds, CANFuelSubsystem fs){
+        initialPose = INITIAL_POSE_CENTER_HUB;
         return new SequentialCommandGroup(
-                ds.runOnce(()-> ds.resetOdometry(INITIAL_POSE)), // correctly set Auto's start pos, in sim and irl!
+                ds.runOnce(()-> ds.resetOdometry(initialPose)), // correctly set Auto's start pos, in sim and irl!
                 ds.driveAtTargetPose(new Pose2d(2.8,4, new Rotation2d(Math.PI) )),
                 fs.spinUpCommand().until(() -> fs.isAtSpeed(Constants.FuelConstants.SHOOTER_STRONG_SPEED)).withTimeout(2),
                 fs.shootAtTarget(0).withTimeout(6),
@@ -210,8 +222,9 @@ public final class Autos {
 
 
     public static Command ChaosTheoryAuto(CANDriveSubsystem ds, CANFuelSubsystem fs){
+        initialPose = INITIAL_POSE_CENTER_HUB;
         return new SequentialCommandGroup(
-                ds.runOnce(()-> ds.resetOdometry(INITIAL_POSE)), // correctly set Auto's start pos, in sim and irl!
+                ds.runOnce(()-> ds.resetOdometry(initialPose)), // correctly set Auto's start pos, in sim and irl!
                 ds.driveAtTargetPose(new Pose2d(3.6,4, new Rotation2d(fs.toFaceHub()) )),
                 ds.driveAtTargetPose(new Pose2d(0.3,0.7, new Rotation2d() )),
                 fs.run(()->fs.intake()).withTimeout(6),

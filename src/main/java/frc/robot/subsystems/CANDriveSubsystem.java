@@ -95,7 +95,7 @@ public class CANDriveSubsystem extends SubsystemBase {
 
     public CANDriveSubsystem(PoseSubsystem ps) {
         this.ps = ps;
-        drivetrainSim.setPose(INITIAL_POSE);
+        drivetrainSim.setPose(initialPose);
 
         // create brushed motors for drive
         leftLeader = new SparkMax(LEFT_LEADER_ID, MotorType.kBrushless);
@@ -200,7 +200,7 @@ public class CANDriveSubsystem extends SubsystemBase {
             ChassisSpeeds fieldRelative =
                     ChassisSpeeds.fromRobotRelativeSpeeds(
                             robotSpeeds,
-                            GLOBAL_POSE.getRotation()
+                            globalPose.getRotation()
                     );
 
 
@@ -366,7 +366,7 @@ public class CANDriveSubsystem extends SubsystemBase {
 
         if (targetPose == null) return;
 
-        Pose2d current = GLOBAL_POSE;
+        Pose2d current = globalPose;
 
         double dx = targetPose.getX() - current.getX();
         double dy = targetPose.getY() - current.getY();
@@ -453,7 +453,7 @@ public class CANDriveSubsystem extends SubsystemBase {
     }
 
     public Command driveAtTargetPose(Pose2d target){
-        return run(()->funcDriveAtTargetPose(target)).until(()->isSettledAtPose(GLOBAL_POSE,target)).finallyDo(() -> drive.tankDrive(0, 0));
+        return run(()->funcDriveAtTargetPose(target)).until(()->isSettledAtPose(globalPose,target)).finallyDo(() -> drive.tankDrive(0, 0));
     }
 
 
@@ -476,7 +476,7 @@ public class CANDriveSubsystem extends SubsystemBase {
 
         ps.resetOdometry(drivetrainSim.getPose());
         if(isSim()) {
-            RobotState.GLOBAL_POSE = drivetrainSim.getPose();
+            globalPose = drivetrainSim.getPose();
         }
 
 

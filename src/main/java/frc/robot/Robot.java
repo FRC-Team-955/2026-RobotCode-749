@@ -18,7 +18,7 @@ import frc.robot.subsystems.CANDriveSubsystem;
 import frc.robot.subsystems.CANFuelSubsystem;
 import frc.robot.subsystems.PoseSubsystem;
 
-import static frc.robot.RobotState.INITIAL_POSE;
+import static frc.robot.RobotState.initialPose;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -31,144 +31,144 @@ import static frc.robot.RobotState.INITIAL_POSE;
  */
 
 public class Robot extends TimedRobot {
-  private Command m_autonomousCommand;
+    private Command m_autonomousCommand;
 
-  private RobotContainer m_robotContainer;
-    private final CANFuelSubsystem fuelSubsystem = new CANFuelSubsystem();
-    public final PoseSubsystem poseSubsystem = new PoseSubsystem();
-    private final CANDriveSubsystem driveSubsystem = new CANDriveSubsystem(poseSubsystem);
-    public final CANClimberSubsystem climberSubsystem = new CANClimberSubsystem();
-    LEDSystem LEDS = new LEDSystem();
-    private Timer timer = new Timer();
-  /**
-   * This function is run when the robot is first started up and should be used
-   * for any
-   * initialization code.
-   */
-  @Override
-  public void robotInit() {
-    timer.reset();
-      climberSubsystem.resetMode();
-    climberSubsystem.initSetPoint();
-    // Instantiate our RobotContainer. This will perform all our button bindings,
-    // and put our
-    // autonomous chooser on the dashboard.
-      RobotState.GLOBAL_POSE = INITIAL_POSE;
-    m_robotContainer = new RobotContainer(fuelSubsystem, driveSubsystem, poseSubsystem, climberSubsystem);
+    private RobotContainer m_robotContainer;
+        private final CANFuelSubsystem fuelSubsystem = new CANFuelSubsystem();
+        public final PoseSubsystem poseSubsystem = new PoseSubsystem();
+        private final CANDriveSubsystem driveSubsystem = new CANDriveSubsystem(poseSubsystem);
+        public final CANClimberSubsystem climberSubsystem = new CANClimberSubsystem();
+        LEDSystem LEDS = new LEDSystem();
+        private Timer timer = new Timer();
+    /**
+     * This function is run when the robot is first started up and should be used
+     * for any
+     * initialization code.
+     */
+    @Override
+    public void robotInit() {
+        timer.reset();
+            climberSubsystem.resetMode();
+        climberSubsystem.initSetPoint();
+        // Instantiate our RobotContainer. This will perform all our button bindings,
+        // and put our
+        // autonomous chooser on the dashboard.
+        globalPose = initialPose;  // hard to update this in drive practice without vision cuz we need to edit the code
+        m_robotContainer = new RobotContainer(fuelSubsystem, driveSubsystem, poseSubsystem, climberSubsystem);
 
 
-    // Used to track usage of Kitbot code, please do not remove.
-    HAL.report(tResourceType.kResourceType_Framework, 10);
+        // Used to track usage of Kitbot code, please do not remove.
+        HAL.report(tResourceType.kResourceType_Framework, 10);
 
-      DataLogManager.start();
-  }
-
-  /**
-   * This function is called every 20 ms, no matter the mode. Use this for items
-   * like diagnostics
-   * that you want ran during disabled, autonomous, teleoperated and test.
-   *
-   * <p>
-   * This runs after the mode specific periodic functions, but before LiveWindow
-   * and
-   * SmartDashboard integrated updating.
-   */
-  @Override
-  public void robotPeriodic() {
-    // Runs the Scheduler. This is responsible for polling buttons, adding
-    // newly-scheduled
-    // commands, running already-scheduled commands, removing finished or
-    // interrupted commands,
-    // and running subsystem periodic() methods. This must be called from the
-    // robot's periodic
-    // block in order for anything in the Command-based framework to work.
-    CommandScheduler.getInstance().run();
-      // LEDS.shooterLeds(); uh so we can do other stuff ig
-    LEDS.setLEDs();
-  }
-
-  /** This function is called once each time the robot enters Disabled mode. */
-  @Override
-  public void disabledInit() {
-    fuelSubsystem.setBrakeMode();
-  }
-
-  @Override
-  public void disabledPeriodic() {
-    LEDS.rainbow();
-    LEDS.setLEDs();
-  }
-
-  /**
-   * This autonomous runs the autonomous command selected by your
-   * {@link RobotContainer} class.
-   */
-  @Override
-  public void autonomousInit() {
-      System.out.println("AUTO.INIT");
-      driveSubsystem.resetOdometry(INITIAL_POSE);
-      RobotState.GLOBAL_POSE = INITIAL_POSE;
-      System.out.print("AUTO INIT POSE X:"); System.out.println(poseSubsystem.getPose().getX());
-    climberSubsystem.resetMode();
-    m_autonomousCommand = m_robotContainer.getAutonomousCommand();
-    fuelSubsystem.setCoastMode();
-    driveSubsystem.resetSetPoints();
-    // climberSubsystem.setClimberTopAsCurrent();
-    // schedule the autonomous command (example)
-    if (m_autonomousCommand != null) {
-      CommandScheduler.getInstance().schedule(m_autonomousCommand);
+        DataLogManager.start();
     }
-  }
 
-  /** This function is called periodically during autonomous. */
-  @Override
-  public void autonomousPeriodic() {
-
-  }
-
-  @Override
-  public void teleopInit() {
-      driveSubsystem.resetSetPoints();
-      driveSubsystem.startTimer();
-      climberSubsystem.resetMode();
-      timer.reset();
-      LEDS.setAutoWinner();
-      LEDS.startTimer();
-    timer.start();
-    // This makes sure that the autonomous stops running when
-    // teleop starts running. If you want the autonomous to
-    // continue until interrupted by another command, remove
-    // this line or comment it out.
-    if (m_autonomousCommand != null) {
-      m_autonomousCommand.cancel();
+    /**
+     * This function is called every 20 ms, no matter the mode. Use this for items
+     * like diagnostics
+     * that you want ran during disabled, autonomous, teleoperated and test.
+     *
+     * <p>
+     * This runs after the mode specific periodic functions, but before LiveWindow
+     * and
+     * SmartDashboard integrated updating.
+     */
+    @Override
+    public void robotPeriodic() {
+        // Runs the Scheduler. This is responsible for polling buttons, adding
+        // newly-scheduled
+        // commands, running already-scheduled commands, removing finished or
+        // interrupted commands,
+        // and running subsystem periodic() methods. This must be called from the
+        // robot's periodic
+        // block in order for anything in the Command-based framework to work.
+        CommandScheduler.getInstance().run();
+        // LEDS.shooterLeds(); uh so we can do other stuff ig
+        LEDS.setLEDs();
     }
-    fuelSubsystem.setCoastMode();
-  }
 
-  /** This function is called periodically during operator control. */
-  @Override
-  public void teleopPeriodic() {
+    /** This function is called once each time the robot enters Disabled mode. */
+    @Override
+    public void disabledInit() {
+        fuelSubsystem.setBrakeMode();
+    }
 
-  }
+    @Override
+    public void disabledPeriodic() {
+        LEDS.rainbow();
+        LEDS.setLEDs();
+    }
 
-  @Override
-  public void testInit() {
-    // Cancels all running commands at the start of test mode.
-    CommandScheduler.getInstance().cancelAll();
-  }
+    /**
+     * This autonomous runs the autonomous command selected by your
+     * {@link RobotContainer} class.
+     */
+    @Override
+    public void autonomousInit() {
+        System.out.println("AUTO.INIT");
+        driveSubsystem.resetOdometry(initialPose);
+        globalPose = initialPose;  // this part works before autos, so we need to double resetOdometry
+        System.out.print("AUTO INIT POSE X:"); System.out.println(poseSubsystem.getPose().getX());
+        climberSubsystem.resetMode();
+        m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+        fuelSubsystem.setCoastMode();
+        driveSubsystem.resetSetPoints();
+        // climberSubsystem.setClimberTopAsCurrent();
+        // schedule the autonomous command (example)
+        if (m_autonomousCommand != null) {
+            CommandScheduler.getInstance().schedule(m_autonomousCommand);
+        }
+    }
 
-  /** This function is called periodically during test mode. */
-  @Override
-  public void testPeriodic() {
-  }
+    /** This function is called periodically during autonomous. */
+    @Override
+    public void autonomousPeriodic() {
 
-  /** This function is called once when the robot is first started up. */
-  @Override
-  public void simulationInit() {
-  }
+    }
 
-  /** This function is called periodically whilst in simulation. */
-  @Override
-  public void simulationPeriodic() {
-  }
+    @Override
+    public void teleopInit() {
+        driveSubsystem.resetSetPoints();
+        driveSubsystem.startTimer();
+        climberSubsystem.resetMode();
+        timer.reset();
+        LEDS.setAutoWinner();
+        LEDS.startTimer();
+        timer.start();
+        // This makes sure that the autonomous stops running when
+        // teleop starts running. If you want the autonomous to
+        // continue until interrupted by another command, remove
+        // this line or comment it out.
+        if (m_autonomousCommand != null) {
+            m_autonomousCommand.cancel();
+        }
+        fuelSubsystem.setCoastMode();
+    }
+
+    /** This function is called periodically during operator control. */
+    @Override
+    public void teleopPeriodic() {
+
+    }
+
+    @Override
+    public void testInit() {
+        // Cancels all running commands at the start of test mode.
+        CommandScheduler.getInstance().cancelAll();
+    }
+
+    /** This function is called periodically during test mode. */
+    @Override
+    public void testPeriodic() {
+    }
+
+    /** This function is called once when the robot is first started up. */
+    @Override
+    public void simulationInit() {
+    }
+
+    /** This function is called periodically whilst in simulation. */
+    @Override
+    public void simulationPeriodic() {
+    }
 }

@@ -80,7 +80,7 @@ public class PoseSubsystem extends SubsystemBase {
     //SELF EXPLANATORY
     public void resetOdometry(Pose2d a){
         poseEstimator.resetPose(a);
-        GLOBAL_POSE = a;
+        globalPose = a;
     }
 
 
@@ -163,8 +163,8 @@ public class PoseSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("EPOS_dLE", l.getAsDouble()-OldL);
         SmartDashboard.putNumber("EPOS_dRE", r.getAsDouble()-OldR);
 
-        GLOBAL_POSE = poseEstimator.getEstimatedPosition();
-        publisher.set(GLOBAL_POSE);
+        globalPose = poseEstimator.getEstimatedPosition();
+        publisher.set(globalPose);
 
         OldL = l.getAsDouble();
         OldR = r.getAsDouble();

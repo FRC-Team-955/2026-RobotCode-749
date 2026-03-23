@@ -223,9 +223,9 @@ public class CANFuelSubsystem extends SubsystemBase {
       if(counter == calculateEvery) {
 
 
-          double cV = SS.getShooterVel(GLOBAL_POSE,target);
+          double cV = SS.getShooterVel(globalPose,target);
           SmartDashboard.putNumber("shooter target vel",cV);
-          boolean closeEnoughAngle = (Math.abs(MathUtil.angleModulus(SS.toFaceHub().getRadians() - MathUtil.angleModulus(GLOBAL_POSE.getRotation().getRadians()))) <Math.PI/36);
+          boolean closeEnoughAngle = (Math.abs(MathUtil.angleModulus(SS.toFaceHub().getRadians() - MathUtil.angleModulus(globalPose.getRotation().getRadians()))) <Math.PI/36);
           double currentAngV = -shooterWheels.getVelocity().getValueAsDouble();
           if(isSim()){
               currentAngV=cV;

@@ -7,7 +7,7 @@ import edu.wpi.first.math.geometry.Rotation3d;
 
 import java.util.ArrayList;
 
-import static frc.robot.RobotState.GLOBAL_POSE;
+import static frc.robot.RobotState.globalPose;
 
 public class ShooterSim {
 
@@ -43,8 +43,8 @@ public class ShooterSim {
     }
 
     public Rotation2d toFaceHub(){
-        double x = 4.62017 - GLOBAL_POSE.getX();
-        double y  = 4.0345 - GLOBAL_POSE.getY();
+        double x = 4.62017 - globalPose.getX();
+        double y  = 4.0345 - globalPose.getY();
         return new Rotation2d(Math.atan2(y,x)+Math.PI);
     }
 }
