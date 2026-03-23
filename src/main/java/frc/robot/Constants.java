@@ -27,18 +27,6 @@ public final class Constants {
       public static final double DBASE_WIDTH = Units.inchesToMeters(21.5); // meters
       public static final double DBASE_WIDTH_WITH_BUMPERS = Units.inchesToMeters(33.0);
       public static final double DBASE_LENGTH_WITH_BUMPERS = Units.inchesToMeters(32.8);
-      public static final Translation2d DBASE_CENTER = new Translation2d(DBASE_LENGTH_WITH_BUMPERS/2, DBASE_WIDTH_WITH_BUMPERS/2);
-              // going to remove this distance from the pose of the bump corners for siming autos
-      
-      public static final Translation2d LEFT_BUMP_CORNER = new Translation2d(4, 6.48); // 4 m, 6.48 m
-      public static final Translation2d RIGHT_BUMP_CORNER = new Translation2d(4, 1.58) // x = 4 m, y = 1.58 m
-              // these points are based on the corner of the field located by the outpost on each alliance***
-
-      public static final Translation2d LEFT_BUMP_START = new Translation2d(LEFT_BUMP_CORNER.getMeasureX() - DBASE_CENTER.getMeasureX(),
-                                                                                LEFT_BUMP_CORNER.getMeasureY() - DBASE_CENTER.getMeasureY());
-      public static final Translation2d RIGHT_BUMP_START = new Translation2d(RIGHT_BUMP_CORNER.getMeasureX() - DBASE_CENTER.getMeasureX(),
-                                                                                 RIGHT_BUMP_CORNER.getMeasureY() + DBASE_CENTER.getMeasureY());
-
 
     // Motor controller IDs for drivetrain motors
     public static final int LEFT_LEADER_ID = 2;
@@ -109,6 +97,24 @@ public final class Constants {
 
     }
 
+    public static final class SimConstants {
+        public static final Translation2d DBASE_CENTER = new Translation2d(DBASE_LENGTH_WITH_BUMPERS/2, DBASE_WIDTH_WITH_BUMPERS/2);
+              // going to remove this distance from the pose of the bump corners for siming autos
+      
+        public static final Translation2d LEFT_BUMP_CORNER = new Translation2d(4, 6.48); // 4 m, 6.48 m
+        public static final Translation2d RIGHT_BUMP_CORNER = new Translation2d(4, 1.58) // x = 4 m, y = 1.58 m
+              // these points are based on the corner of the field located by the outpost on each alliance***
+
+        public static final Translation2d LEFT_BUMP_START = new Translation2d(LEFT_BUMP_CORNER.getMeasureX() - DBASE_CENTER.getMeasureX(),
+                                                                                LEFT_BUMP_CORNER.getMeasureY() - DBASE_CENTER.getMeasureY());
+        public static final Translation2d RIGHT_BUMP_START = new Translation2d(RIGHT_BUMP_CORNER.getMeasureX() - DBASE_CENTER.getMeasureX(),
+                                                                                 RIGHT_BUMP_CORNER.getMeasureY() + DBASE_CENTER.getMeasureY());
+        
+        public static Pose2d INITIAL_POSE_CENTER_HUB = new Pose2d(3.6, 4, Rotation2d.k180deg); // 3.6, 4, heading is 180
+        public static Pose2d INITIAL_POSE_LEFT_BUMP = new Pose2d(LEFT_BUMP_START, Rotation2d.k180deg);
+        public static Pose2d INITIAL_POSE_RIGHT_BUMP = new Pose2d(RIGHT_BUMP_START, Rotation2d.k180deg);
+    }
+    
   public static final class OperatorConstants {
     // Port constants for driver and operator controllers. These should match the
     // values in the Joystick tab of the Driver Station software
