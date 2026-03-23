@@ -84,6 +84,9 @@ public class PoseSubsystem extends SubsystemBase {
         globalPose = a;
     }
 
+    public void resetGyro() {
+        gyro.reset();
+    }
 
     // get pose2d format of best guess pose from the PoseSubsystem
     public Pose2d getPose() {

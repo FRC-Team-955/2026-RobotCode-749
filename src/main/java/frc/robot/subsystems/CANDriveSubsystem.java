@@ -79,9 +79,9 @@ public class CANDriveSubsystem extends SubsystemBase {
 /// TODO: TUNE THIS
     DifferentialDrivetrainSim drivetrainSim = new DifferentialDrivetrainSim(
             DCMotor.getNEO(2),       // 2 NEO motors on each side of the drivetrain.
-            8.45,                    //
-            3,                     // MOI from CAD??
-            29.76,                    // The mass of the robot is not 30 kg.
+            8.45,                    // Gearing
+            1.821,                     // MOI from CAD??
+            35,                    // 74ish lbs = 33.566 plus a little bit.
             Units.inchesToMeters(3), // The robot uses 3" radius wheels.
             DBASE_WIDTH,                  // what u think it is
             // The standard deviations for measurement noise:
@@ -381,7 +381,6 @@ public class CANDriveSubsystem extends SubsystemBase {
 
 
 
-
         if (distance < 0.1) {
 
             double cAngle = currentAngle;
@@ -402,7 +401,7 @@ public class CANDriveSubsystem extends SubsystemBase {
 
 
         //  slowdown near target
-        double forward = 1.2* forwardPIDAuto.calculate(0,distance);
+        double forward = 0.75 * forwardPIDAuto.calculate(0,distance);
 
 
 

@@ -107,7 +107,7 @@ public class Robot extends TimedRobot {
     public void autonomousInit() {
         System.out.println("AUTO.INIT");
         driveSubsystem.resetOdometry(initialPose);
-        globalPose = initialPose;  // this part works before autos, so we need to double resetOdometry
+        globalPose = initialPose;
         System.out.print("AUTO INIT POSE X:"); System.out.println(poseSubsystem.getPose().getX());
         climberSubsystem.resetMode();
         m_autonomousCommand = m_robotContainer.getAutonomousCommand();
@@ -155,6 +155,9 @@ public class Robot extends TimedRobot {
     public void testInit() {
         // Cancels all running commands at the start of test mode.
         CommandScheduler.getInstance().cancelAll();
+        driveSubsystem.resetOdometry(initialPose);
+        poseSubsystem.resetGyro();
+        driveSubsystem.resetSetPoints();
     }
 
     /** This function is called periodically during test mode. */

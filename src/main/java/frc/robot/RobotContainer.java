@@ -87,6 +87,7 @@ public class RobotContainer {
         autoChooser.addOption("[TEST] weak shoot", Autos.weakShoot(driveSubsystem, ballSubsystem));
         autoChooser.addOption("[TEST] P2P AUTO", Autos.P2PAutoTest(driveSubsystem, ballSubsystem));
         autoChooser.addOption("[TEST] CHAOS THEORY AUTO", Autos.ChaosTheoryAuto(driveSubsystem, ballSubsystem));
+        autoChooser.addOption("[TEST] center shoot and climb", Autos.centerShootClimb(driveSubsystem, ballSubsystem));
         SmartDashboard.putData(autoChooser);
     }
 

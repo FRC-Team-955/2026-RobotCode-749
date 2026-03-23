@@ -107,7 +107,7 @@ public final class Constants {
         public static final Translation2d LEFT_BUMP_START = new Translation2d(LEFT_BUMP_CORNER.getMeasureX().minus(DBASE_CENTER.getMeasureX()),
                                                                                 LEFT_BUMP_CORNER.getMeasureY().minus(DBASE_CENTER.getMeasureY()));
         public static final Translation2d RIGHT_BUMP_START = new Translation2d(RIGHT_BUMP_CORNER.getMeasureX().minus(DBASE_CENTER.getMeasureX()),
-                                                                                 RIGHT_BUMP_CORNER.getMeasureY().minus(DBASE_CENTER.getMeasureY()));
+                                                                                 RIGHT_BUMP_CORNER.getMeasureY().plus(DBASE_CENTER.getMeasureY()));
         
         public static final Pose2d INITIAL_POSE_CENTER_HUB = new Pose2d(3.6, 4, Rotation2d.k180deg); // 3.6, 4, heading is 180
         public static final Pose2d INITIAL_POSE_LEFT_BUMP = new Pose2d(LEFT_BUMP_START, Rotation2d.k180deg);
