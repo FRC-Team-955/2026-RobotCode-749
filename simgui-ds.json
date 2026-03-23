@@ -18,12 +18,14 @@
         }
       ],
       "axisCount": 3,
-      "buttonCount": 4,
+      "buttonCount": 6,
       "buttonKeys": [
-        90,
+        81,
         88,
         67,
-        86
+        86,
+        66,
+        90
       ],
       "povConfig": [
         {
@@ -51,12 +53,14 @@
         }
       ],
       "axisCount": 2,
-      "buttonCount": 4,
+      "buttonCount": 6,
       "buttonKeys": [
         77,
         44,
         46,
-        47
+        47,
+        -1,
+        -1
       ],
       "povCount": 0
     },
@@ -90,11 +94,15 @@
     }
   ],
   "robotJoysticks": [
+    {},
     {
-      "guid": "Keyboard1"
+      "guid": "Keyboard0",
+      "name": "OPERATOR"
     },
     {
-      "guid": "Keyboard0"
+      "guid": "Keyboard1",
+      "name": "DRIVER"
     }
-  ]
+  ],
+  "useEnableDisableHotkeys": true
 }

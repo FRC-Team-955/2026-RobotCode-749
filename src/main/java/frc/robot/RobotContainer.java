@@ -4,26 +4,21 @@
 
 package frc.robot;
 
-import choreo.Choreo;
-import choreo.trajectory.DifferentialSample;
-import choreo.trajectory.Trajectory;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
+
 
 import static frc.robot.Constants.OperatorConstants.*;
-import static frc.robot.Constants.FuelConstants.*;
+import static frc.robot.RobotState.INITIAL_POSE;
+
 import frc.robot.commands.Autos;
+import frc.robot.subsystems.CANClimberSubsystem;
 import frc.robot.subsystems.CANDriveSubsystem;
 import frc.robot.subsystems.CANFuelSubsystem;
 import frc.robot.subsystems.PoseSubsystem;
-
-import java.util.Optional;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -33,97 +28,165 @@ import java.util.Optional;
  * commands, and trigger mappings) should be declared here.
  */
 public class RobotContainer {
-  // The robot's subsystems
-    private final PoseSubsystem ps = new PoseSubsystem();
-  private final CANDriveSubsystem driveSubsystem = new CANDriveSubsystem(ps);
-  private final CANFuelSubsystem ballSubsystem = new CANFuelSubsystem();
+    // The robot's subsystems
+    private CANDriveSubsystem driveSubsystem;
+    private CANFuelSubsystem ballSubsystem;
+    private CANClimberSubsystem climberSubsystem;
+    private PoseSubsystem poseSubsystem;
 
-  //object to contain a trajectory
-    private final Optional<Trajectory<DifferentialSample>> trajectory = Choreo.loadTrajectory("test");
-    private final Timer PathTimer = new Timer(); //Timer object used for pathfollowing
+
+
 
     // The driver's controller
-  private final CommandXboxController driverController = new CommandXboxController(
-      DRIVER_CONTROLLER_PORT);
+    private final CommandXboxController driverController = new CommandXboxController(
+            DRIVER_CONTROLLER_PORT);
 
-  // The operator's controller
-  private final CommandXboxController operatorController = new CommandXboxController(
-      OPERATOR_CONTROLLER_PORT);
+    // The operator's controller
+    private final CommandXboxController operatorController = new CommandXboxController(
+            OPERATOR_CONTROLLER_PORT);
 
-  // The autonomous chooser
-  private final SendableChooser<Command> autoChooser = new SendableChooser<>();
+    // The autonomous chooser
+    private final SendableChooser<Command> autoChooser = new SendableChooser<>();
 
-// self-explanatory
-    private boolean isRedAlliance() {
-        return DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue).equals(DriverStation.Alliance.Red);
+
+    /**
+     * The container for the robot. Contains subsystems, OI devices, and commands.
+     */
+    public RobotContainer(CANFuelSubsystem fuelSubsystem, CANDriveSubsystem driveSubsystem, PoseSubsystem poseSubsystem, CANClimberSubsystem climbersubsystem) {
+
+    this.ballSubsystem = fuelSubsystem;
+    this.driveSubsystem = driveSubsystem;
+    this.poseSubsystem = poseSubsystem;
+    this.climberSubsystem = climbersubsystem;
+
+
+
+
+
+    poseSubsystem.resetOdometry(INITIAL_POSE);  /// TODO: TUNE THIS
+
+
+        configureBindings(); //controller bindings
+
+
+        // Set the options to show up in the Dashboard for selecting auto modes. If you
+        // add additional auto modes you can add additional lines here with
+        // autoChooser.addOption
+        autoChooser.setDefaultOption("Center Weak Shoot", Autos.centerShoot(driveSubsystem, ballSubsystem));
+        autoChooser.addOption("Right Bump Shoot", Autos.rBumpShoot(driveSubsystem, ballSubsystem));
+        autoChooser.addOption("Left Bump Shoot", Autos.lBumpShoot(driveSubsystem, ballSubsystem));
+        autoChooser.addOption("Center Weak Shoot", Autos.centerShoot(driveSubsystem, ballSubsystem));
+        autoChooser.addOption("[EXP] Left Bump Shoot", Autos.expLBump(driveSubsystem, ballSubsystem));
+        autoChooser.addOption("[EXP] Right Bump Shoot", Autos.expRBump(driveSubsystem, ballSubsystem));
+        autoChooser.addOption("[EXP] Center Weak Shoot Left", Autos.expCenterShootL(driveSubsystem, ballSubsystem));
+        autoChooser.addOption("[EXP] Center Weak Shoot Right", Autos.expCenterShootR(driveSubsystem, ballSubsystem));
+        autoChooser.addOption("[TEST] P2P Left Bump Shoot", Autos.lBumpShootP2P(driveSubsystem, ballSubsystem));
+        autoChooser.addOption("[TEST] PID 1m Auto", Autos.PIDAuto(driveSubsystem, ballSubsystem));
+        autoChooser.addOption("[TEST] PID rotate bashy", Autos.PIDRotateHalf(driveSubsystem, ballSubsystem));
+        autoChooser.addOption("[TEST] go back then shoot", Autos.boringAuto(driveSubsystem, ballSubsystem));
+        autoChooser.addOption("[TEST] weak shoot", Autos.weakShoot(driveSubsystem, ballSubsystem));
+        autoChooser.addOption("[TEST] P2P AUTO", Autos.P2PAutoTest(driveSubsystem, ballSubsystem));
+        autoChooser.addOption("[TEST] CHAOS THEORY AUTO", Autos.ChaosTheoryAuto(driveSubsystem, ballSubsystem));
+        SmartDashboard.putData(autoChooser);
     }
-  /**
-   * The container for the robot. Contains subsystems, OI devices, and commands.
-   */
-  public RobotContainer() {
 
 
-      // INIT CHOREO
-      if (trajectory.isPresent()) {
-          // Get the initial pose of the trajectory
-          Optional<Pose2d> initialPose = trajectory.get().getInitialPose(isRedAlliance());
+    private void configureBindings() {
 
-          if (initialPose.isPresent()) {
-              // Reset odometry to the start of the trajectory
-              driveSubsystem.resetOdometry(initialPose.get());
-          }
-      }
-
-      // Reset and start the timer when the autonomous period begins
-      PathTimer.restart();
+        driverController.x()
+                        .onTrue(climberSubsystem.runOnce(() -> climberSubsystem.changeMode()));
+        /*
+        driverController.b() // requirement is must be in tuning mode
+                        .onTrue(climberSubsystem.runOnce(() -> climberSubsystem.setTopValue()));
+        driverController.a() // requirement is must be in tuning mode
+                .onTrue(climberSubsystem.runOnce(() -> climberSubsystem.setBottomValue()));
+             stuff for tuning
+         */
 
 
-    configureBindings(); //controller bindings
+        driverController.rightBumper()
+                        .whileTrue(climberSubsystem.runEnd(() -> climberSubsystem.goUp(), () -> climberSubsystem.stop()));
 
-    // Set the options to show up in the Dashboard for selecting auto modes. If you
-    // add additional auto modes you can add additional lines here with
-    // autoChooser.addOption
-    autoChooser.setDefaultOption("Example Auto", Autos.exampleAuto(driveSubsystem, ballSubsystem));
-    autoChooser.addOption("PID 1m Auto", Autos.PIDAuto(driveSubsystem, ballSubsystem));
-    autoChooser.addOption("PID rotate bashy", Autos.PIDRotateHalf(driveSubsystem, ballSubsystem));
-  }
+        driverController.leftBumper()
+                        .whileTrue(climberSubsystem.runEnd(() -> climberSubsystem.goDown(), () -> climberSubsystem.stop()));
+
+        // While the left bumper on operator controller is held, intake Fuel
+        operatorController.leftBumper()
+                .whileTrue(ballSubsystem.runEnd(() -> ballSubsystem.intake(), () -> ballSubsystem.stop()));
+
+        driverController.y().whileTrue(ballSubsystem.shootAtTarget(0).finallyDo(()->ballSubsystem.stop()));
+        // sorry not sorry arin :(
+
+        //driverController.y().onTrue(driveSubsystem.shake());
+
+        // While the right bumper on the operator controller is held, spin up for 1
+        // second, then launch fuel. When the button is released, stop.
+        operatorController.rightBumper()
+                .whileTrue(ballSubsystem.spinUpCommand().until(()->ballSubsystem.isAtSpeed(Constants.FuelConstants.SHOOTER_STRONG_SPEED))
+                        .andThen(ballSubsystem.launchCommand(() -> Constants.FuelConstants.SHOOTER_LAUNCH_VOLTAGE))
+                        .finallyDo(() -> ballSubsystem.stop()));
+
+        operatorController.x()
+                .whileTrue(ballSubsystem.spinUpCommand().until(()->ballSubsystem.isAtSpeed(Constants.FuelConstants.SHOOTER_WEAK_SPEED))
+                        .andThen(ballSubsystem.launchCommand(() -> Constants.FuelConstants.SHOOTER_WEAK_LAUNCH_VOLTAGE))
+                        .finallyDo(() -> ballSubsystem.stop()));
+
+        operatorController.y()
+                        .whileTrue(ballSubsystem.spinUpCommand().until(() -> ballSubsystem.isAtSpeed(Constants.FuelConstants.SHOOTER_WEAK_SPEED*1.1))
+                                .andThen(ballSubsystem.launchCommand(() -> Constants.FuelConstants.SHOOTER_WEAK_LAUNCH_VOLTAGE*1.1))
+                                .finallyDo(() -> ballSubsystem.stop()));
+
+        operatorController.b()
+                .whileTrue(ballSubsystem.spinUpCommand().until(() -> ballSubsystem.isAtSpeed(Constants.FuelConstants.SHOOTER_WEAK_SPEED*1.2))
+                        .andThen(ballSubsystem.launchCommand(() -> Constants.FuelConstants.SHOOTER_WEAK_LAUNCH_VOLTAGE*1.2))
+                        .finallyDo(() -> ballSubsystem.stop()));
+
+        // While the A button is held on the operator controller, eject fuel back out
+        // the intake
+        operatorController.a()
+                .whileTrue(ballSubsystem.runEnd(() -> ballSubsystem.eject(), () -> ballSubsystem.stop()));
+
+        // operatorController.x().onTrue(driveSubsystem.runOnce(()->driveSubsystem.resetOdometry(INITIAL_POSE))); // op x on click is restart poseSubsystem - haha i commented it out
+
+        operatorController.povUp()
+                .onTrue(driveSubsystem.runOnce(() -> driveSubsystem.increaseSens()));
+
+        operatorController.povDown()
+                .onTrue(driveSubsystem.runOnce(() -> driveSubsystem.decreaseSens()));
+
+        operatorController.povLeft()
+                .onTrue(driveSubsystem.runOnce(() -> driveSubsystem.sens100()));
+
+        operatorController.povRight()
+                .onTrue(driveSubsystem.runOnce(() -> driveSubsystem.sens50()));
 
 
-  private void configureBindings() {
+        // Set the default command for the drive subsystem to the command provided by
+        // factory with the values provided by the joystick axes on the driver
+        // controller. The Y axis of the controller is inverted so that pushing the
+        // stick away from you (a negative value) drives the robot forwards (a positive
+        // value). The X-axis is also inverted so a positive value (stick to the right)
+        // results in clockwise rotation (front of the robot turning right). Both axes
+        // are also scaled down so the rotation is more easily controllable.
 
-    // While the left bumper on operator controller is held, intake Fuel
-    operatorController.leftBumper()
-        .whileTrue(ballSubsystem.runEnd(() -> ballSubsystem.intake(), () -> ballSubsystem.stop()));
 
 
-    // While the right bumper on the operator controller is held, spin up for 1
-    // second, then launch fuel. When the button is released, stop.
-    operatorController.rightBumper()
-        .whileTrue(ballSubsystem.spinUpCommand().withTimeout(SPIN_UP_SECONDS)
-            .andThen(ballSubsystem.launchCommand())
-            .finallyDo(() -> ballSubsystem.stop()));
-    // While the A button is held on the operator controller, eject fuel back out
-    // the intake
-    operatorController.a()
-        .whileTrue(ballSubsystem.runEnd(() -> ballSubsystem.eject(), () -> ballSubsystem.stop()));
-
-    //operatorController.y().onTrue(driveSubsystem.toggleUseTargetPoint());
-
-    // b = test go-to-pt
-    //operatorController.b().onTrue(driveSubsystem.CresetOdometry().andThen(driveSubsystem.setTargetPoint(new Pose2d(1,1,new Rotation2d()))));
-
-    // Set the default command for the drive subsystem to the command provided by
-    // factory with the values provided by the joystick axes on the driver
-    // controller. The Y axis of the controller is inverted so that pushing the
-    // stick away from you (a negative value) drives the robot forwards (a positive
-    // value). The X-axis is also inverted so a positive value (stick to the right)
-    // results in clockwise rotation (front of the robot turning right). Both axes
-    // are also scaled down so the rotation is more easily controllable.
-    driveSubsystem.setDefaultCommand(
-
-         driveSubsystem.driveArcade(
-            () -> operatorController.getLeftY() * DRIVE_SCALING,
-            () -> operatorController.getRightX() * ROTATION_SCALING));
+        if (RobotState.isSim()) {
+            driveSubsystem.setDefaultCommand(
+            driveSubsystem.driveArcade(
+                    () -> driverController.getRawAxis(1) * DRIVE_SCALING,
+                    () -> driverController.getRawAxis(0) * ROTATION_SCALING,
+                    () -> driverController.b().getAsBoolean() // im sorry idk what to put here arin
+            ));
+            //driveSubsystem.setDefaultCommand(driveSubsystem.driveAtTargetPose(new Pose2d(1,1,new Rotation2d())));
+        }
+        else{
+            driveSubsystem.setDefaultCommand(
+            driveSubsystem.driveArcade(
+                    () -> driverController.getLeftY() * DRIVE_SCALING,
+                    () -> driverController.getRightX() * ROTATION_SCALING,
+                    () -> operatorController.x().getAsBoolean() || operatorController.y().getAsBoolean() || operatorController.b().getAsBoolean() || operatorController.rightBumper().getAsBoolean()));
+        }
 
 
 /*
@@ -131,17 +194,17 @@ public class RobotContainer {
             () -> -operatorController.getLeftY() * DRIVE_SCALING - operatorController.getRightX() * ROTATION_SCALING,
             () -> -operatorController.getLeftY() * DRIVE_SCALING + operatorController.getRightX() * ROTATION_SCALING)); // make sure +- are correct
 */
-  }
+    }
 
-  /**
-   * Use this to pass the autonomous command to the main {@link Robot} class.
-   *
-   * @return the command to run in autonomous
-   */
-  public Command getAutonomousCommand() {
-    // An example command will be run in autonomous
-    return autoChooser.getSelected();
-  }
+    /**
+     * Use this to pass the autonomous command to the main {@link Robot} class.
+     *
+     * @return the command to run in autonomous
+     */
+    public Command getAutonomousCommand() {
+        // An example command will be run in autonomous
+        return autoChooser.getSelected();
+    }
 
 
 

@@ -4,12 +4,11 @@
 
 package frc.robot.subsystems;
 
-import java.util.Optional;
+import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
-import choreo.trajectory.*; // dumb all include
 
-import com.revrobotics.RelativeEncoder;
+import com.revrobotics.sim.SparkRelativeEncoderSim;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
@@ -17,257 +16,415 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.LTVUnicycleController;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
+import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructPublisher;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants;
+import frc.robot.RobotState;
 
 import static edu.wpi.first.wpilibj.drive.DifferentialDrive.arcadeDriveIK;
 import static frc.robot.Constants.DriveConstants.*;
+import static frc.robot.RobotState.*;
 
 
 public class CANDriveSubsystem extends SubsystemBase {
-  private final SparkMax leftLeader;
-  private final SparkMax leftFollower;
-  private final SparkMax rightLeader;
-  private final SparkMax rightFollower;
+    private final SparkMax leftLeader;
+    private final SparkMax leftFollower;
+    private final SparkMax rightLeader;
+    private final SparkMax rightFollower;
 
+    private SparkRelativeEncoderSim m_leftEncoderSim;
+    private SparkRelativeEncoderSim m_rightEncoderSim;
 
     private final PoseSubsystem ps; //Pose Estimator Class
-  private final DifferentialDrive drive; //builtin wpilib drive
+    private final DifferentialDrive drive; //builtin wpilib drive
     private final LTVUnicycleController controller = new LTVUnicycleController(0.02);
 
     private final SlewRateLimiter limit = new SlewRateLimiter(10 * Constants.DriveConstants.SAFE_SPEED_CAP);
-    DifferentialDriveKinematics kinematics =
-            new DifferentialDriveKinematics(Units.inchesToMeters(27.0)); //27 = drivebase width?????
-  double lSetPoint;
-  double rSetPoint;
-    Pose2d targetPose = new Pose2d();
-    boolean enableTargetPose = false;
+    DifferentialDriveKinematics kinematics = new DifferentialDriveKinematics(DBASE_WIDTH);
 
-  public CANDriveSubsystem(PoseSubsystem ps) {
-      this.ps = ps;
-    // create brushed motors for drive
-    leftLeader = new SparkMax(LEFT_LEADER_ID, MotorType.kBrushless);
-    leftFollower = new SparkMax(LEFT_FOLLOWER_ID, MotorType.kBrushless);
-    rightLeader = new SparkMax(RIGHT_LEADER_ID, MotorType.kBrushless);
-    rightFollower = new SparkMax(RIGHT_FOLLOWER_ID, MotorType.kBrushless);
+    double lSetPoint;
+    double rSetPoint;
 
-    // set up differential drive class
-    drive = new DifferentialDrive(leftLeader, rightLeader);
-    targetPose = ps.getPose();
+    public final PIDController leftPID = new PIDController(KP, KI, KD);
+    public final PIDController rightPID = new PIDController(KP, KI, KD);
+    public final Field2d field = new Field2d();
 
+    PIDController turnPIDAuto = new PIDController(3.6,KI,0.35);
+    PIDController forwardPIDAuto = new PIDController(3.5,KI,0.35);
 
+    double muffle = 100;
 
-    // Set can timeout. Because this project only sets parameters once on
-    // construction, the timeout can be long without blocking robot operation. Code
-    // which sets or gets parameters during operation may need a shorter timeout.
-    leftLeader.setCANTimeout(250);
-    rightLeader.setCANTimeout(250);
-    leftFollower.setCANTimeout(250);
-    rightFollower.setCANTimeout(250);
+    private Timer timer = new Timer();
 
-    // Create the configuration to apply to motors. Voltage compensation
-    // helps the robot perform more similarly on different
-    // battery voltages (at the cost of a little bit of top speed on a fully charged
-    // battery). The current limit helps prevent tripping
-    // breakers.
-    SparkMaxConfig config = new SparkMaxConfig();
-    config.voltageCompensation(12);
-    config.smartCurrentLimit(DRIVE_MOTOR_CURRENT_LIMIT);
-
-
-    // Set configuration to follow each leader and then apply it to corresponding
-    // follower. Resetting in case a new controller is swapped
-    // in and persisting in case of a controller reset due to breaker trip
-    config.follow(leftLeader);
-
-    leftFollower.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-    config.follow(rightLeader);
-    rightFollower.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-
-    // Remove following, then apply config to right leader
-    config.disableFollowerMode();
-    rightLeader.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-    // Set config to inverted and then apply to left leader. Set Left side inverted
-    // so that postive values drive both sides forward
-    config.inverted(true);
-    leftLeader.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-
-
-    //INIT ARINS CODE
-      ps.setSource(()->leftLeader.getEncoder().getPosition(), ()->rightLeader.getEncoder().getPosition());
-  }
-
-  @Override
-  public void periodic() {
-      //logging
-      SmartDashboard.putNumber("leftLeaderEncoder", leftLeader.getEncoder().getPosition());
-      SmartDashboard.putNumber("leftFollowerEncoder", leftFollower.getEncoder().getPosition()); // shouldn't be needed, just here to make sure (actually maybe it goes the opposite direction idk)
-      SmartDashboard.putNumber("rightLeaderEncoder", rightLeader.getEncoder().getPosition());
-      SmartDashboard.putNumber("rightFollowerEncoder", rightFollower.getEncoder().getPosition()); // shouldn't be needed, just here to make sure
-      SmartDashboard.putNumber("leftSetPoint", lSetPoint);
-      SmartDashboard.putNumber("rightSetPoint", rSetPoint);
-
-
-      driveAtTargetPose();
-
-  }
-
-  public void logMotors(DoubleSupplier xSpeed, DoubleSupplier zRotation, boolean squareInputs) {
-      double qxSpeed = MathUtil.applyDeadband(xSpeed.getAsDouble(), 0.02);
-      double qzRotation = MathUtil.applyDeadband(zRotation.getAsDouble(), 0.02);
-
-      var speeds = arcadeDriveIK(qxSpeed, qzRotation, squareInputs);
-
-      double m_leftOutput = speeds.left;
-      double m_rightOutput = speeds.right;
-      drive.arcadeDrive(xSpeed.getAsDouble(), zRotation.getAsDouble());
-      System.out.print("L: "); System.out.print(leftLeader.getAppliedOutput()); System.out.print(" R: ");System.out.println(rightLeader.getAppliedOutput());
-      System.out.print("LF: "); System.out.print(leftFollower.getAppliedOutput()); System.out.print(" RF: ");System.out.println(rightFollower.getAppliedOutput());
-  }
-
-  // Command factory to create command to drive the robot with joystick inputs.
-  public Command driveArcade(DoubleSupplier xSpeed, DoubleSupplier zRotation) {
-      return this.run(() -> {
-              updateSetPoints(limit.calculate(xSpeed.getAsDouble()) + zRotation.getAsDouble(), limit.calculate(xSpeed.getAsDouble()) - zRotation.getAsDouble());
-              drive.arcadeDrive(limit.calculate(xSpeed.getAsDouble()) ,zRotation.getAsDouble());
-      });
-  }
+/// TODO: TUNE THIS
+    DifferentialDrivetrainSim drivetrainSim = new DifferentialDrivetrainSim(
+            DCMotor.getNEO(2),       // 2 NEO motors on each side of the drivetrain.
+            8.45,                    //
+            3,                     // MOI from CAD??
+            29.76,                    // The mass of the robot is not 30 kg.
+            Units.inchesToMeters(3), // The robot uses 3" radius wheels.
+            DBASE_WIDTH,                  // what u think it is
+            // The standard deviations for measurement noise:
+            // x and y:          0.001 m
+            // heading:          0.001 rad
+            // l and r velocity: 0.1   m/s
+            // l and r position: 0.005 m
+            VecBuilder.fill(0.00001, 0.00001, 0.001, 0.01, 0.01, 0.005, 0.005)); //smaller number makes sim tweak out less
 
 
 
-  public Command driveTank(DoubleSupplier leftSpeed, DoubleSupplier rightSpeed) {
-      // setpoints included just for logging it
-      // use setpoints to tune encoder units
-      return new SequentialCommandGroup( // THIS WILL NOT WORK (look at drivearcade)
-              run(() -> updateSetPoints(leftSpeed.getAsDouble(), rightSpeed.getAsDouble())),
-              run(() -> drive.tankDrive(leftSpeed.getAsDouble(), rightSpeed.getAsDouble())));
-  }
+    public CANDriveSubsystem(PoseSubsystem ps) {
+        this.ps = ps;
+        drivetrainSim.setPose(INITIAL_POSE);
+
+        // create brushed motors for drive
+        leftLeader = new SparkMax(LEFT_LEADER_ID, MotorType.kBrushless);
+        leftFollower = new SparkMax(LEFT_FOLLOWER_ID, MotorType.kBrushless);
+        rightLeader = new SparkMax(RIGHT_LEADER_ID, MotorType.kBrushless);
+        rightFollower = new SparkMax(RIGHT_FOLLOWER_ID, MotorType.kBrushless);
+
+        m_leftEncoderSim = new SparkRelativeEncoderSim(leftLeader);
+        m_rightEncoderSim = new SparkRelativeEncoderSim(rightLeader);
+
+
+        // set up differential drive class
+        drive = new DifferentialDrive(leftLeader, rightLeader);
+
+        // Set can timeout. Because this project only sets parameters once on
+        // construction, the timeout can be long without blocking robot operation. Code
+        // which sets or gets parameters during operation may need a shorter timeout.
+        leftLeader.setCANTimeout(250);
+        rightLeader.setCANTimeout(250);
+        leftFollower.setCANTimeout(250);
+        rightFollower.setCANTimeout(250);
+
+        // Create the configuration to apply to motors. Voltage compensation
+        // helps the robot perform more similarly on different
+        // battery voltages (at the cost of a little bit of top speed on a fully charged
+        // battery). The current limit helps prevent tripping
+        // breakers.
+        SparkMaxConfig config = new SparkMaxConfig();
+        config.voltageCompensation(12);
+        config.smartCurrentLimit(DRIVE_MOTOR_CURRENT_LIMIT);
+        double wheelCircumference = 2 * Math.PI * Units.inchesToMeters(3);
+        double gearRatio = 8.45;
+
+        // Set configuration to follow each leader and then apply it to corresponding
+        // follower. Resetting in case a new controller is swapped
+        // in and persisting in case of a controller reset due to breaker trip
+        config.follow(leftLeader);
+        config.encoder.positionConversionFactor(
+                wheelCircumference / gearRatio
+        );
+
+        config.encoder.velocityConversionFactor(
+                wheelCircumference / gearRatio / 60.0
+        );
+
+        leftFollower.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        config.follow(rightLeader);
+        rightFollower.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+
+        // Remove following, then apply config to right leader
+        config.disableFollowerMode();
+        rightLeader.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        // Set config to inverted and then apply to left leader. Set Left side inverted
+        // so that postive values drive both sides forward
+        config.inverted(true);
+        leftLeader.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+
+        //INIT poseSubsystem
+        ps.setSource(()->leftLeader.getEncoder().getPosition(), ()->rightLeader.getEncoder().getPosition());
+
+        turnPIDAuto.enableContinuousInput(-Math.PI, Math.PI);
+
+        turnPIDAuto.setTolerance(Math.toRadians(2));
+        forwardPIDAuto.setTolerance(0.05);
+
+        // field.setRobotPose(put robot pose here ); idk justin stuffs
+
+    }
+
+    @Override
+    public void periodic() {
+        //logging
+        SmartDashboard.putNumber("leftLeaderEncoder", leftLeader.getEncoder().getPosition());
+        SmartDashboard.putNumber("llEncoderMeters", leftLeader.getEncoder().getPosition());
+        SmartDashboard.putNumber("leftFollowerEncoder", leftFollower.getEncoder().getPosition()); // shouldn't be needed, just here to make sure (actually maybe it goes the opposite direction idk)
+        SmartDashboard.putNumber("rightLeaderEncoder", rightLeader.getEncoder().getPosition());
+        SmartDashboard.putNumber("rlEncoderMeters", rightLeader.getEncoder().getPosition());
+        SmartDashboard.putNumber("rightFollowerEncoder", rightFollower.getEncoder().getPosition()); // shouldn't be needed, just here to make sure
+        SmartDashboard.putNumber("leftSetPoint", lSetPoint);
+        SmartDashboard.putNumber("rightSetPoint", rSetPoint);
+        SmartDashboard.putNumber("lPIDPoint", leftPID.getSetpoint());
+        SmartDashboard.putNumber("rPIDPoint", rightPID.getSetpoint());
+        // SmartDashboard.putData("Field2d", field); idk justin stuffs
+        SmartDashboard.putNumber("percentage", muffle);
+
+        ///  SIM AND NON-SIM GLOBAL VELOCITIES
+         {
+
+            // SparkMax encoder velocity is RPM by default
+            double leftMPS = leftLeader.getEncoder().getVelocity();
+            double rightMPS = rightLeader.getEncoder().getVelocity();
+
+
+
+
+            DifferentialDriveWheelSpeeds wheelSpeeds =
+                    new DifferentialDriveWheelSpeeds(leftMPS, rightMPS);
+
+            ChassisSpeeds robotSpeeds =
+                    kinematics.toChassisSpeeds(wheelSpeeds);
+
+            ChassisSpeeds fieldRelative =
+                    ChassisSpeeds.fromRobotRelativeSpeeds(
+                            robotSpeeds,
+                            GLOBAL_POSE.getRotation()
+                    );
+
+
+
+            if(!isSim()){
+                RobotState.ROBOT_VX = -fieldRelative.vxMetersPerSecond; //
+                RobotState.ROBOT_VY = -fieldRelative.vyMetersPerSecond;
+            }
+            else{
+                RobotState.ROBOT_VX = fieldRelative.vxMetersPerSecond; //
+                RobotState.ROBOT_VY = fieldRelative.vyMetersPerSecond;
+            }
+
+        }
+
+    }
+
+    public void logMotors(DoubleSupplier xSpeed, DoubleSupplier zRotation, boolean squareInputs) {
+        double qxSpeed = MathUtil.applyDeadband(xSpeed.getAsDouble(), 0.02);
+        double qzRotation = MathUtil.applyDeadband(zRotation.getAsDouble(), 0.02);
+
+        var speeds = arcadeDriveIK(qxSpeed, qzRotation, squareInputs);
+
+        drive.arcadeDrive(xSpeed.getAsDouble(), zRotation.getAsDouble());
+        System.out.print("L: "); System.out.print(leftLeader.getAppliedOutput()); System.out.print(" R: ");System.out.println(rightLeader.getAppliedOutput());
+        System.out.print("LF: "); System.out.print(leftFollower.getAppliedOutput()); System.out.print(" RF: ");System.out.println(rightFollower.getAppliedOutput());
+    }
+
+    public void startTimer() {
+        timer.reset();
+        timer.start();
+    }
+
+    public void shake() {
+        double shake = 0.6*(0.5-Math.round(MathUtil.inputModulus(timer.get()*5, 0, 1)));
+        drive.arcadeDrive(shake, 0); // 2x per sec
+    } // change the 0.3 to make the magnitude larger (how fast the motors run)
+    // change the 5 in timer.get*5 to increase frequency (how often/fast the robot shakes)
+
+    public void stopShake() {
+        drive.arcadeDrive(0,0);
+    }
+
+    public void endTimer() {
+        timer.stop();
+    }
+
+    public void increaseSens() {
+        muffle += 5;
+        if (muffle > 120) {
+            muffle = 120;
+        }
+    }
+
+    public void decreaseSens() {
+        muffle -= 5;
+        if (muffle < 5) {
+            muffle = 5;
+        }
+    }
+
+    public void sens100() {
+        muffle = 100;
+    }
+
+    public void sens50() {
+        muffle = 50;
+    }
+
+    // Command factory to create command to drive the robot with joystick inputs.
+    public Command driveArcade(DoubleSupplier xSpeed, DoubleSupplier zRotation, BooleanSupplier shake) {
+        return run(() -> {
+            DoubleSupplier percent = () -> this.muffle;
+            double limitedX = (percent.getAsDouble()/100)*limit.calculate(xSpeed.getAsDouble());
+            double rot = (percent.getAsDouble()/200 + 0.5)*zRotation.getAsDouble();
+            double isShake;
+            double shakeSpeed = 0;
+            if (shake.getAsBoolean()) {
+                isShake = 1;
+                shakeSpeed = 0.6*(0.5-Math.round(MathUtil.inputModulus(timer.get()*5, 0, 1)));
+            } else {
+                isShake = 0;
+            }
+
+            updateSetPoints(limitedX + rot, limitedX - rot);
+            drive.arcadeDrive(limitedX + isShake*shakeSpeed, rot);
+        });
+    }
+
     private void updateSetPoints(double leftSpeed, double rightSpeed) {
         lSetPoint += leftSpeed;
         rSetPoint += rightSpeed;
+        leftPID.setSetpoint(leftPID.getSetpoint()+leftSpeed);
+        rightPID.setSetpoint(rightPID.getSetpoint()+rightSpeed);
 
     }
-  
-  public Command setPIDSetpoints(DoubleSupplier lPoint, DoubleSupplier rPoint) {
-    return this.runOnce(() -> {
-      updateSetPoints(lPoint.getAsDouble(), rPoint.getAsDouble());
+
+    public void resetSetPoints() {
+        lSetPoint = leftLeader.getEncoder().getPosition();
+        rSetPoint = rightLeader.getEncoder().getPosition();
+        leftPID.setSetpoint(leftLeader.getEncoder().getPosition());
+        leftPID.setTolerance(0.05);
+        rightPID.setSetpoint(rightLeader.getEncoder().getPosition());
+        rightPID.setTolerance(0.05);
     }
-    );
-  }
 
-  public Command autoDrivePID() {
-      return this.run(() -> {
-          drive.tankDrive(MathUtil.clamp(PID_CONSTANT * (lSetPoint - leftLeader.getEncoder().getPosition()/ENCODER_UNITS_PER_METER), -1 * PID_DRIVE_CAP, PID_DRIVE_CAP),
-                            MathUtil.clamp(PID_CONSTANT * (rSetPoint - rightLeader.getEncoder().getPosition()/ENCODER_UNITS_PER_METER), -1 * PID_DRIVE_CAP, PID_DRIVE_CAP));
-      }).until(() -> {
-        double lDiff = Math.abs(leftLeader.getEncoder().getPosition()/ENCODER_UNITS_PER_METER-lSetPoint);
-        double rDiff = Math.abs(rightLeader.getEncoder().getPosition()/ENCODER_UNITS_PER_METER-rSetPoint);
-        return lDiff < 0.1 && rDiff < 0.1;
-      });
-  }
+    public DoubleSupplier giveLeftEncoder() {
+        return () -> leftLeader.getEncoder().getPosition();
+    }
 
+    public DoubleSupplier giveRightEncoder() {
+        return () -> rightLeader.getEncoder().getPosition();
+    }
 
-
-    public void followTrajectory(Optional<DifferentialSample> samples) {
-        // Get the current pose of the robot
-        DifferentialSample sample = samples.orElse(new choreo.trajectory.DifferentialSample(0,0,0,0,0,0,0,0,0,0,0,0));
-
-        // Get the velocity feedforward specified by the sample
-        ChassisSpeeds ff = sample.getChassisSpeeds();
-
-        // Generate the next speeds for the robot
-        ChassisSpeeds speeds = controller.calculate(
-                ps.getPose(),
-                sample.getPose(),
-                ff.vxMetersPerSecond,
-                ff.omegaRadiansPerSecond
+    public Command setPIDSetpoints(DoubleSupplier lPoint, DoubleSupplier rPoint) {
+        return this.runOnce(() -> {
+                    updateSetPoints(lPoint.getAsDouble(), rPoint.getAsDouble());
+                }
         );
-
-
-
-
-        // Apply the generated speeds
-        DifferentialDriveWheelSpeeds wheelSpeeds = kinematics.toWheelSpeeds(speeds); //
-        drive.tankDrive(wheelSpeeds.leftMetersPerSecond, wheelSpeeds.rightMetersPerSecond);
     }
 
-    private boolean isRedAlliance() {
-        return DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue).equals(DriverStation.Alliance.Red);
+    public Command autoDrivePID(DoubleSupplier leftEncoder, DoubleSupplier rightEncoder) {
+        return this.run(() -> {
+            drive.tankDrive(MathUtil.clamp(leftPID.calculate(leftEncoder.getAsDouble()), -1 * PID_DRIVE_CAP, PID_DRIVE_CAP),
+                    MathUtil.clamp(rightPID.calculate(rightEncoder.getAsDouble()), -1 * PID_DRIVE_CAP, PID_DRIVE_CAP));
+        }).until(() -> {
+            return Math.abs(leftPID.getError()) < 0.1 && Math.abs(rightPID.getError()) < 0.1;
+        });
     }
-    public void goPath(Optional<Trajectory<DifferentialSample>> trajectory, Timer timer){
-        if (trajectory.isPresent()) {
-            // Sample the trajectory at the current time into the autonomous period
-            Optional<DifferentialSample> sample = trajectory.get().sampleAt(timer.get(), isRedAlliance());
 
-            if (sample.isPresent()) {
-                this.followTrajectory(sample);
-            }
-        }
-
+    public Command autoSlowDrivePID(DoubleSupplier leftEncoder, DoubleSupplier rightEncoder) {
+        return this.run(() -> {
+            drive.tankDrive(MathUtil.clamp(leftPID.calculate(leftEncoder.getAsDouble()), -0.8 * PID_DRIVE_CAP, 0.8*PID_DRIVE_CAP),
+                    MathUtil.clamp(rightPID.calculate(rightEncoder.getAsDouble()), -0.8 * PID_DRIVE_CAP, 0.8*PID_DRIVE_CAP));
+                }
+        ).until(() -> {
+            return Math.abs(leftPID.getError()) < 0.1 && Math.abs(rightPID.getError()) < 0.1;
+        });
     }
+
+
+
+
+
 
     public void resetOdometry(Pose2d p){
-      ps.resetOdometry(p);
+        if(isSim()){
+            drivetrainSim.setPose(p);
+        }
+        ps.resetOdometry(p);
     }
-    public Command CresetOdometry(){
-        return run(()->resetOdometry(new Pose2d()));
-    }
-
-    public Command goPathFollow(Optional<Trajectory<DifferentialSample>> trajectory, Timer timer){
-      return run(()->goPath(trajectory, timer));
-    }
-
-
-    public Command setTargetPoint(Pose2d a){
-      return run(()->{targetPose=a;enableTargetPose=true;});
+    public Command cresetOdometry(Pose2d p){
+        return run(()->resetOdometry(p));
     }
 
-    public Command toggleUseTargetPoint(){
-      return run(()->enableTargetPose=!enableTargetPose);
-    }
-
-    public void driveAtTargetPose() {
-        if (!enableTargetPose || targetPose == null) return;
-
-        Pose2d currentPose = ps.getPose();
-
-        // LTV controller computes chassis speeds
-        ChassisSpeeds speeds = controller.calculate(
-                currentPose,
-                targetPose,
-                0.0, // desired linear velocity
-                0.0  // desired angular velocity
-        );
-
-        // Convert to wheel speeds
-        DifferentialDriveWheelSpeeds wheelSpeeds =
-                kinematics.toWheelSpeeds(speeds);
 
 
+    StructPublisher<Pose2d> publisher = NetworkTableInstance.getDefault()
+            .getStructTopic("TargetPose", Pose2d.struct).publish();
+    public void funcDriveAtTargetPose(Pose2d targetPose) {
+        publisher.set(targetPose);
 
-        drive.tankDrive(
-                wheelSpeeds.leftMetersPerSecond ,
-                wheelSpeeds.rightMetersPerSecond
-        );
 
-        if (isAtPose(currentPose, targetPose)) {
-            drive.tankDrive(0, 0);
-            enableTargetPose = false;
+        if (targetPose == null) return;
+
+        Pose2d current = GLOBAL_POSE;
+
+        double dx = targetPose.getX() - current.getX();
+        double dy = targetPose.getY() - current.getY();
+
+
+        double distance = Math.hypot(dx, dy);
+
+        double currentAngle = (current.getRotation().getRadians());
+        double targetAngle = (Math.atan2(dy, dx));
+
+        double angleToTarget = MathUtil.angleModulus(targetAngle - currentAngle);
+
+
+
+
+        if (distance < 0.1) {
+
+            double cAngle = currentAngle;
+            double tAngle = targetPose.getRotation().getRadians();
+
+
+            double turn; // = finalHeadingError * 2.1;
+            turn = 0.2 * turnPIDAuto.calculate(cAngle, tAngle);
+
+
+            turn = MathUtil.clamp(turn, -0.45, 0.45);
+
+
+            drive.arcadeDrive(0, -turn);
+            return;
         }
 
+
+
+        //  slowdown near target
+        double forward = 1.2* forwardPIDAuto.calculate(0,distance);
+
+
+
+        double turn = angleToTarget * 1.7;
+
+        // If heavily misaligned, reduce forward instead of hard stopping
+        double alignmentScale = MathUtil.clamp(
+                1.0 - (Math.abs(angleToTarget) / Math.PI),
+                0.2,
+                1.0
+        );
+
+        forward *= alignmentScale;
+
+        turn = MathUtil.clamp(turn, -0.6, 0.6);
+
+        if(Math.abs(MathUtil.angleModulus(currentAngle-targetAngle)) > Math.PI/16){
+
+            forward = 0.1;
+        }
+        forward = MathUtil.clamp(forward,-2.8,2.8);
+        drive.arcadeDrive(-forward, -turn);
 
     }
 
@@ -279,7 +436,65 @@ public class CANDriveSubsystem extends SubsystemBase {
         double angleError =
                 current.getRotation().minus(target.getRotation()).getRadians();
 
-        return dist < 0.05 && Math.abs(angleError) < Math.toRadians(3);
+        return (dist < 0.13) && (Math.abs(angleError) < Math.toRadians(5));
+    }
+
+    private int atPoseTicks = 0;
+    private final int REQUIRED_TICKS = 8; //
+
+    private boolean isSettledAtPose(Pose2d current, Pose2d target){
+        if (isAtPose(current, target)) {
+            atPoseTicks++;
+            return atPoseTicks >= REQUIRED_TICKS;
+        } else {
+            atPoseTicks = 0;
+            return false;
+        }
+    }
+
+    public Command driveAtTargetPose(Pose2d target){
+        return run(()->funcDriveAtTargetPose(target)).until(()->isSettledAtPose(GLOBAL_POSE,target)).finallyDo(() -> drive.tankDrive(0, 0));
+    }
+
+
+
+
+
+    public void simulationPeriodic() {
+
+
+        // Set the inputs to the system. Note that we need to convert
+        drivetrainSim.setInputs(-leftLeader.get() * RobotController.getInputVoltage(),
+                -rightLeader.get() * RobotController.getInputVoltage());
+        // Advance the model by 20 ms. Note that if you are running this
+        // subsystem in a separate thread or have changed the nominal timestep
+        // of TimedRobot, this value needs to match it.
+        drivetrainSim.update(0.02);
+
+
+
+
+        ps.resetOdometry(drivetrainSim.getPose());
+        if(isSim()) {
+            RobotState.GLOBAL_POSE = drivetrainSim.getPose();
+        }
+
+
+
+
+
+
+
+
+        if(m_leftEncoderSim == null || m_rightEncoderSim==null){
+            System.out.println("IDIOT. CALL ARIN AND TELL HIM TO GET A BRAIN");
+        }
+        else {
+            m_leftEncoderSim.setPosition(-drivetrainSim.getLeftPositionMeters());
+            m_leftEncoderSim.setVelocity(-drivetrainSim.getLeftVelocityMetersPerSecond());
+            m_rightEncoderSim.setPosition(-drivetrainSim.getRightPositionMeters());
+            m_rightEncoderSim.setVelocity(-drivetrainSim.getRightVelocityMetersPerSecond());
+        }
     }
 
 }

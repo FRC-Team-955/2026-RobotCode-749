@@ -6,11 +6,19 @@ package frc.robot;
 
 import edu.wpi.first.hal.HAL;
 import edu.wpi.first.hal.FRCNetComm.tResourceType;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
+import frc.robot.subsystems.CANClimberSubsystem;
+import frc.robot.subsystems.CANDriveSubsystem;
+import frc.robot.subsystems.CANFuelSubsystem;
+import frc.robot.subsystems.PoseSubsystem;
+
+import static frc.robot.RobotState.INITIAL_POSE;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -21,11 +29,17 @@ import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
  * build.gradle file in the
  * project.
  */
+
 public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
 
   private RobotContainer m_robotContainer;
-
+    private final CANFuelSubsystem fuelSubsystem = new CANFuelSubsystem();
+    public final PoseSubsystem poseSubsystem = new PoseSubsystem();
+    private final CANDriveSubsystem driveSubsystem = new CANDriveSubsystem(poseSubsystem);
+    public final CANClimberSubsystem climberSubsystem = new CANClimberSubsystem();
+    LEDSystem LEDS = new LEDSystem();
+    private Timer timer = new Timer();
   /**
    * This function is run when the robot is first started up and should be used
    * for any
@@ -33,10 +47,15 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
+    timer.reset();
+      climberSubsystem.resetMode();
+    climberSubsystem.initSetPoint();
     // Instantiate our RobotContainer. This will perform all our button bindings,
     // and put our
     // autonomous chooser on the dashboard.
-    m_robotContainer = new RobotContainer();
+      RobotState.GLOBAL_POSE = INITIAL_POSE;
+    m_robotContainer = new RobotContainer(fuelSubsystem, driveSubsystem, poseSubsystem, climberSubsystem);
+
 
     // Used to track usage of Kitbot code, please do not remove.
     HAL.report(tResourceType.kResourceType_Framework, 10);
@@ -64,15 +83,20 @@ public class Robot extends TimedRobot {
     // robot's periodic
     // block in order for anything in the Command-based framework to work.
     CommandScheduler.getInstance().run();
+      // LEDS.shooterLeds(); uh so we can do other stuff ig
+    LEDS.setLEDs();
   }
 
   /** This function is called once each time the robot enters Disabled mode. */
   @Override
   public void disabledInit() {
+    fuelSubsystem.setBrakeMode();
   }
 
   @Override
   public void disabledPeriodic() {
+    LEDS.rainbow();
+    LEDS.setLEDs();
   }
 
   /**
@@ -81,21 +105,36 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousInit() {
+      System.out.println("AUTO.INIT");
+      driveSubsystem.resetOdometry(INITIAL_POSE);
+      RobotState.GLOBAL_POSE = INITIAL_POSE;
+      System.out.print("AUTO INIT POSE X:"); System.out.println(poseSubsystem.getPose().getX());
+    climberSubsystem.resetMode();
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
-
+    fuelSubsystem.setCoastMode();
+    driveSubsystem.resetSetPoints();
+    // climberSubsystem.setClimberTopAsCurrent();
     // schedule the autonomous command (example)
     if (m_autonomousCommand != null) {
-      CommandScheduler.getInstance().schedule(m_autonomousCommand);;
+      CommandScheduler.getInstance().schedule(m_autonomousCommand);
     }
   }
 
   /** This function is called periodically during autonomous. */
   @Override
   public void autonomousPeriodic() {
+
   }
 
   @Override
   public void teleopInit() {
+      driveSubsystem.resetSetPoints();
+      driveSubsystem.startTimer();
+      climberSubsystem.resetMode();
+      timer.reset();
+      LEDS.setAutoWinner();
+      LEDS.startTimer();
+    timer.start();
     // This makes sure that the autonomous stops running when
     // teleop starts running. If you want the autonomous to
     // continue until interrupted by another command, remove
@@ -103,11 +142,13 @@ public class Robot extends TimedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
+    fuelSubsystem.setCoastMode();
   }
 
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
+
   }
 
   @Override
