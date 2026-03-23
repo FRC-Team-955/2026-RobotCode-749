@@ -6,6 +6,9 @@ package frc.robot;
 
 
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 
@@ -94,17 +97,17 @@ public final class Constants {
     }
 
     public static final class PoseConstants {
-        public static final Translation2d DBASE_CENTER = new Translation2d(DBASE_LENGTH_WITH_BUMPERS/2, DBASE_WIDTH_WITH_BUMPERS/2);
+        public static final Translation2d DBASE_CENTER = new Translation2d(DriveConstants.DBASE_LENGTH_WITH_BUMPERS/2, DriveConstants.DBASE_WIDTH_WITH_BUMPERS/2);
               // going to remove this distance from the pose of the bump corners for siming autos
       
         public static final Translation2d LEFT_BUMP_CORNER = new Translation2d(4, 6.48); // 4 m, 6.48 m
         public static final Translation2d RIGHT_BUMP_CORNER = new Translation2d(4, 1.58); // x = 4 m, y = 1.58 m
               // these points are based on the corner of the field located by the outpost on each alliance***
 
-        public static final Translation2d LEFT_BUMP_START = new Translation2d(LEFT_BUMP_CORNER.getMeasureX() - DBASE_CENTER.getMeasureX(),
-                                                                                LEFT_BUMP_CORNER.getMeasureY() - DBASE_CENTER.getMeasureY());
-        public static final Translation2d RIGHT_BUMP_START = new Translation2d(RIGHT_BUMP_CORNER.getMeasureX() - DBASE_CENTER.getMeasureX(),
-                                                                                 RIGHT_BUMP_CORNER.getMeasureY() + DBASE_CENTER.getMeasureY());
+        public static final Translation2d LEFT_BUMP_START = new Translation2d(LEFT_BUMP_CORNER.getMeasureX().minus(DBASE_CENTER.getMeasureX()),
+                                                                                LEFT_BUMP_CORNER.getMeasureY().minus(DBASE_CENTER.getMeasureY()));
+        public static final Translation2d RIGHT_BUMP_START = new Translation2d(RIGHT_BUMP_CORNER.getMeasureX().minus(DBASE_CENTER.getMeasureX()),
+                                                                                 RIGHT_BUMP_CORNER.getMeasureY().minus(DBASE_CENTER.getMeasureY()));
         
         public static final Pose2d INITIAL_POSE_CENTER_HUB = new Pose2d(3.6, 4, Rotation2d.k180deg); // 3.6, 4, heading is 180
         public static final Pose2d INITIAL_POSE_LEFT_BUMP = new Pose2d(LEFT_BUMP_START, Rotation2d.k180deg);
@@ -117,10 +120,12 @@ public final class Constants {
            right side is going to be a lot easier for auto climb because of the hook direction.
         */
 
-        public static final Translation2d CLIMBER_OFFSET = new Translation2d(0.547500 + 2, 16.072668 + 3.25).minus(DBASE_CENTER);
+        public static final Translation2d CLIMBER_OFFSET_CORNER = new Translation2d(Units.inchesToMeters(16.072668 + 3.25), Units.inchesToMeters(0.547500 + 2));
         // climber offset to frame perimeter plus bumper offset, based on CAD so might need to be tuned?
+        public static final Translation2d CLIMBER_OFFSET_CENTER = CLIMBER_OFFSET_CORNER.minus(DBASE_CENTER);
         public static final Translation2d CLIMB_POINT = new Translation2d(0, Units.inchesToMeters(0.298125)); // try to climb 0.3in away from the edge
-        public static final Translation2d RIGHT_CLIMB_POINT = RIGHT_CLIMBER_RUNG_EDGE.minus(CLIMBER_POSE);
+        public static final Translation2d RIGHT_CLIMB_RUNG_POINT = RIGHT_CLIMBER_RUNG_EDGE.minus(CLIMB_POINT);
+        public static final Translation2d RIGHT_CLIMB_POINT = RIGHT_CLIMB_RUNG_POINT.minus(CLIMBER_OFFSET_CENTER);
 
         public static final Translation2d GYRO_OFFSET = new Translation2d(/* TODO */);
             // determine this offset tomorrow, then use rotateBy(robotRotation) to update the vector

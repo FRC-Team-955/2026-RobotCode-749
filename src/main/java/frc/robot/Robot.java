@@ -18,7 +18,7 @@ import frc.robot.subsystems.CANDriveSubsystem;
 import frc.robot.subsystems.CANFuelSubsystem;
 import frc.robot.subsystems.PoseSubsystem;
 
-import static frc.robot.RobotState.initialPose;
+import static frc.robot.RobotState.*;
 
 /**
  * The VM is configured to automatically run this class, and to call the
