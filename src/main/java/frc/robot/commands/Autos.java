@@ -103,9 +103,9 @@ public final class Autos {
                 ballSubsystem.launchCommand(() -> -6.63).withTimeout(4),
                 ballSubsystem.runOnce(() -> ballSubsystem.stop()),
 
-                driveSubsystem.driveAtTargetPose(new Pose2d(3.66, 6, new Rotation2d(Math.PI))),
+                driveSubsystem.driveAtTargetPose(new Pose2d(3.66, 6, new Rotation2d())), //does this fine
                 ballSubsystem.run(() -> ballSubsystem.intake()).withTimeout(10),
-                driveSubsystem.driveAtTargetPose(new Pose2d(8.27, 6, new Rotation2d(Math.PI))),
+                driveSubsystem.driveAtTargetPose(new Pose2d(8.27, 6, new Rotation2d())), //refuses to begin moving????
                 driveSubsystem.driveAtTargetPose(new Pose2d(8.27, 4.03, new Rotation2d(3.0 / 2 * Math.PI)))
         );
     }

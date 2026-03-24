@@ -73,16 +73,11 @@ public class CANDriveSubsystem extends SubsystemBase {
                     0.8    // max acceleration (m/s)/s (ty mr buchanan)
             );
     private final ProfiledPIDController forwardPID =
-            new ProfiledPIDController(1.8, 0.0, 0.15, forwardConstraints);
-    private final LTVUnicycleController ltvController = new LTVUnicycleController(
-            VecBuilder.fill(0.0625, 0.125, 2.0),  // backed off heading cost
-            VecBuilder.fill(2.0, 2.0),             // soft outputs  increase further if still shaky
-            0.02
-    );
+            new ProfiledPIDController(1.4, 0.0, 0.75, forwardConstraints);
 
 
     // overall angle controller
-    private final PIDController anglePID = new PIDController(2.1, 0.0, 0.08);
+    private final PIDController anglePID = new PIDController(1.9, 0.0, 0.18);
 
     double muffle = 100;
 
@@ -376,45 +371,53 @@ public class CANDriveSubsystem extends SubsystemBase {
             return;
         }
 
+        // Publish the target for dashboard / logging
         publisher.set(targetPose);
 
         Pose2d current = globalPose;
 
+        // Compute vector to target
         double dx = targetPose.getX() - current.getX();
         double dy = targetPose.getY() - current.getY();
         double distance = Math.hypot(dx, dy);
 
-        double currentHeading = current.getRotation().getRadians();
-        double targetHeading  = targetPose.getRotation().getRadians();
+        double currentAngle = current.getRotation().getRadians();
+        double approachAngle = Math.atan2(dy, dx);       // angle to drive toward target
+        double finalAngle    = targetPose.getRotation().getRadians(); // desired final orientation
 
-        if (distance < 0.1) {
-            // Final alignment phase
-            // Just rotate in place to match target heading
-            double turn = anglePID.calculate(currentHeading, targetHeading);
+        // Compute heading difference
+        double headingError = MathUtil.angleModulus(approachAngle - currentAngle);
+
+        // Alignment scale reduces forward speed if misaligned
+        double alignmentScale = MathUtil.clamp(1.0 - Math.abs(headingError) / (Math.PI/2), 0.2, 1.0);
+
+        // Compute forward speed using distance PID
+        double forwardOutput = forwardPID.calculate(0, distance);
+        // Correct sign so forward is toward the target
+        double forward = forwardOutput * alignmentScale * Math.cos(headingError);
+
+        // Clamp forward to reasonable values
+        forward = MathUtil.clamp(forward, -1.0, 1.0);
+
+        // Turn toward target / final heading
+        double turn;
+        if (distance < 0.15) {
+            // Near target → rotate to final orientation
+            double finalHeadingError = MathUtil.angleModulus(finalAngle - currentAngle);
+            turn = anglePID.calculate(0, finalHeadingError);
             turn = MathUtil.clamp(turn, -0.45, 0.45);
-            drive.arcadeDrive(0, -turn);
-            return;
+
+            // Stop forward motion
+            forward = 0.0;
+        } else {
+            // Far from target → rotate toward target
+            turn = anglePID.calculate(0, headingError);
+            turn = MathUtil.clamp(turn, -0.6, 0.6);
         }
 
 
 
-        double angleToTarget = Math.atan2(dy, dx);
-        double headingError  = MathUtil.angleModulus(angleToTarget - currentHeading);
-
-        // Steer toward the target position
-        double turn = anglePID.calculate(0, headingError);
-        turn = MathUtil.clamp(turn, -0.6, 0.6);
-
-        // Drive forward, but back off if badly misaligned
-        double forward = forwardPID.calculate(distance, 0.0);
-        double alignmentScale = MathUtil.clamp(
-                1.0 - (Math.abs(headingError) / (Math.PI / 3)),
-                0.0, 1.0
-        );
-        forward *= alignmentScale;
-        forward = MathUtil.clamp(forward, -1.0, 1.0);
-
-        drive.arcadeDrive(forward, -turn);
+        drive.arcadeDrive(-forward, -turn);
     }
 
     private boolean isAtPose(Pose2d current, Pose2d target) {
