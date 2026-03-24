@@ -16,6 +16,7 @@ import com.revrobotics.spark.SparkMax;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
@@ -117,7 +118,7 @@ public class CANFuelSubsystem extends SubsystemBase {
         .setVoltage(-SmartDashboard.getNumber("Launching launcher roller value", -LAUNCHING_LAUNCHER_VOLTAGE));
       shooterWheels.setVoltage(voltage.getAsDouble()); ///brake mode makes this stop
       if(isSim()){
-          System.out.println("ARIN IS NOT DUMB");
+          System.out.println("SIM SHOOTING!!");
       } // need to make it so this also triggers shake command
   }
 
@@ -131,6 +132,9 @@ public class CANFuelSubsystem extends SubsystemBase {
           runFeederAutoAim=true;
       }
       SmartDashboard.putNumber("AutoAimAngV",hitVelocity);
+      if(isSim()){
+          System.out.print("Auto aim vel: "); System.out.println(hitVelocity);
+      }
 
       if(runFeederAutoAim){
           feederRoller.set(LAUNCHING_FEEDER_VOLTAGE);
@@ -200,8 +204,26 @@ public class CANFuelSubsystem extends SubsystemBase {
   }
 
   public double toFaceHub(){
+      if(isSim()){
+          System.out.println("Debugging angle:");
+          System.out.println(SS.toFaceHub().getRadians());
+      }
       return SS.toFaceHub().getRadians();
   }
+
+    public double toFaceHub(Pose2d Current){
+        if(isSim()){
+            System.out.println("Debugging angle:");
+            System.out.println(SS.toFaceHub(Current).getRadians());
+        }
+        return SS.toFaceHub(Current).getRadians();
+    }
+
+    public double toFaceHub(double xi, double yi){
+        double x = xi - globalPose.getX();
+        double y  = yi - globalPose.getY();
+        return Math.atan2(y,x)+Math.PI;
+    }
 
 
 

@@ -19,12 +19,14 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.LTVUnicycleController;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
@@ -35,9 +37,7 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants;
 import frc.robot.RobotState;
 
@@ -57,7 +57,6 @@ public class CANDriveSubsystem extends SubsystemBase {
 
     private final PoseSubsystem ps; //Pose Estimator Class
     private final DifferentialDrive drive; //builtin wpilib drive
-    private final LTVUnicycleController controller = new LTVUnicycleController(0.02);
 
     private final SlewRateLimiter limit = new SlewRateLimiter(10 * Constants.DriveConstants.SAFE_SPEED_CAP);
     DifferentialDriveKinematics kinematics = new DifferentialDriveKinematics(DBASE_WIDTH);
@@ -67,10 +66,23 @@ public class CANDriveSubsystem extends SubsystemBase {
 
     public final PIDController leftPID = new PIDController(KP, KI, KD);
     public final PIDController rightPID = new PIDController(KP, KI, KD);
-    public final Field2d field = new Field2d();
 
-    PIDController turnPIDAuto = new PIDController(3.6,KI,0.35);
-    PIDController forwardPIDAuto = new PIDController(3.5,KI,0.35);
+    private final TrapezoidProfile.Constraints forwardConstraints =
+            new TrapezoidProfile.Constraints(
+                    2.2,   // max velocity m/s TODO: TUNE THIS!!
+                    0.8    // max acceleration (m/s)/s (ty mr buchanan)
+            );
+    private final ProfiledPIDController forwardPID =
+            new ProfiledPIDController(1.8, 0.0, 0.15, forwardConstraints);
+    private final LTVUnicycleController ltvController = new LTVUnicycleController(
+            VecBuilder.fill(0.0625, 0.125, 2.0),  // backed off heading cost
+            VecBuilder.fill(2.0, 2.0),             // soft outputs  increase further if still shaky
+            0.02
+    );
+
+
+    // overall angle controller
+    private final PIDController anglePID = new PIDController(2.1, 0.0, 0.08);
 
     double muffle = 100;
 
@@ -156,12 +168,10 @@ public class CANDriveSubsystem extends SubsystemBase {
         //INIT poseSubsystem
         ps.setSource(()->leftLeader.getEncoder().getPosition(), ()->rightLeader.getEncoder().getPosition());
 
-        turnPIDAuto.enableContinuousInput(-Math.PI, Math.PI);
+        forwardPID.setTolerance(0.067);        // within 6.7 cm
+        anglePID.setTolerance(Math.toRadians(2));
+        anglePID.enableContinuousInput(-Math.PI, Math.PI); // fixes angle wrap! finally
 
-        turnPIDAuto.setTolerance(Math.toRadians(2));
-        forwardPIDAuto.setTolerance(0.05);
-
-        // field.setRobotPose(put robot pose here ); idk justin stuffs
 
     }
 
@@ -361,70 +371,50 @@ public class CANDriveSubsystem extends SubsystemBase {
     StructPublisher<Pose2d> publisher = NetworkTableInstance.getDefault()
             .getStructTopic("TargetPose", Pose2d.struct).publish();
     public void funcDriveAtTargetPose(Pose2d targetPose) {
+        if (targetPose == null) {
+            drive.arcadeDrive(0, 0);
+            return;
+        }
+
         publisher.set(targetPose);
-
-
-        if (targetPose == null) return;
 
         Pose2d current = globalPose;
 
         double dx = targetPose.getX() - current.getX();
         double dy = targetPose.getY() - current.getY();
-
-
         double distance = Math.hypot(dx, dy);
 
-        double currentAngle = (current.getRotation().getRadians());
-        double targetAngle = (Math.atan2(dy, dx));
-
-        double angleToTarget = MathUtil.angleModulus(targetAngle - currentAngle);
-
-
+        double currentHeading = current.getRotation().getRadians();
+        double targetHeading  = targetPose.getRotation().getRadians();
 
         if (distance < 0.1) {
-
-            double cAngle = currentAngle;
-            double tAngle = targetPose.getRotation().getRadians();
-
-
-            double turn; // = finalHeadingError * 2.1;
-            turn = 0.2 * turnPIDAuto.calculate(cAngle, tAngle);
-
-
+            // Final alignment phase
+            // Just rotate in place to match target heading
+            double turn = anglePID.calculate(currentHeading, targetHeading);
             turn = MathUtil.clamp(turn, -0.45, 0.45);
-
-
             drive.arcadeDrive(0, -turn);
             return;
         }
 
 
 
-        //  slowdown near target
-        double forward = 0.75 * forwardPIDAuto.calculate(0,distance);
+        double angleToTarget = Math.atan2(dy, dx);
+        double headingError  = MathUtil.angleModulus(angleToTarget - currentHeading);
 
-
-
-        double turn = angleToTarget * 1.7;
-
-        // If heavily misaligned, reduce forward instead of hard stopping
-        double alignmentScale = MathUtil.clamp(
-                1.0 - (Math.abs(angleToTarget) / Math.PI),
-                0.2,
-                1.0
-        );
-
-        forward *= alignmentScale;
-
+        // Steer toward the target position
+        double turn = anglePID.calculate(0, headingError);
         turn = MathUtil.clamp(turn, -0.6, 0.6);
 
-        if(Math.abs(MathUtil.angleModulus(currentAngle-targetAngle)) > Math.PI/16){
+        // Drive forward, but back off if badly misaligned
+        double forward = forwardPID.calculate(distance, 0.0);
+        double alignmentScale = MathUtil.clamp(
+                1.0 - (Math.abs(headingError) / (Math.PI / 3)),
+                0.0, 1.0
+        );
+        forward *= alignmentScale;
+        forward = MathUtil.clamp(forward, -1.0, 1.0);
 
-            forward = 0.1;
-        }
-        forward = MathUtil.clamp(forward,-2.8,2.8);
-        drive.arcadeDrive(-forward, -turn);
-
+        drive.arcadeDrive(forward, -turn);
     }
 
     private boolean isAtPose(Pose2d current, Pose2d target) {

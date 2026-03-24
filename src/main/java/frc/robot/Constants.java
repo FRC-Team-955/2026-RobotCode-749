@@ -5,12 +5,10 @@
 package frc.robot;
 
 
-import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
@@ -122,10 +120,14 @@ public final class Constants {
 
         public static final Translation2d CLIMBER_OFFSET_CORNER = new Translation2d(Units.inchesToMeters(16.072668 + 3.25), Units.inchesToMeters(0.547500 + 2));
         // climber offset to frame perimeter plus bumper offset, based on CAD so might need to be tuned?
+
+
         public static final Translation2d CLIMBER_OFFSET_CENTER = CLIMBER_OFFSET_CORNER.minus(DBASE_CENTER);
-        public static final Translation2d CLIMB_POINT = new Translation2d(0, Units.inchesToMeters(0.298125)); // try to climb 0.3in away from the edge
-        public static final Translation2d RIGHT_CLIMB_RUNG_POINT = RIGHT_CLIMBER_RUNG_EDGE.minus(CLIMB_POINT);
+        public static final Translation2d CLIMB_POINT_RELATIVE_TO_RUNG = new Translation2d(0, Units.inchesToMeters(0.298125)); // try to climb 0.3in away from the edge
+        public static final Translation2d RIGHT_CLIMB_RUNG_POINT = RIGHT_CLIMBER_RUNG_EDGE.minus(CLIMB_POINT_RELATIVE_TO_RUNG);
         public static final Translation2d RIGHT_CLIMB_POINT = RIGHT_CLIMB_RUNG_POINT.minus(CLIMBER_OFFSET_CENTER);
+
+        //public static final Translation2d LEFT_CLIMB_POINT = LEFT_CLIMBER_RUNG_EDGE.plus
 
         public static final Translation2d GYRO_OFFSET = new Translation2d(/* TODO */);
             // determine this offset tomorrow, then use rotateBy(robotRotation) to update the vector

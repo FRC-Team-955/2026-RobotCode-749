@@ -96,12 +96,13 @@ public final class Autos {
     public static Command lBumpShootP2P(CANDriveSubsystem driveSubsystem, CANFuelSubsystem ballSubsystem) {
         return new SequentialCommandGroup(
                 driveSubsystem.runOnce(()-> driveSubsystem.resetOdometry(INITIAL_POSE_LEFT_BUMP)),
-                driveSubsystem.driveAtTargetPose(new Pose2d(INITIAL_POSE_LEFT_BUMP.getX(), INITIAL_POSE_LEFT_BUMP.getY(), new Rotation2d(ballSubsystem.toFaceHub()))),
-                ballSubsystem.spinUpCommand().until(() -> ballSubsystem.isAtSpeed(48)), // EVENTUALLY replace with ballSubsystem.shootAtTarget()!!!!
-//                ballSubsystem.shootAtTarget(0),
+                driveSubsystem.driveAtTargetPose(new Pose2d(INITIAL_POSE_LEFT_BUMP.getX(), INITIAL_POSE_LEFT_BUMP.getY(), new Rotation2d(ballSubsystem.toFaceHub(INITIAL_POSE_LEFT_BUMP.getX(), INITIAL_POSE_LEFT_BUMP.getY())))),
+                //Safeguard spin up with a timeout! This makes simming possible!
+//                ballSubsystem.spinUpCommand().until(() -> ballSubsystem.isAtSpeed(48)).withTimeout(3), // EVENTUALLY replace with ballSubsystem.shootAtTarget()!!!!
+                ballSubsystem.shootAtTarget(0).withTimeout(4), //// TODO: tune the table!
                 ballSubsystem.launchCommand(() -> -6.63).withTimeout(4),
                 ballSubsystem.runOnce(() -> ballSubsystem.stop()),
-                Commands.runOnce(() -> System.out.println("Can the robot make it here?")),
+
                 driveSubsystem.driveAtTargetPose(new Pose2d(3.66, 6, new Rotation2d(Math.PI))),
                 ballSubsystem.run(() -> ballSubsystem.intake()).withTimeout(10),
                 driveSubsystem.driveAtTargetPose(new Pose2d(8.27, 6, new Rotation2d(Math.PI))),
