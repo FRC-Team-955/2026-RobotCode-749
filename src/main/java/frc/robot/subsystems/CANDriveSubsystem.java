@@ -448,10 +448,6 @@ public class CANDriveSubsystem extends SubsystemBase {
         return run(()->funcDriveAtTargetPose(target)).until(()->isSettledAtPose(globalPose,target)).finallyDo(() -> drive.tankDrive(0, 0));
     }
 
-
-
-
-
     public void simulationPeriodic() {
 
 
