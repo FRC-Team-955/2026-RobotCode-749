@@ -49,8 +49,8 @@ public class ShooterSim {
     }
 
     public Rotation2d toFaceHub(Pose2d Current){
-        double x = Current.getX() - globalPose.getX();
-        double y  = Current.getY() - globalPose.getY();
+        double x = 4.62017 - Current.getX();
+        double y  = 4.0345 - Current.getY();
         return new Rotation2d(Math.atan2(y,x)+Math.PI);
     }
 }

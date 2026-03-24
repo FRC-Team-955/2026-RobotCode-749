@@ -220,8 +220,8 @@ public class CANFuelSubsystem extends SubsystemBase {
     }
 
     public double toFaceHub(double xi, double yi){
-        double x = xi - globalPose.getX();
-        double y  = yi - globalPose.getY();
+        double x = 4.62017 - xi;
+        double y  = 4.0345 - yi;
         return Math.atan2(y,x)+Math.PI;
     }
 
