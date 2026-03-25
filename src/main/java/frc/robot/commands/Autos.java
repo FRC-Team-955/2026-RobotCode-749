@@ -8,6 +8,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.*;
 import frc.robot.Constants;
+import frc.robot.subsystems.CANClimberSubsystem;
 import frc.robot.subsystems.CANFuelSubsystem;
 import frc.robot.subsystems.CANDriveSubsystem;
 
@@ -248,10 +249,13 @@ public final class Autos {
     }
 
 
-    public static Command centerToRClimbP2P(CANDriveSubsystem driveSubsystem, CANFuelSubsystem ballSubsystem) {
+    public static Command centerToLClimbP2P(CANDriveSubsystem driveSubsystem, CANFuelSubsystem ballSubsystem, CANClimberSubsystem climberSubsystem) { // oh come on let me call it ds, fs, and cs please
         return new SequentialCommandGroup(
                 driveSubsystem.runOnce(() -> driveSubsystem.resetOdometry(INITIAL_POSE_CENTER_HUB)),
-               driveSubsystem.driveArcade(()->1.0, ()->0.0, ()->false)
+               driveSubsystem.driveAtTargetPose(LEFT_CLIMB_POINT_ALIGN),
+                climberSubsystem.goToTop().withTimeout(3),
+                driveSubsystem.driveAtTargetPose(LEFT_CLIMB_POINT_FINAL).withTimeout(1.5),
+                climberSubsystem.goToBottom().withTimeout(4) ///  TODO: IMPORTANT! tune this function (and goToTp())
         );
     }
 

@@ -10,6 +10,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
@@ -111,20 +112,20 @@ public class  CANClimberSubsystem extends SubsystemBase {
 
         climber.set(output);
     }
-/*
+
     public Command goToTop() {
 
-        return run(() -> goTo(Constants.ClimbConstants.TOP_SETPOINT))
-                .until(() -> Math.abs(getPos() - Constants.ClimbConstants.TOP_SETPOINT) < 0.01)
+        return run(() -> goUp())
+                .until(() -> Math.abs(getPos() - topEncoderValue) <= 2) //TODO: tune
                 .finallyDo(() -> climber.set(0));
     }
 
     public Command goToBottom() {
 
-        return run(() -> goTo(Constants.ClimbConstants.BOTTOM_SETPOINT))
-                .until(() -> Math.abs(getPos() - Constants.ClimbConstants.BOTTOM_SETPOINT) < 0.01)
+        return run(() -> goDown())
+                .until(() -> Math.abs(getPos() - (topEncoderValue - ENCODER_CAP*0.92)) <= 2)
                 .finallyDo(() -> climber.set(0));
-    }*/
+    }
 
 
     @Override
