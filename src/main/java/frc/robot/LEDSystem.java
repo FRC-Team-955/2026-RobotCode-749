@@ -238,7 +238,7 @@ public class LEDSystem extends SubsystemBase {
                     pink();
                 }
             } else {
-                rainbow();
+                pink();
             }
         } else if (alliance == 2) {
             redLEDS();
