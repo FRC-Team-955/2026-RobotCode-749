@@ -120,26 +120,28 @@ public class RobotContainer {
 
         //driverController.y().onTrue(driveSubsystem.shake());
 
-        // While the right bumper on the operator controller is held, spin up for 1
-        // second, then launch fuel. When the button is released, stop.
+        // auto aim shoot
         operatorController.rightBumper()
-                .whileTrue(ballSubsystem.spinUpCommand().until(()->ballSubsystem.isAtSpeed(Constants.FuelConstants.SHOOTER_STRONG_SPEED))
-                        .andThen(ballSubsystem.launchCommand(() -> Constants.FuelConstants.SHOOTER_LAUNCH_VOLTAGE))
+                .whileTrue(ballSubsystem.spinUpCommand().until(() -> ballSubsystem.isAtSpeed(Constants.FuelConstants.SHOOTER_WEAK_SPEED*1.1))
+                        .andThen(ballSubsystem.launchCommand(() -> Constants.FuelConstants.SHOOTER_WEAK_LAUNCH_VOLTAGE*1.1))
                         .finallyDo(() -> ballSubsystem.stop()));
 
+        // weak shoot
         operatorController.x()
                 .whileTrue(ballSubsystem.spinUpCommand().until(()->ballSubsystem.isAtSpeed(Constants.FuelConstants.SHOOTER_WEAK_SPEED))
                         .andThen(ballSubsystem.launchCommand(() -> Constants.FuelConstants.SHOOTER_WEAK_LAUNCH_VOLTAGE))
                         .finallyDo(() -> ballSubsystem.stop()));
 
+        // mid shoot
         operatorController.y()
-                        .whileTrue(ballSubsystem.spinUpCommand().until(() -> ballSubsystem.isAtSpeed(Constants.FuelConstants.SHOOTER_WEAK_SPEED*1.1))
-                                .andThen(ballSubsystem.launchCommand(() -> Constants.FuelConstants.SHOOTER_WEAK_LAUNCH_VOLTAGE*1.1))
-                                .finallyDo(() -> ballSubsystem.stop()));
-
-        operatorController.b()
                 .whileTrue(ballSubsystem.spinUpCommand().until(() -> ballSubsystem.isAtSpeed(Constants.FuelConstants.SHOOTER_WEAK_SPEED*1.2))
                         .andThen(ballSubsystem.launchCommand(() -> Constants.FuelConstants.SHOOTER_WEAK_LAUNCH_VOLTAGE*1.2))
+                        .finallyDo(() -> ballSubsystem.stop()));
+
+        // far shoot
+        operatorController.b()
+                .whileTrue(ballSubsystem.spinUpCommand().until(()->ballSubsystem.isAtSpeed(Constants.FuelConstants.SHOOTER_STRONG_SPEED))
+                        .andThen(ballSubsystem.launchCommand(() -> Constants.FuelConstants.SHOOTER_LAUNCH_VOLTAGE))
                         .finallyDo(() -> ballSubsystem.stop()));
 
         // While the A button is held on the operator controller, eject fuel back out
