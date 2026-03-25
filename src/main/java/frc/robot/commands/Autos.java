@@ -22,7 +22,6 @@ public final class Autos {
                 driveSubsystem.runOnce(()-> driveSubsystem.resetOdometry(INITIAL_POSE_LEFT_BUMP)),
                 driveSubsystem.driveAtTargetPose(new Pose2d(INITIAL_POSE_LEFT_BUMP.getX(), INITIAL_POSE_LEFT_BUMP.getY(), new Rotation2d(ballSubsystem.toFaceHub(INITIAL_POSE_LEFT_BUMP.getX(), INITIAL_POSE_LEFT_BUMP.getY())))),
                 //Safeguard spin up with a timeout! This makes simming possible!
-//                ballSubsystem.spinUpCommand().until(() -> ballSubsystem.isAtSpeed(48)).withTimeout(3), // EVENTUALLY replace with ballSubsystem.shootAtTarget()!!!!
                 ballSubsystem.shootAtTarget(0).withTimeout(4), //// TODO: tune the table!
                 ballSubsystem.launchCommand(() -> -6.63).withTimeout(4),
                 ballSubsystem.runOnce(() -> ballSubsystem.stop()),
@@ -32,9 +31,17 @@ public final class Autos {
                         ballSubsystem.run(() -> ballSubsystem.intake()),
                         new SequentialCommandGroup(
                                 driveSubsystem.driveAtTargetPose(new Pose2d(8.27, INITIAL_POSE_LEFT_BUMP.getY(), new Rotation2d())),
-                                driveSubsystem.driveAtTargetPose(new Pose2d(8.27, 4.03, new Rotation2d(3.0 / 2 * Math.PI)))
+                                driveSubsystem.driveAtTargetPose(new Pose2d(8.27, 4.03, new Rotation2d(3.0 / 2 * Math.PI))),
+                                driveSubsystem.driveAtTargetPose(new Pose2d(6.7, 4.03, new Rotation2d(Math.PI))),
+                                driveSubsystem.driveAtTargetPose(new Pose2d(5.5, (INITIAL_POSE_LEFT_BUMP.getY()-0.5), new Rotation2d(Math.atan2((INITIAL_POSE_LEFT_BUMP.getY()-0.2-4.03), (4.4-6.7))))),
+                                driveSubsystem.driveAtTargetPose(new Pose2d(3.8,  (INITIAL_POSE_LEFT_BUMP.getY()-0.5), new Rotation2d(Math.PI))),
+                                driveSubsystem.driveAtTargetPose(new Pose2d(3.5, (INITIAL_POSE_LEFT_BUMP.getY()-0.8), new Rotation2d(ballSubsystem.toFaceHub())))
                         )
-                )
+                ),
+                ballSubsystem.run(()->ballSubsystem.stop()),
+                ballSubsystem.shootAtTarget(0).withTimeout(4), // TODO: tune the table!
+                ballSubsystem.launchCommand(() -> -6.63).withTimeout(4),
+                ballSubsystem.runOnce(() -> ballSubsystem.stop())
         );
     }
 
