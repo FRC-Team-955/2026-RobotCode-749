@@ -6,6 +6,7 @@ package frc.robot.subsystems;
 
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
 
 
 import com.revrobotics.sim.SparkRelativeEncoderSim;
@@ -467,6 +468,10 @@ public class CANDriveSubsystem extends SubsystemBase {
 
     public Command driveAtTargetPose(Pose2d target){
         return run(()->funcDriveAtTargetPose(target)).until(()->isSettledAtPose(globalPose,target)).finallyDo(() -> drive.tankDrive(0, 0));
+    }
+
+    public Command driveAtTargetPoseSup(Supplier<Pose2d> x){
+        return run(()->funcDriveAtTargetPose(x.get())).until(()->isSettledAtPose(globalPose,x.get())).finallyDo(() -> drive.tankDrive(0, 0));
     }
 
     public void simulationPeriodic() {

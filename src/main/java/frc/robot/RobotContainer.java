@@ -7,14 +7,13 @@ package frc.robot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
 
 import static frc.robot.Constants.OperatorConstants.*;
 import static frc.robot.RobotState.initialPose;
 
-import frc.robot.commands.Autos;
+import frc.robot.commands.*;
 import frc.robot.subsystems.CANClimberSubsystem;
 import frc.robot.subsystems.CANDriveSubsystem;
 import frc.robot.subsystems.CANFuelSubsystem;
@@ -72,23 +71,23 @@ public class RobotContainer {
         // Set the options to show up in the Dashboard for selecting auto modes. If you
         // add additional auto modes you can add additional lines here with
         // autoChooser.addOption
-        autoChooser.setDefaultOption("Center Weak Shoot", Autos.centerShoot(driveSubsystem, ballSubsystem));
-        autoChooser.addOption("Right Bump Shoot", Autos.rBumpShoot(driveSubsystem, ballSubsystem));
-        autoChooser.addOption("Left Bump Shoot", Autos.lBumpShoot(driveSubsystem, ballSubsystem));
-        autoChooser.addOption("Center Weak Shoot", Autos.centerShoot(driveSubsystem, ballSubsystem));
-        autoChooser.addOption("[EXP] Left Bump Shoot", Autos.expLBump(driveSubsystem, ballSubsystem));
-        autoChooser.addOption("[EXP] Right Bump Shoot", Autos.expRBump(driveSubsystem, ballSubsystem));
-        autoChooser.addOption("[EXP] Center Weak Shoot Left", Autos.expCenterShootL(driveSubsystem, ballSubsystem));
-        autoChooser.addOption("[EXP] Center Weak Shoot Right", Autos.expCenterShootR(driveSubsystem, ballSubsystem));
-        autoChooser.addOption("[TEST] P2P Left Bump Shoot", Autos.lBumpShootP2P(driveSubsystem, ballSubsystem));
-        autoChooser.addOption("[TEST] PID 1m Auto", Autos.PIDAuto(driveSubsystem, ballSubsystem));
-        autoChooser.addOption("[TEST] PID rotate bashy", Autos.PIDRotateHalf(driveSubsystem, ballSubsystem));
-        autoChooser.addOption("[TEST] go back then shoot", Autos.boringAuto(driveSubsystem, ballSubsystem));
-        autoChooser.addOption("[TEST] weak shoot", Autos.weakShoot(driveSubsystem, ballSubsystem));
-        autoChooser.addOption("[TEST] P2P AUTO", Autos.P2PAutoTest(driveSubsystem, ballSubsystem));
-        autoChooser.addOption("[TEST] CHAOS THEORY AUTO", Autos.ChaosTheoryAuto(driveSubsystem, ballSubsystem));
-        autoChooser.addOption("[TEST] center shoot and climb", Autos.centerShootClimb(driveSubsystem, ballSubsystem));
-        autoChooser.addOption("[TEST] r climb P2P", Autos.centerToRClimbP2P(driveSubsystem, ballSubsystem));
+        autoChooser.setDefaultOption("[P2P] Left Climb", ClimbAutos.centerToLClimbP2P(driveSubsystem, ballSubsystem, climberSubsystem));
+        autoChooser.addOption("Right Bump Shoot", NonP2PAutos.rBumpShoot(driveSubsystem, ballSubsystem));
+        autoChooser.addOption("Left Bump Shoot", NonP2PAutos.lBumpShoot(driveSubsystem, ballSubsystem));
+        autoChooser.addOption("Center Weak Shoot", NonP2PAutos.centerShoot(driveSubsystem, ballSubsystem));
+        autoChooser.addOption("[EXP] Left Bump Shoot", NonP2PAutos.expLBump(driveSubsystem, ballSubsystem));
+        autoChooser.addOption("[EXP] Right Bump Shoot", NonP2PAutos.expRBump(driveSubsystem, ballSubsystem));
+        autoChooser.addOption("[EXP] Center Weak Shoot Left", NonP2PAutos.expCenterShootL(driveSubsystem, ballSubsystem));
+        autoChooser.addOption("[EXP] Center Weak Shoot Right", NonP2PAutos.expCenterShootR(driveSubsystem, ballSubsystem));
+        autoChooser.addOption("[P2P] Left Bump Shoot", Autos.lBumpShoot(driveSubsystem, ballSubsystem));
+        autoChooser.addOption("[TEST] PID 1m Auto", NonP2PAutos.PIDAuto(driveSubsystem, ballSubsystem));
+        autoChooser.addOption("[TEST] PID rotate bashy", NonP2PAutos.PIDRotateHalf(driveSubsystem, ballSubsystem));
+        autoChooser.addOption("[TEST] go back then shoot", NonP2PAutos.boringAuto(driveSubsystem, ballSubsystem));
+        autoChooser.addOption("[TEST] weak shoot", NonP2PAutos.weakShoot(driveSubsystem, ballSubsystem));
+        autoChooser.addOption("[P2P] TEST", Autos.P2PTest(driveSubsystem, ballSubsystem));
+        autoChooser.addOption("[P2P] Sketch Human Player Station Auto", Autos.ChaosTheoryAuto(driveSubsystem, ballSubsystem));
+        autoChooser.addOption("[TEST] center shoot and climb", ClimbAutos.centerShootClimb(driveSubsystem, ballSubsystem)); // TODO: confused as to why this Doesnt use climberSubsystem? -Arin
+        autoChooser.addOption("[P2P] Left Climb", ClimbAutos.centerToLClimbP2P(driveSubsystem, ballSubsystem, climberSubsystem));
         SmartDashboard.putData(autoChooser);
     }
 
@@ -116,8 +115,8 @@ public class RobotContainer {
         operatorController.leftBumper()
                 .whileTrue(ballSubsystem.runEnd(() -> ballSubsystem.intake(), () -> ballSubsystem.stop()));
 
-        driverController.y().whileTrue(ballSubsystem.shootAtTarget(0).finallyDo(()->ballSubsystem.stop()));
-        // sorry not sorry arin :(
+        driverController.y().whileTrue(driveSubsystem.driveAtTargetPoseSup(()->ballSubsystem.poseToFaceHub()).andThen(ballSubsystem.shootAtTarget(0)).finallyDo(()->ballSubsystem.stop()));
+
 
         //driverController.y().onTrue(driveSubsystem.shake());
 
@@ -174,12 +173,14 @@ public class RobotContainer {
 
 
         if (RobotState.isSim()) {
+
             driveSubsystem.setDefaultCommand(
             driveSubsystem.driveArcade(
                     () -> driverController.getRawAxis(1) * DRIVE_SCALING,
                     () -> driverController.getRawAxis(0) * ROTATION_SCALING,
                     () -> false // im sorry idk what to put here arin
             ));
+
             //driveSubsystem.setDefaultCommand(driveSubsystem.driveAtTargetPose(new Pose2d(1,1,new Rotation2d())));
         }
         else{
