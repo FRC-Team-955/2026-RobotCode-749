@@ -453,6 +453,17 @@ public class CANDriveSubsystem extends SubsystemBase {
         return (dist < 0.13) && (Math.abs(angleError) < Math.toRadians(5));
     }
 
+    private boolean isAtPoseLessAccurate(Pose2d current, Pose2d target) {
+        double dx = current.getX() - target.getX();
+        double dy = current.getY() - target.getY();
+        double dist = Math.hypot(dx, dy); // :)
+
+        double angleError =
+                current.getRotation().minus(target.getRotation()).getRadians();
+
+        return (dist < 0.19) && (Math.abs(angleError) < Math.toRadians(7));
+    }
+
     private int atPoseTicks = 0;
     private final int REQUIRED_TICKS = 8; //
 
@@ -468,6 +479,10 @@ public class CANDriveSubsystem extends SubsystemBase {
 
     public Command driveAtTargetPose(Pose2d target){
         return run(()->funcDriveAtTargetPose(target)).until(()->isSettledAtPose(globalPose,target)).finallyDo(() -> drive.tankDrive(0, 0));
+    }
+
+    public Command driveAtTargetPoseLessAccurate(Pose2d target){
+        return run(()->funcDriveAtTargetPose(target)).until(()->isAtPoseLessAccurate(globalPose,target)).finallyDo(() -> drive.tankDrive(0, 0));
     }
 
     public Command driveAtTargetPoseSup(Supplier<Pose2d> x){
