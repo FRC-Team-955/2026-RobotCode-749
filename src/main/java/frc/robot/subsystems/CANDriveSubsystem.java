@@ -77,8 +77,8 @@ public class CANDriveSubsystem extends SubsystemBase {
                     0.5    // max acceleration (m/s)/s (ty mr buchanan)
             );
     private final ProfiledPIDController forwardPID =
-            new ProfiledPIDController(1.6, 0.0, 1.63, forwardConstraints);
-    double MOMENTUM_DAMPING =0.28; //Addional braking!
+            new ProfiledPIDController(1.95, 0.0, 1.63, forwardConstraints);
+    double MOMENTUM_DAMPING =0.23; //Addional braking!
 
 
     // overall angle controller

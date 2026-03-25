@@ -130,7 +130,7 @@ public final class Constants {
         public static final Pose2d RIGHT_CLIMB = new Pose2d(RIGHT_CLIMB_POINT, Rotation2d.fromDegrees(0)); //TODO: fix the angle. We want two angles, one to drive to, then one that turns such that it rams into the pose
 
         public static final Pose2d LEFT_CLIMB_POINT_ALIGN = new Pose2d(1.38,4.58, Rotation2d.fromDegrees(171.6)); // TODO: tune?
-        public static final Pose2d LEFT_CLIMB_POINT_FINAL = new Pose2d(1.00,4.59, Rotation2d.fromDegrees(-7)); // maybe push a little into the bar??
+        public static final Pose2d LEFT_CLIMB_POINT_FINAL = new Pose2d(1.00,4.59, Rotation2d.fromDegrees(187)); // maybe push a little into the bar??
 
 
     }

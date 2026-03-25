@@ -39,6 +39,7 @@ public final class Autos {
                         )
                 ),
                 ballSubsystem.run(()->ballSubsystem.stop()),
+                driveSubsystem.driveAtTargetPoseSup(()->ballSubsystem.poseToFaceHub()),
                 ballSubsystem.shootAtTarget(0).withTimeout(4), // TODO: tune the table!
                 ballSubsystem.launchCommand(() -> -6.63).withTimeout(4),
                 ballSubsystem.runOnce(() -> ballSubsystem.stop())
