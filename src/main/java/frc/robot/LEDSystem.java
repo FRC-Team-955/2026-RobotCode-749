@@ -38,8 +38,8 @@ public class LEDSystem extends SubsystemBase {
     private final LEDPattern blue = LEDPattern.solid(Color.kBlue);
     private final LEDPattern red = LEDPattern.solid(Color.kRed);
     double phase;
-    double alliance; // 1 is blue, 2 is red
-    double autoWinner; // 1 is blue, 2 is red
+    double alliance = 0; // 1 is blue, 2 is red
+    double autoWinner = 0; // 1 is blue, 2 is red
 
     public LEDSystem(){
         m_led =  new AddressableLED(0);
@@ -229,7 +229,7 @@ public class LEDSystem extends SubsystemBase {
                     pink();
                 }
             } else {
-                pink();
+                rainbow();
             }
         } else if (alliance == 2) {
             redLEDS();
