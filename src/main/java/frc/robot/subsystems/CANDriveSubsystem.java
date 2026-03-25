@@ -63,7 +63,7 @@ public class CANDriveSubsystem extends SubsystemBase {
     private final DifferentialDrive drive; //builtin wpilib drive
 
     private final SlewRateLimiter limit = new SlewRateLimiter(10 * Constants.DriveConstants.SAFE_SPEED_CAP);
-    DifferentialDriveKinematics kinematics = new DifferentialDriveKinematics(DBASE_WIDTH);
+    DifferentialDriveKinematics kinematics = new DifferentialDriveKinematics(TRACK_WIDTH);
 
     double lSetPoint;
     double rSetPoint;
