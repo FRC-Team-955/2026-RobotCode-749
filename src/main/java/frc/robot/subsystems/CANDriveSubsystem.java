@@ -6,6 +6,7 @@ package frc.robot.subsystems;
 
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
 
 
 import com.revrobotics.sim.SparkRelativeEncoderSim;
@@ -19,15 +20,18 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.LTVUnicycleController;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
+import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim;
@@ -35,9 +39,7 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants;
 import frc.robot.RobotState;
 
@@ -51,13 +53,14 @@ public class CANDriveSubsystem extends SubsystemBase {
     private final SparkMax leftFollower;
     private final SparkMax rightLeader;
     private final SparkMax rightFollower;
+    private final Alert highTempAlert = new Alert("Drive motors are too hot!", Alert.AlertType.kWarning);
+
 
     private SparkRelativeEncoderSim m_leftEncoderSim;
     private SparkRelativeEncoderSim m_rightEncoderSim;
 
     private final PoseSubsystem ps; //Pose Estimator Class
     private final DifferentialDrive drive; //builtin wpilib drive
-    private final LTVUnicycleController controller = new LTVUnicycleController(0.02);
 
     private final SlewRateLimiter limit = new SlewRateLimiter(10 * Constants.DriveConstants.SAFE_SPEED_CAP);
     DifferentialDriveKinematics kinematics = new DifferentialDriveKinematics(DBASE_WIDTH);
@@ -67,10 +70,19 @@ public class CANDriveSubsystem extends SubsystemBase {
 
     public final PIDController leftPID = new PIDController(KP, KI, KD);
     public final PIDController rightPID = new PIDController(KP, KI, KD);
-    public final Field2d field = new Field2d();
 
-    PIDController turnPIDAuto = new PIDController(3.6,KI,0.35);
-    PIDController forwardPIDAuto = new PIDController(3.5,KI,0.35);
+    private final TrapezoidProfile.Constraints forwardConstraints =
+            new TrapezoidProfile.Constraints(
+                    2.2,   // max velocity m/s TODO: TUNE THIS!!
+                    0.5    // max acceleration (m/s)/s (ty mr buchanan)
+            );
+    private final ProfiledPIDController forwardPID =
+            new ProfiledPIDController(1.6, 0.0, 1.63, forwardConstraints);
+    double MOMENTUM_DAMPING =0.28; //Addional braking!
+
+
+    // overall angle controller
+    private final PIDController anglePID = new PIDController(2.05, 0.0, 0.18);
 
     double muffle = 100;
 
@@ -79,9 +91,9 @@ public class CANDriveSubsystem extends SubsystemBase {
 /// TODO: TUNE THIS
     DifferentialDrivetrainSim drivetrainSim = new DifferentialDrivetrainSim(
             DCMotor.getNEO(2),       // 2 NEO motors on each side of the drivetrain.
-            8.45,                    //
-            3,                     // MOI from CAD??
-            29.76,                    // The mass of the robot is not 30 kg.
+            8.45,                    // Gearing
+            1.821,                     // MOI from CAD??
+            35,                    // 74ish lbs = 33.566 plus a little bit.
             Units.inchesToMeters(3), // The robot uses 3" radius wheels.
             DBASE_WIDTH,                  // what u think it is
             // The standard deviations for measurement noise:
@@ -95,13 +107,14 @@ public class CANDriveSubsystem extends SubsystemBase {
 
     public CANDriveSubsystem(PoseSubsystem ps) {
         this.ps = ps;
-        drivetrainSim.setPose(INITIAL_POSE);
+        drivetrainSim.setPose(initialPose);
 
         // create brushed motors for drive
         leftLeader = new SparkMax(LEFT_LEADER_ID, MotorType.kBrushless);
         leftFollower = new SparkMax(LEFT_FOLLOWER_ID, MotorType.kBrushless);
         rightLeader = new SparkMax(RIGHT_LEADER_ID, MotorType.kBrushless);
         rightFollower = new SparkMax(RIGHT_FOLLOWER_ID, MotorType.kBrushless);
+
 
         m_leftEncoderSim = new SparkRelativeEncoderSim(leftLeader);
         m_rightEncoderSim = new SparkRelativeEncoderSim(rightLeader);
@@ -156,12 +169,10 @@ public class CANDriveSubsystem extends SubsystemBase {
         //INIT poseSubsystem
         ps.setSource(()->leftLeader.getEncoder().getPosition(), ()->rightLeader.getEncoder().getPosition());
 
-        turnPIDAuto.enableContinuousInput(-Math.PI, Math.PI);
+        forwardPID.setTolerance(0.067);        // within 6.7 cm
+        anglePID.setTolerance(Math.toRadians(2));
+        anglePID.enableContinuousInput(-Math.PI, Math.PI); // fixes angle wrap! finally
 
-        turnPIDAuto.setTolerance(Math.toRadians(2));
-        forwardPIDAuto.setTolerance(0.05);
-
-        // field.setRobotPose(put robot pose here ); idk justin stuffs
 
     }
 
@@ -178,9 +189,12 @@ public class CANDriveSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("rightSetPoint", rSetPoint);
         SmartDashboard.putNumber("lPIDPoint", leftPID.getSetpoint());
         SmartDashboard.putNumber("rPIDPoint", rightPID.getSetpoint());
-        // SmartDashboard.putData("Field2d", field); idk justin stuffs
         SmartDashboard.putNumber("percentage", muffle);
 
+
+        highTempAlert.set((leftLeader.getMotorTemperature() > 50.0 || leftFollower.getMotorTemperature() > 50.0
+                || rightFollower.getMotorTemperature() > 50.0 || rightLeader.getMotorTemperature() > 50.0));
+        SmartDashboard.putBoolean("highTempAlert", highTempAlert.get());
         ///  SIM AND NON-SIM GLOBAL VELOCITIES
          {
 
@@ -200,7 +214,7 @@ public class CANDriveSubsystem extends SubsystemBase {
             ChassisSpeeds fieldRelative =
                     ChassisSpeeds.fromRobotRelativeSpeeds(
                             robotSpeeds,
-                            GLOBAL_POSE.getRotation()
+                            globalPose.getRotation()
                     );
 
 
@@ -361,71 +375,71 @@ public class CANDriveSubsystem extends SubsystemBase {
     StructPublisher<Pose2d> publisher = NetworkTableInstance.getDefault()
             .getStructTopic("TargetPose", Pose2d.struct).publish();
     public void funcDriveAtTargetPose(Pose2d targetPose) {
-        publisher.set(targetPose);
-
-
-        if (targetPose == null) return;
-
-        Pose2d current = GLOBAL_POSE;
-
-        double dx = targetPose.getX() - current.getX();
-        double dy = targetPose.getY() - current.getY();
-
-
-        double distance = Math.hypot(dx, dy);
-
-        double currentAngle = (current.getRotation().getRadians());
-        double targetAngle = (Math.atan2(dy, dx));
-
-        double angleToTarget = MathUtil.angleModulus(targetAngle - currentAngle);
-
-
-
-
-        if (distance < 0.1) {
-
-            double cAngle = currentAngle;
-            double tAngle = targetPose.getRotation().getRadians();
-
-
-            double turn; // = finalHeadingError * 2.1;
-            turn = 0.2 * turnPIDAuto.calculate(cAngle, tAngle);
-
-
-            turn = MathUtil.clamp(turn, -0.45, 0.45);
-
-
-            drive.arcadeDrive(0, -turn);
+        if (targetPose == null) {
+            drive.arcadeDrive(0, 0);
             return;
         }
 
+        // Publish the target for dashboard / logging
+        publisher.set(targetPose);
 
+        Pose2d current = globalPose;
 
-        //  slowdown near target
-        double forward = 1.2* forwardPIDAuto.calculate(0,distance);
+        // Compute vector to target
+        double dx = targetPose.getX() - current.getX();
+        double dy = targetPose.getY() - current.getY();
+        double distance = Math.hypot(dx, dy);
 
+        double currentAngle = current.getRotation().getRadians();
+        double approachAngle = Math.atan2(dy, dx);       // angle to drive toward target
+        double finalAngle    = targetPose.getRotation().getRadians(); // desired final orientation
 
+        // Compute heading difference
+        double headingError = MathUtil.angleModulus(approachAngle - currentAngle);
 
-        double turn = angleToTarget * 1.7;
+        // Alignment scale reduces forward speed if misaligned
+        double alignmentScale = MathUtil.clamp(1.0 - Math.abs(headingError) / (Math.PI/2), 0.2, 1.0);
 
-        // If heavily misaligned, reduce forward instead of hard stopping
-        double alignmentScale = MathUtil.clamp(
-                1.0 - (Math.abs(angleToTarget) / Math.PI),
-                0.2,
-                1.0
-        );
+        // Compute forward speed using distance PID
+        double forwardOutput = forwardPID.calculate(0, distance);
+        // Correct sign so forward is toward the target
+        double forward = forwardOutput * alignmentScale * Math.cos(headingError); //kinda works lol
+        double velocity = Math.hypot(RobotState.ROBOT_VX, RobotState.ROBOT_VY);
 
-        forward *= alignmentScale;
+        forward -= MOMENTUM_DAMPING * velocity * 1.0/distance; //damping??
 
-        turn = MathUtil.clamp(turn, -0.6, 0.6);
+        // Clamp forward to reasonable values
+        forward = MathUtil.clamp(forward, -1.0, 1.0);
 
-        if(Math.abs(MathUtil.angleModulus(currentAngle-targetAngle)) > Math.PI/16){
+        // Turn toward target / final heading
+        double turn;
+        if (distance < 0.15) {
+            // Near target  rotate to final orientation
+            double finalHeadingError = MathUtil.angleModulus(finalAngle - currentAngle);
+            turn = anglePID.calculate(0, finalHeadingError);
+            turn = MathUtil.clamp(turn, -0.45, 0.45);
 
-            forward = 0.1;
+            // Stop forward motion
+            forward = 0.0;
+        } else {
+
+            // Far from target  rotate toward target
+            turn = anglePID.calculate(0, headingError);
+            turn = MathUtil.clamp(turn, -0.6, 0.6);
         }
-        forward = MathUtil.clamp(forward,-2.8,2.8);
-        drive.arcadeDrive(-forward, -turn);
 
+
+        if (distance < 0.5) {
+            if(forward>0) {
+                forward = Math.min(forward, distance + 0.09);
+            }
+            else{
+                forward = Math.max(forward, distance - 0.09);
+            }
+        }
+
+
+        drive.arcadeDrive(-forward, -turn);
     }
 
     private boolean isAtPose(Pose2d current, Pose2d target) {
@@ -453,12 +467,12 @@ public class CANDriveSubsystem extends SubsystemBase {
     }
 
     public Command driveAtTargetPose(Pose2d target){
-        return run(()->funcDriveAtTargetPose(target)).until(()->isSettledAtPose(GLOBAL_POSE,target)).finallyDo(() -> drive.tankDrive(0, 0));
+        return run(()->funcDriveAtTargetPose(target)).until(()->isSettledAtPose(globalPose,target)).finallyDo(() -> drive.tankDrive(0, 0));
     }
 
-
-
-
+    public Command driveAtTargetPoseSup(Supplier<Pose2d> x){
+        return run(()->funcDriveAtTargetPose(x.get())).until(()->isSettledAtPose(globalPose,x.get())).finallyDo(() -> drive.tankDrive(0, 0));
+    }
 
     public void simulationPeriodic() {
 
@@ -476,7 +490,7 @@ public class CANDriveSubsystem extends SubsystemBase {
 
         ps.resetOdometry(drivetrainSim.getPose());
         if(isSim()) {
-            RobotState.GLOBAL_POSE = drivetrainSim.getPose();
+            globalPose = drivetrainSim.getPose();
         }
 
 
