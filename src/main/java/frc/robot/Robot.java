@@ -91,6 +91,7 @@ public class Robot extends TimedRobot {
   @Override
   public void disabledInit() {
     fuelSubsystem.setBrakeMode();
+    LEDS.stopTimer();
   }
 
   @Override

@@ -56,6 +56,11 @@ public class LEDSystem extends SubsystemBase {
         timer.start();
     }
 
+    public void stopTimer() {
+        timer.stop();
+        timer.reset();
+    }
+
     public void pink() {
         pink.applyTo(m_ledBuffer);
     }
@@ -168,7 +173,9 @@ public class LEDSystem extends SubsystemBase {
         setPhase();
 
         if (alliance == 0) {
-            if (timer.get() < 10.0) {
+            if (timer.get() == 0) {
+                rainbow();
+            } else if (timer.get() < 10.0) {
                 double x = Math.round(10.0 * (10 - timer.get())) /10.0;
                 SmartDashboard.putNumber("Time Until Hub Change", x);
                 if (x < 6.0) {
