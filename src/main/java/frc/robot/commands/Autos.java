@@ -38,7 +38,8 @@ public final class Autos {
                                 driveSubsystem.driveAtTargetPose(new Pose2d(3.5, (INITIAL_POSE_LEFT_BUMP.getY()-0.8), new Rotation2d(ballSubsystem.toFaceHub())))
                         )
                 ),
-                ballSubsystem.run(()->ballSubsystem.stop()),
+                ballSubsystem.runOnce(()->ballSubsystem.stop()),
+                driveSubsystem.driveAtTargetPoseSup(()->ballSubsystem.poseToFaceHub()),
                 ballSubsystem.shootAtTarget(0).withTimeout(4), // TODO: tune the table!
                 ballSubsystem.launchCommand(() -> -6.63).withTimeout(4),
                 ballSubsystem.runOnce(() -> ballSubsystem.stop())

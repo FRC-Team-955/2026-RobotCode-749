@@ -15,7 +15,7 @@ public class ClimbAutos {
                 driveSubsystem.runOnce(() -> driveSubsystem.resetOdometry(INITIAL_POSE_CENTER_HUB)),
                 driveSubsystem.driveAtTargetPose(LEFT_CLIMB_POINT_ALIGN),
                 climberSubsystem.goToTop().withTimeout(3),
-                driveSubsystem.driveAtTargetPose(LEFT_CLIMB_POINT_FINAL).withTimeout(1.5),
+                driveSubsystem.driveAtTargetPose(LEFT_CLIMB_POINT_FINAL).withTimeout(3), // potentially also drive forawrd a little?
                 climberSubsystem.goToBottom().withTimeout(4) ///  TODO: IMPORTANT! tune this function (and goToTp())
         );
     }
