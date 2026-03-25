@@ -22,6 +22,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
@@ -102,8 +103,8 @@ public class CANDriveSubsystem extends SubsystemBase {
     private SimulatedMotorController.GenericMotorController simRightMotor;
 
 
-    double simLeftVolts;
-    double simRightVolts;
+    private double simFwd = 0.0;
+    private double simRot = 0.0;
 
 
     public CANDriveSubsystem(PoseSubsystem ps) {
@@ -179,7 +180,7 @@ public class CANDriveSubsystem extends SubsystemBase {
                 .withGyro(COTS.ofPigeon2())
                 .withSwerveModule(new SwerveModuleSimulationConfig(
                         DCMotor.getNEO(2),    // 2 NEOs per side (drive)
-                        DCMotor.getNEO(1),    // steer — ignored for differential, use NEO as placeholder
+                        DCMotor.getNEO(1),    // steer : ignored for differential, use NEO as placeholder
                         8.45,                 // drive gear ratio
                         1.0,                  // steer gear ratio (unused)
                         Volts.of(0.1),        // drive friction voltage
@@ -188,18 +189,15 @@ public class CANDriveSubsystem extends SubsystemBase {
                         KilogramSquareMeters.of(0.01),
                         1.0))                 // wheel COF (tune to match traction)
                 .withTrackLengthTrackWidth(
-                        Meters.of(DBASE_WIDTH),  // length — use track width as approx
+                        Meters.of(DBASE_WIDTH),  // length  use track width as approx
                         Meters.of(DBASE_WIDTH))
-                .withBumperSize(Inches.of(28), Inches.of(28))  // adjust to your bumpers
+                .withBumperSize(Inches.of(32.8), Inches.of(32.8))  // adjust to your bumpers
                 .withRobotMass(Kilograms.of(35));
 
         drivetrainSim = new SwerveDriveSimulation(simConfig, initialPose);
         simDrive = new SelfControlledSwerveDriveSimulation(drivetrainSim);
 
-        simLeftMotor  = drivetrainSim.getModules()[0].useGenericMotorControllerForDrive()
-                .withCurrentLimit(Amps.of(DRIVE_MOTOR_CURRENT_LIMIT));
-        simRightMotor = drivetrainSim.getModules()[1].useGenericMotorControllerForDrive()
-                .withCurrentLimit(Amps.of(DRIVE_MOTOR_CURRENT_LIMIT));
+
 
 // Register to the maple-sim world : this is what replaces sim update i think
         SimulatedArena.getInstance().addDriveTrainSimulation(drivetrainSim);
@@ -332,6 +330,8 @@ public class CANDriveSubsystem extends SubsystemBase {
 
             updateSetPoints(limitedX + rot, limitedX - rot);
             drive.arcadeDrive(limitedX + isShake*shakeSpeed, rot);
+            simFwd = limitedX + isShake*shakeSpeed; //// why is it zero??
+            simRot = rot;
 
         });
     }
@@ -394,7 +394,7 @@ public class CANDriveSubsystem extends SubsystemBase {
 
     public void resetOdometry(Pose2d p) {
         if (isSim()) {
-            simDrive.setSimulationWorldPose(p); // replaces drivetrainSim.setPose(p)
+            simDrive.setSimulationWorldPose(p);
             simDrive.resetOdometry(p);
         }
         ps.resetOdometry(p);
@@ -505,34 +505,34 @@ public class CANDriveSubsystem extends SubsystemBase {
 
     @Override
     public void simulationPeriodic() {
-        simLeftVolts=10.0;
-        // Feed actual applied voltage directly into the sim motors
-        simLeftMotor.requestVoltage(
-                Volts.of(simLeftVolts));
-        simRightMotor.requestVoltage(
-                Volts.of(rightLeader.getAppliedOutput() * RobotController.getBatteryVoltage()));
+        System.out.print("FWD: "); System.out.println(simFwd);
+        var out = DifferentialDrive.arcadeDriveIK(simFwd, simRot, false); //simFwd, and simRot
+        double leftMPS  = out.left  * 3.2;
+        double rightMPS = out.right * 3.2;
+        ChassisSpeeds speeds = kinematics.toChassisSpeeds(
+                new DifferentialDriveWheelSpeeds(leftMPS, rightMPS));
 
-        // Step maple-sim world
+
+        simDrive.runChassisSpeeds(speeds, new Translation2d(), false, true);
+
         SimulatedArena.getInstance().simulationPeriodic();
         simDrive.periodic();
 
-        // Push pose back to robot state
         Pose2d simPose = simDrive.getActualPoseInSimulationWorld();
         ps.resetOdometry(simPose);
         if (isSim()) globalPose = simPose;
 
-        // Write sim output back to SparkMax encoder sims
-        if (m_leftEncoderSim != null && m_rightEncoderSim != null) {
-            ChassisSpeeds simSpeeds = simDrive.getMeasuredSpeedsRobotRelative(false);
-            DifferentialDriveWheelSpeeds wheelSpeeds = kinematics.toWheelSpeeds(simSpeeds);
+        double wheelRadius = Units.inchesToMeters(3);
 
-            m_leftEncoderSim.setVelocity(-wheelSpeeds.leftMetersPerSecond);
-            m_rightEncoderSim.setVelocity(-wheelSpeeds.rightMetersPerSecond);
-            m_leftEncoderSim.setPosition(
-                    m_leftEncoderSim.getPosition() - wheelSpeeds.leftMetersPerSecond * 0.02);
-            m_rightEncoderSim.setPosition(
-                    m_rightEncoderSim.getPosition() - wheelSpeeds.rightMetersPerSecond * 0.02);
-        }
+        double leftPos  = drivetrainSim.getModules()[0].getDriveWheelFinalPosition().in(Radians) * wheelRadius;
+        double leftVel  = drivetrainSim.getModules()[0].getDriveWheelFinalSpeed().in(RadiansPerSecond) * wheelRadius;
+        double rightPos = drivetrainSim.getModules()[1].getDriveWheelFinalPosition().in(Radians) * wheelRadius;
+        double rightVel = drivetrainSim.getModules()[1].getDriveWheelFinalSpeed().in(RadiansPerSecond) * wheelRadius;
+
+        m_leftEncoderSim.setPosition(leftPos);
+        m_leftEncoderSim.setVelocity(leftVel);
+        m_rightEncoderSim.setPosition(rightPos);
+        m_rightEncoderSim.setVelocity(rightVel);
     }
 
 }
