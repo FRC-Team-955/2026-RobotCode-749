@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
 
 import static frc.robot.Constants.OperatorConstants.*;
+import static frc.robot.RobotState.globalPose;
 import static frc.robot.RobotState.initialPose;
 
 import frc.robot.commands.Autos;
@@ -116,8 +117,8 @@ public class RobotContainer {
         operatorController.leftBumper()
                 .whileTrue(ballSubsystem.runEnd(() -> ballSubsystem.intake(), () -> ballSubsystem.stop()));
 
-        driverController.y().whileTrue(ballSubsystem.shootAtTarget(0).finallyDo(()->ballSubsystem.stop()));
-        // sorry not sorry arin :(
+        driverController.y().whileTrue(driveSubsystem.driveAtTargetPoseSup(()->ballSubsystem.poseToFaceHub()).andThen(ballSubsystem.shootAtTarget(0)).finallyDo(()->ballSubsystem.stop()));
+
 
         //driverController.y().onTrue(driveSubsystem.shake());
 
@@ -174,12 +175,14 @@ public class RobotContainer {
 
 
         if (RobotState.isSim()) {
+
             driveSubsystem.setDefaultCommand(
             driveSubsystem.driveArcade(
                     () -> driverController.getRawAxis(1) * DRIVE_SCALING,
                     () -> driverController.getRawAxis(0) * ROTATION_SCALING,
                     () -> false // im sorry idk what to put here arin
             ));
+
             //driveSubsystem.setDefaultCommand(driveSubsystem.driveAtTargetPose(new Pose2d(1,1,new Rotation2d())));
         }
         else{

@@ -127,6 +127,7 @@ public class CANFuelSubsystem extends SubsystemBase {
   }
 
   public void funcShootAtTarget(double overrideVelocity){
+      System.out.println("Auto aim shooting....");
       shooterRatio=1;
       if(hitVelocity<0){
           return;
@@ -164,7 +165,7 @@ public class CANFuelSubsystem extends SubsystemBase {
       shooterWheels.set(-output);
   }
   public Command shootAtTarget(double overrideVelocity){
-      return run(()->funcShootAtTarget(0));
+      return run(()->funcShootAtTarget(overrideVelocity));
   }
 
   // A method to stop the rollers
@@ -227,6 +228,12 @@ public class CANFuelSubsystem extends SubsystemBase {
         double x = 4.62017 - xi;
         double y  = 4.0345 - yi;
         return Math.atan2(y,x)+Math.PI;
+    }
+
+    public Pose2d poseToFaceHub(){
+        double x = 4.62017 - globalPose.getX();
+        double y  = 4.0345 - globalPose.getY();
+        return new Pose2d(globalPose.getX(),globalPose.getY(),new Rotation2d(Math.atan2(y,x)+Math.PI));
     }
 
 
