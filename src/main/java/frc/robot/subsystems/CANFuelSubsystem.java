@@ -16,10 +16,12 @@ import com.revrobotics.spark.SparkMax;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.networktables.StructPublisher;
+import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -95,6 +97,9 @@ public class CANFuelSubsystem extends SubsystemBase {
 
   // A method to set the rollers to values for intaking
   public void intake() {
+      if (RobotState.isSim()) {
+          System.out.println("Intake running!");
+      }
     feederRoller.setVoltage(SmartDashboard.getNumber("Intaking feeder roller value", INTAKING_FEEDER_VOLTAGE));
     intakeLauncherRoller
         .setVoltage(SmartDashboard.getNumber("Intaking intake roller value", INTAKING_INTAKE_VOLTAGE));
@@ -117,7 +122,7 @@ public class CANFuelSubsystem extends SubsystemBase {
         .setVoltage(-SmartDashboard.getNumber("Launching launcher roller value", -LAUNCHING_LAUNCHER_VOLTAGE));
       shooterWheels.setVoltage(voltage.getAsDouble()); ///brake mode makes this stop
       if(isSim()){
-          System.out.println("ARIN IS NOT DUMB");
+          System.out.println("SIM SHOOTING!!");
       } // need to make it so this also triggers shake command
   }
 
@@ -131,6 +136,9 @@ public class CANFuelSubsystem extends SubsystemBase {
           runFeederAutoAim=true;
       }
       SmartDashboard.putNumber("AutoAimAngV",hitVelocity);
+      if(isSim()){
+          System.out.print("Auto aim vel: "); System.out.println(hitVelocity);
+      }
 
       if(runFeederAutoAim){
           feederRoller.set(LAUNCHING_FEEDER_VOLTAGE);
@@ -200,8 +208,26 @@ public class CANFuelSubsystem extends SubsystemBase {
   }
 
   public double toFaceHub(){
+      if(isSim()){
+          System.out.println("Debugging angle:");
+          System.out.println(SS.toFaceHub().getRadians());
+      }
       return SS.toFaceHub().getRadians();
   }
+
+    public double toFaceHub(Pose2d Current){
+        if(isSim()){
+            System.out.println("Debugging angle:");
+            System.out.println(SS.toFaceHub(Current).getRadians());
+        }
+        return SS.toFaceHub(Current).getRadians();
+    }
+
+    public double toFaceHub(double xi, double yi){
+        double x = 4.62017 - xi;
+        double y  = 4.0345 - yi;
+        return Math.atan2(y,x)+Math.PI;
+    }
 
 
 
@@ -223,9 +249,9 @@ public class CANFuelSubsystem extends SubsystemBase {
       if(counter == calculateEvery) {
 
 
-          double cV = SS.getShooterVel(GLOBAL_POSE,target);
+          double cV = SS.getShooterVel(globalPose,target);
           SmartDashboard.putNumber("shooter target vel",cV);
-          boolean closeEnoughAngle = (Math.abs(MathUtil.angleModulus(SS.toFaceHub().getRadians() - MathUtil.angleModulus(GLOBAL_POSE.getRotation().getRadians()))) <Math.PI/36);
+          boolean closeEnoughAngle = (Math.abs(MathUtil.angleModulus(SS.toFaceHub().getRadians() - MathUtil.angleModulus(globalPose.getRotation().getRadians()))) <Math.PI/36);
           double currentAngV = -shooterWheels.getVelocity().getValueAsDouble();
           if(isSim()){
               currentAngV=cV;

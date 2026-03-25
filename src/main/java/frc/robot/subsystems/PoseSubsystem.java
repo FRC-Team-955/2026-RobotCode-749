@@ -13,6 +13,7 @@ import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import static frc.robot.Constants.PoseConstants.*;
 
 import java.util.function.DoubleSupplier;
 
@@ -80,9 +81,12 @@ public class PoseSubsystem extends SubsystemBase {
     //SELF EXPLANATORY
     public void resetOdometry(Pose2d a){
         poseEstimator.resetPose(a);
-        GLOBAL_POSE = a;
+        globalPose = a;
     }
 
+    public void resetGyro() {
+        gyro.reset();
+    }
 
     // get pose2d format of best guess pose from the PoseSubsystem
     public Pose2d getPose() {
@@ -163,8 +167,8 @@ public class PoseSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("EPOS_dLE", l.getAsDouble()-OldL);
         SmartDashboard.putNumber("EPOS_dRE", r.getAsDouble()-OldR);
 
-        GLOBAL_POSE = poseEstimator.getEstimatedPosition();
-        publisher.set(GLOBAL_POSE);
+        globalPose = poseEstimator.getEstimatedPosition();
+        publisher.set(globalPose);
 
         OldL = l.getAsDouble();
         OldR = r.getAsDouble();
