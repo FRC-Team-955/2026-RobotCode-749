@@ -13,7 +13,6 @@ import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import static frc.robot.Constants.PoseConstants.*;
 
 import java.util.function.DoubleSupplier;
 
@@ -29,7 +28,7 @@ public class PoseSubsystem extends SubsystemBase {
 
 
 
-    DifferentialDriveKinematics kinematics = new DifferentialDriveKinematics(Constants.DriveConstants.DBASE_WIDTH); //27 = drivebase width?????
+    DifferentialDriveKinematics kinematics = new DifferentialDriveKinematics(Constants.DriveConstants.TRACK_WIDTH); //27 = drivebase width?????
     private  DifferentialDrivePoseEstimator poseEstimator = new DifferentialDrivePoseEstimator(kinematics,gyro.getRotation2d(),0,0,new Pose2d());
     private DoubleSupplier l; //link to encoder value
     private DoubleSupplier r; //object for passing encoder values

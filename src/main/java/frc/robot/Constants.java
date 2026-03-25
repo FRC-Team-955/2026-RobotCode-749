@@ -25,7 +25,7 @@ public final class Constants {
 
 
     public static final class DriveConstants {
-        public static final double DBASE_WIDTH = Units.inchesToMeters(21.5); // meters
+        public static final double TRACK_WIDTH = Units.inchesToMeters(21.5); // meters
         public static final double DBASE_WIDTH_WITH_BUMPERS = Units.inchesToMeters(33.0);
         public static final double DBASE_LENGTH_WITH_BUMPERS = Units.inchesToMeters(32.8);
 

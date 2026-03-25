@@ -95,7 +95,7 @@ public class CANDriveSubsystem extends SubsystemBase {
             1.821,                     // MOI from CAD??
             35,                    // 74ish lbs = 33.566 plus a little bit.
             Units.inchesToMeters(3), // The robot uses 3" radius wheels.
-            DBASE_WIDTH,                  // what u think it is
+        TRACK_WIDTH,                  // what u think it is
             // The standard deviations for measurement noise:
             // x and y:          0.001 m
             // heading:          0.001 rad
