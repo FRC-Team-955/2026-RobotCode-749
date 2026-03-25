@@ -42,9 +42,18 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.RobotState;
 
+import static edu.wpi.first.units.Units.Kilograms;
 import static edu.wpi.first.wpilibj.drive.DifferentialDrive.arcadeDriveIK;
 import static frc.robot.Constants.DriveConstants.*;
 import static frc.robot.RobotState.*;
+import org.ironmaple.simulation.SimulatedArena;
+import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
+import org.ironmaple.simulation.drivesims.SelfControlledSwerveDriveSimulation;
+import org.ironmaple.simulation.drivesims.configs.DriveTrainSimulationConfig;
+import org.ironmaple.simulation.drivesims.configs.SwerveModuleSimulationConfig;
+import org.ironmaple.simulation.motorsims.SimulatedMotorController;
+import org.ironmaple.simulation.drivesims.COTS;
+import static edu.wpi.first.units.Units.*;
 
 
 public class CANDriveSubsystem extends SubsystemBase {
@@ -86,27 +95,20 @@ public class CANDriveSubsystem extends SubsystemBase {
     double muffle = 100;
 
     private Timer timer = new Timer();
+    private final SwerveDriveSimulation drivetrainSim;         // maple-sim physics body
+    private final SelfControlledSwerveDriveSimulation simDrive; // high-level controller
 
-/// TODO: TUNE THIS
-    DifferentialDrivetrainSim drivetrainSim = new DifferentialDrivetrainSim(
-            DCMotor.getNEO(2),       // 2 NEO motors on each side of the drivetrain.
-            8.45,                    // Gearing
-            1.821,                     // MOI from CAD??
-            35,                    // 74ish lbs = 33.566 plus a little bit.
-            Units.inchesToMeters(3), // The robot uses 3" radius wheels.
-            DBASE_WIDTH,                  // what u think it is
-            // The standard deviations for measurement noise:
-            // x and y:          0.001 m
-            // heading:          0.001 rad
-            // l and r velocity: 0.1   m/s
-            // l and r position: 0.005 m
-            VecBuilder.fill(0.00001, 0.00001, 0.001, 0.01, 0.01, 0.005, 0.005)); //smaller number makes sim tweak out less
+    private SimulatedMotorController.GenericMotorController simLeftMotor;
+    private SimulatedMotorController.GenericMotorController simRightMotor;
 
+
+    double simLeftVolts;
+    double simRightVolts;
 
 
     public CANDriveSubsystem(PoseSubsystem ps) {
         this.ps = ps;
-        drivetrainSim.setPose(initialPose);
+
 
         // create brushed motors for drive
         leftLeader = new SparkMax(LEFT_LEADER_ID, MotorType.kBrushless);
@@ -171,6 +173,36 @@ public class CANDriveSubsystem extends SubsystemBase {
         forwardPID.setTolerance(0.067);        // within 6.7 cm
         anglePID.setTolerance(Math.toRadians(2));
         anglePID.enableContinuousInput(-Math.PI, Math.PI); // fixes angle wrap! finally
+
+
+        DriveTrainSimulationConfig simConfig = DriveTrainSimulationConfig.Default()
+                .withGyro(COTS.ofPigeon2())
+                .withSwerveModule(new SwerveModuleSimulationConfig(
+                        DCMotor.getNEO(2),    // 2 NEOs per side (drive)
+                        DCMotor.getNEO(1),    // steer — ignored for differential, use NEO as placeholder
+                        8.45,                 // drive gear ratio
+                        1.0,                  // steer gear ratio (unused)
+                        Volts.of(0.1),        // drive friction voltage
+                        Volts.of(0.1),        // steer friction voltage
+                        Inches.of(3),         // wheel radius
+                        KilogramSquareMeters.of(0.01),
+                        1.0))                 // wheel COF (tune to match traction)
+                .withTrackLengthTrackWidth(
+                        Meters.of(DBASE_WIDTH),  // length — use track width as approx
+                        Meters.of(DBASE_WIDTH))
+                .withBumperSize(Inches.of(28), Inches.of(28))  // adjust to your bumpers
+                .withRobotMass(Kilograms.of(35));
+
+        drivetrainSim = new SwerveDriveSimulation(simConfig, initialPose);
+        simDrive = new SelfControlledSwerveDriveSimulation(drivetrainSim);
+
+        simLeftMotor  = drivetrainSim.getModules()[0].useGenericMotorControllerForDrive()
+                .withCurrentLimit(Amps.of(DRIVE_MOTOR_CURRENT_LIMIT));
+        simRightMotor = drivetrainSim.getModules()[1].useGenericMotorControllerForDrive()
+                .withCurrentLimit(Amps.of(DRIVE_MOTOR_CURRENT_LIMIT));
+
+// Register to the maple-sim world : this is what replaces sim update i think
+        SimulatedArena.getInstance().addDriveTrainSimulation(drivetrainSim);
 
 
     }
@@ -300,6 +332,7 @@ public class CANDriveSubsystem extends SubsystemBase {
 
             updateSetPoints(limitedX + rot, limitedX - rot);
             drive.arcadeDrive(limitedX + isShake*shakeSpeed, rot);
+
         });
     }
 
@@ -359,9 +392,10 @@ public class CANDriveSubsystem extends SubsystemBase {
 
 
 
-    public void resetOdometry(Pose2d p){
-        if(isSim()){
-            drivetrainSim.setPose(p);
+    public void resetOdometry(Pose2d p) {
+        if (isSim()) {
+            simDrive.setSimulationWorldPose(p); // replaces drivetrainSim.setPose(p)
+            simDrive.resetOdometry(p);
         }
         ps.resetOdometry(p);
     }
@@ -469,40 +503,35 @@ public class CANDriveSubsystem extends SubsystemBase {
         return run(()->funcDriveAtTargetPose(target)).until(()->isSettledAtPose(globalPose,target)).finallyDo(() -> drive.tankDrive(0, 0));
     }
 
+    @Override
     public void simulationPeriodic() {
+        simLeftVolts=10.0;
+        // Feed actual applied voltage directly into the sim motors
+        simLeftMotor.requestVoltage(
+                Volts.of(simLeftVolts));
+        simRightMotor.requestVoltage(
+                Volts.of(rightLeader.getAppliedOutput() * RobotController.getBatteryVoltage()));
 
+        // Step maple-sim world
+        SimulatedArena.getInstance().simulationPeriodic();
+        simDrive.periodic();
 
-        // Set the inputs to the system. Note that we need to convert
-        drivetrainSim.setInputs(-leftLeader.get() * RobotController.getInputVoltage(),
-                -rightLeader.get() * RobotController.getInputVoltage());
-        // Advance the model by 20 ms. Note that if you are running this
-        // subsystem in a separate thread or have changed the nominal timestep
-        // of TimedRobot, this value needs to match it.
-        drivetrainSim.update(0.02);
+        // Push pose back to robot state
+        Pose2d simPose = simDrive.getActualPoseInSimulationWorld();
+        ps.resetOdometry(simPose);
+        if (isSim()) globalPose = simPose;
 
+        // Write sim output back to SparkMax encoder sims
+        if (m_leftEncoderSim != null && m_rightEncoderSim != null) {
+            ChassisSpeeds simSpeeds = simDrive.getMeasuredSpeedsRobotRelative(false);
+            DifferentialDriveWheelSpeeds wheelSpeeds = kinematics.toWheelSpeeds(simSpeeds);
 
-
-
-        ps.resetOdometry(drivetrainSim.getPose());
-        if(isSim()) {
-            globalPose = drivetrainSim.getPose();
-        }
-
-
-
-
-
-
-
-
-        if(m_leftEncoderSim == null || m_rightEncoderSim==null){
-            System.out.println("IDIOT. CALL ARIN AND TELL HIM TO GET A BRAIN");
-        }
-        else {
-            m_leftEncoderSim.setPosition(-drivetrainSim.getLeftPositionMeters());
-            m_leftEncoderSim.setVelocity(-drivetrainSim.getLeftVelocityMetersPerSecond());
-            m_rightEncoderSim.setPosition(-drivetrainSim.getRightPositionMeters());
-            m_rightEncoderSim.setVelocity(-drivetrainSim.getRightVelocityMetersPerSecond());
+            m_leftEncoderSim.setVelocity(-wheelSpeeds.leftMetersPerSecond);
+            m_rightEncoderSim.setVelocity(-wheelSpeeds.rightMetersPerSecond);
+            m_leftEncoderSim.setPosition(
+                    m_leftEncoderSim.getPosition() - wheelSpeeds.leftMetersPerSecond * 0.02);
+            m_rightEncoderSim.setPosition(
+                    m_rightEncoderSim.getPosition() - wheelSpeeds.rightMetersPerSecond * 0.02);
         }
     }
 
