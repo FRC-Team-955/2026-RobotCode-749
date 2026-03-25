@@ -38,8 +38,8 @@ public class LEDSystem extends SubsystemBase {
     private final LEDPattern blue = LEDPattern.solid(Color.kBlue);
     private final LEDPattern red = LEDPattern.solid(Color.kRed);
     double phase;
-    double alliance; // 1 is blue, 2 is red
-    double autoWinner; // 1 is blue, 2 is red
+    double alliance = 0; // 1 is blue, 2 is red
+    double autoWinner = 0; // 1 is blue, 2 is red
 
     public LEDSystem(){
         m_led =  new AddressableLED(0);
@@ -54,6 +54,11 @@ public class LEDSystem extends SubsystemBase {
     public void startTimer() {
         timer.reset();
         timer.start();
+    }
+
+    public void stopTimer() {
+        timer.stop();
+        timer.reset();
     }
 
     public void pink() {
@@ -170,7 +175,9 @@ public class LEDSystem extends SubsystemBase {
         setPhase();
 
         if (alliance == 0) {
-            if (timer.get() < 10.0) {
+            if (timer.get() == 0) {
+                rainbow();
+            } else if (timer.get() < 10.0) {
                 double x = Math.round(10.0 * (10 - timer.get())) /10.0;
                 SmartDashboard.putNumber("Time Until Hub Change", x);
                 if (x < 6.0) {
@@ -231,7 +238,7 @@ public class LEDSystem extends SubsystemBase {
                     pink();
                 }
             } else {
-                pink();
+                rainbow();
             }
         } else if (alliance == 2) {
             redLEDS();
