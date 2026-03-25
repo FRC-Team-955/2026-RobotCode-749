@@ -248,5 +248,13 @@ public final class Autos {
     }
 
 
+    public static Command centerToRClimbP2P(CANDriveSubsystem driveSubsystem, CANFuelSubsystem ballSubsystem) {
+        return new SequentialCommandGroup(
+                driveSubsystem.runOnce(() -> driveSubsystem.resetOdometry(INITIAL_POSE_CENTER_HUB)),
+               driveSubsystem.driveArcade(()->1.0, ()->0.0, ()->false)
+        );
+    }
+
+
 
 }

@@ -127,6 +127,8 @@ public final class Constants {
         public static final Translation2d RIGHT_CLIMB_RUNG_POINT = RIGHT_CLIMBER_RUNG_EDGE.minus(CLIMB_POINT_RELATIVE_TO_RUNG);
         public static final Translation2d RIGHT_CLIMB_POINT = RIGHT_CLIMB_RUNG_POINT.minus(CLIMBER_OFFSET_CENTER);
 
+        public static final Pose2d RIGHT_CLIMB = new Pose2d(RIGHT_CLIMB_POINT, Rotation2d.fromDegrees(0)); //TODO: fix the angle. We want two angles, one to drive to, then one that turns such that it rams into the pose
+
         //public static final Translation2d LEFT_CLIMB_POINT = LEFT_CLIMBER_RUNG_EDGE.plus
 
         public static final Translation2d GYRO_OFFSET = new Translation2d(/* TODO */);

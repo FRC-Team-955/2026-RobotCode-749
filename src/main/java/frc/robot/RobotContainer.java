@@ -88,6 +88,7 @@ public class RobotContainer {
         autoChooser.addOption("[TEST] P2P AUTO", Autos.P2PAutoTest(driveSubsystem, ballSubsystem));
         autoChooser.addOption("[TEST] CHAOS THEORY AUTO", Autos.ChaosTheoryAuto(driveSubsystem, ballSubsystem));
         autoChooser.addOption("[TEST] center shoot and climb", Autos.centerShootClimb(driveSubsystem, ballSubsystem));
+        autoChooser.addOption("[TEST] r climb P2P", Autos.centerToRClimbP2P(driveSubsystem, ballSubsystem));
         SmartDashboard.putData(autoChooser);
     }
 
@@ -177,7 +178,7 @@ public class RobotContainer {
             driveSubsystem.driveArcade(
                     () -> driverController.getRawAxis(1) * DRIVE_SCALING,
                     () -> driverController.getRawAxis(0) * ROTATION_SCALING,
-                    () -> driverController.b().getAsBoolean() // im sorry idk what to put here arin
+                    () -> false // im sorry idk what to put here arin
             ));
             //driveSubsystem.setDefaultCommand(driveSubsystem.driveAtTargetPose(new Pose2d(1,1,new Rotation2d())));
         }

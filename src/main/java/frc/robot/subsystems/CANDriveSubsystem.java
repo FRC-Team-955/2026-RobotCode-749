@@ -188,7 +188,6 @@ public class CANDriveSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("rightSetPoint", rSetPoint);
         SmartDashboard.putNumber("lPIDPoint", leftPID.getSetpoint());
         SmartDashboard.putNumber("rPIDPoint", rightPID.getSetpoint());
-        // SmartDashboard.putData("Field2d", field); idk justin stuffs
         SmartDashboard.putNumber("percentage", muffle);
 
 
