@@ -30,7 +30,6 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
-import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim;
@@ -52,7 +51,6 @@ public class CANDriveSubsystem extends SubsystemBase {
     private final SparkMax leftFollower;
     private final SparkMax rightLeader;
     private final SparkMax rightFollower;
-  private final Alert highTempAlert = new Alert("drive motors are so hot", Alert.AlertType.kWarning);
 
     private SparkRelativeEncoderSim m_leftEncoderSim;
     private SparkRelativeEncoderSim m_rightEncoderSim;
@@ -72,14 +70,15 @@ public class CANDriveSubsystem extends SubsystemBase {
     private final TrapezoidProfile.Constraints forwardConstraints =
             new TrapezoidProfile.Constraints(
                     2.2,   // max velocity m/s TODO: TUNE THIS!!
-                    0.8    // max acceleration (m/s)/s (ty mr buchanan)
+                    0.5    // max acceleration (m/s)/s (ty mr buchanan)
             );
     private final ProfiledPIDController forwardPID =
-            new ProfiledPIDController(1.4/* 0.67 */, 0.0, 0.75/* 0.67 */, forwardConstraints);
+            new ProfiledPIDController(1.6, 0.0, 1.63, forwardConstraints);
+    double MOMENTUM_DAMPING =0.28; //Addional braking!
 
 
     // overall angle controller
-    private final PIDController anglePID = new PIDController(1.9, 0.0, 0.18);
+    private final PIDController anglePID = new PIDController(2.05, 0.0, 0.18);
 
     double muffle = 100;
 
@@ -187,10 +186,8 @@ public class CANDriveSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("rPIDPoint", rightPID.getSetpoint());
         // SmartDashboard.putData("Field2d", field); idk justin stuffs
         SmartDashboard.putNumber("percentage", muffle);
-        highTempAlert.set((leftLeader.getMotorTemperature() > 50.0 || leftFollower.getMotorTemperature() > 50.0
-                || rightFollower.getMotorTemperature() > 50.0 || rightLeader.getMotorTemperature() > 50.0));
-        SmartDashboard.putBoolean("highTempAlert", highTempAlert.get());
-        ///  SIM AND NON-SIM GLOBAL  VELOCITIES
+
+        ///  SIM AND NON-SIM GLOBAL VELOCITIES
          {
 
             // SparkMax encoder velocity is RPM by default
@@ -398,7 +395,10 @@ public class CANDriveSubsystem extends SubsystemBase {
         // Compute forward speed using distance PID
         double forwardOutput = forwardPID.calculate(0, distance);
         // Correct sign so forward is toward the target
-        double forward = forwardOutput * alignmentScale * Math.cos(headingError);
+        double forward = forwardOutput * alignmentScale * Math.cos(headingError); //kinda works lol
+        double velocity = Math.hypot(RobotState.ROBOT_VX, RobotState.ROBOT_VY);
+
+        forward -= MOMENTUM_DAMPING * velocity * 1.0/distance; //damping??
 
         // Clamp forward to reasonable values
         forward = MathUtil.clamp(forward, -1.0, 1.0);
@@ -406,7 +406,7 @@ public class CANDriveSubsystem extends SubsystemBase {
         // Turn toward target / final heading
         double turn;
         if (distance < 0.15) {
-            // Near target → rotate to final orientation
+            // Near target  rotate to final orientation
             double finalHeadingError = MathUtil.angleModulus(finalAngle - currentAngle);
             turn = anglePID.calculate(0, finalHeadingError);
             turn = MathUtil.clamp(turn, -0.45, 0.45);
@@ -414,11 +414,21 @@ public class CANDriveSubsystem extends SubsystemBase {
             // Stop forward motion
             forward = 0.0;
         } else {
-            // Far from target → rotate toward target
+
+            // Far from target  rotate toward target
             turn = anglePID.calculate(0, headingError);
             turn = MathUtil.clamp(turn, -0.6, 0.6);
         }
 
+
+        if (distance < 0.5) {
+            if(forward>0) {
+                forward = Math.min(forward, distance + 0.09);
+            }
+            else{
+                forward = Math.max(forward, distance - 0.09);
+            }
+        }
 
 
         drive.arcadeDrive(-forward, -turn);
