@@ -30,6 +30,7 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
+import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim;
@@ -51,6 +52,7 @@ public class CANDriveSubsystem extends SubsystemBase {
     private final SparkMax leftFollower;
     private final SparkMax rightLeader;
     private final SparkMax rightFollower;
+  private final Alert highTempAlert = new Alert("drive motors are so hot", Alert.AlertType.kWarning);
 
     private SparkRelativeEncoderSim m_leftEncoderSim;
     private SparkRelativeEncoderSim m_rightEncoderSim;
@@ -73,7 +75,7 @@ public class CANDriveSubsystem extends SubsystemBase {
                     0.8    // max acceleration (m/s)/s (ty mr buchanan)
             );
     private final ProfiledPIDController forwardPID =
-            new ProfiledPIDController(1.4, 0.0, 0.75, forwardConstraints);
+            new ProfiledPIDController(1.4/* 0.67 */, 0.0, 0.75/* 0.67 */, forwardConstraints);
 
 
     // overall angle controller
@@ -185,8 +187,10 @@ public class CANDriveSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("rPIDPoint", rightPID.getSetpoint());
         // SmartDashboard.putData("Field2d", field); idk justin stuffs
         SmartDashboard.putNumber("percentage", muffle);
-
-        ///  SIM AND NON-SIM GLOBAL VELOCITIES
+        highTempAlert.set((leftLeader.getMotorTemperature() > 50.0 || leftFollower.getMotorTemperature() > 50.0
+                || rightFollower.getMotorTemperature() > 50.0 || rightLeader.getMotorTemperature() > 50.0));
+        SmartDashboard.putBoolean("highTempAlert", highTempAlert.get());
+        ///  SIM AND NON-SIM GLOBAL  VELOCITIES
          {
 
             // SparkMax encoder velocity is RPM by default

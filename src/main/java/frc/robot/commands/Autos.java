@@ -6,10 +6,7 @@ package frc.robot.commands;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.*;
 import frc.robot.Constants;
 import frc.robot.subsystems.CANFuelSubsystem;
 import frc.robot.subsystems.CANDriveSubsystem;
@@ -103,13 +100,12 @@ public final class Autos {
                 ballSubsystem.launchCommand(() -> -6.63).withTimeout(4),
                 ballSubsystem.runOnce(() -> ballSubsystem.stop()),
 
-                driveSubsystem.driveAtTargetPose(new Pose2d(3.66, 6, new Rotation2d(Math.PI))),
-                new ParallelCommandGroup(
-                        ballSubsystem.run(() -> ballSubsystem.intake()).withTimeout(10),
+                driveSubsystem.driveAtTargetPose(new Pose2d(INITIAL_POSE_LEFT_BUMP.getX(), INITIAL_POSE_LEFT_BUMP.getY(), new Rotation2d(Math.PI))),
+                new ParallelRaceGroup(
+                        ballSubsystem.run(() -> ballSubsystem.intake()),
                         new SequentialCommandGroup(
-                                driveSubsystem.driveAtTargetPose(new Pose2d(8.27, 6, new Rotation2d(Math.PI))),
+                                driveSubsystem.driveAtTargetPose(new Pose2d(8.27, INITIAL_POSE_LEFT_BUMP.getY(), new Rotation2d(Math.PI))),
                                 driveSubsystem.driveAtTargetPose(new Pose2d(8.27, 4.03, new Rotation2d(3.0 / 2 * Math.PI)))
-                                // we need a driveBackwardsAtTargetPose so the intake can run at the same time
                         )
                 )
         );
