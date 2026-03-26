@@ -92,6 +92,7 @@ public class RobotContainer {
         autoChooser.addOption("[P2P] Sketch Human Player Station Auto", Autos.ChaosTheoryAuto(driveSubsystem, ballSubsystem));
         autoChooser.addOption("[TEST] center shoot and climb", ClimbAutos.centerShootClimb(driveSubsystem, ballSubsystem)); // TODO: confused as to why this Doesnt use climberSubsystem? -Arin
         autoChooser.addOption("[P2P] Left Climb", ClimbAutos.centerToLClimbP2P(driveSubsystem, ballSubsystem, climberSubsystem));
+        autoChooser.addOption("[PathPlan] Left Shoot x2", PathPlannedAutos.PathPlanLBumpShootX2(driveSubsystem, ballSubsystem));
         SmartDashboard.putData(autoChooser);
     }
 
@@ -207,8 +208,8 @@ public class RobotContainer {
      */
     public Command getAutonomousCommand() {
         // An example command will be run in autonomous
-        ///return autoChooser.getSelected();
-        return  AutoBuilder.buildAuto("New Auto");
+        return autoChooser.getSelected();
+
     }
 
 

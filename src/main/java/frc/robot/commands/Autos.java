@@ -23,7 +23,7 @@ public final class Autos {
                 driveSubsystem.driveAtTargetPose(new Pose2d(INITIAL_POSE_LEFT_BUMP.getX()-0.8, INITIAL_POSE_LEFT_BUMP.getY()-0.5, new Rotation2d(ballSubsystem.toFaceHub(INITIAL_POSE_LEFT_BUMP.getX(), INITIAL_POSE_LEFT_BUMP.getY())))),
                 //Safeguard spin up with a timeout! This makes simming possible!
                 ballSubsystem.shootAtTarget(0).withTimeout(4), //// TODO: tune the table!
-                ballSubsystem.launchCommand(() -> -6.63).withTimeout(4),
+                //ballSubsystem.launchCommand(() -> -6.63).withTimeout(4), //idk duplicate of above; use this is fable is bad
                 ballSubsystem.runOnce(() -> ballSubsystem.stop()),
 
                 driveSubsystem.driveAtTargetPose(new Pose2d(INITIAL_POSE_LEFT_BUMP.getX()-0.8, INITIAL_POSE_LEFT_BUMP.getY()-0.5, new Rotation2d())),
