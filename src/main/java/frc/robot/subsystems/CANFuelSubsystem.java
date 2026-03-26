@@ -211,18 +211,11 @@ public class CANFuelSubsystem extends SubsystemBase {
   }
 
   public double toFaceHub(){
-      if(isSim()){
-          System.out.println("Debugging angle:");
-          System.out.println(SS.toFaceHub().getRadians());
-      }
       return SS.toFaceHub().getRadians();
   }
 
     public double toFaceHub(Pose2d Current){
-        if(isSim()){
-            System.out.println("Debugging angle:");
-            System.out.println(SS.toFaceHub(Current).getRadians());
-        }
+
         return SS.toFaceHub(Current).getRadians();
     }
 

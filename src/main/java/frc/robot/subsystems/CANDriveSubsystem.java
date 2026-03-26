@@ -216,8 +216,7 @@ public class CANDriveSubsystem extends SubsystemBase {
         return kinematics.toChassisSpeeds(wheelSpeeds);
     }
     public void driveRobotRelative(ChassisSpeeds speeds) {
-        System.out.println("VX: " + speeds.vxMetersPerSecond +
-                " Omega: " + speeds.omegaRadiansPerSecond);
+
         DifferentialDriveWheelSpeeds wheelSpeeds =
                 kinematics.toWheelSpeeds(speeds);
 
