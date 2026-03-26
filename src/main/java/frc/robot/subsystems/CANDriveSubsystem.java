@@ -193,7 +193,11 @@ public class CANDriveSubsystem extends SubsystemBase {
                 this::resetOdometry, // Method to reset odometry (will be called if your auto has a starting pose)
                 this::getRobotRelativeSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
                 (speeds, feedforwards) -> driveRobotRelative(speeds), // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds. Also optionally outputs individual module feedforwards
-                new PPLTVController(0.02), // PPLTVController is the built in path following controller for differential drive trains
+                new PPLTVController(
+                        VecBuilder.fill(0.0625*1.2, 0.125*1.2, 3.1),  //  state costs [x, y, heading]
+                        VecBuilder.fill(0.55, 0.55),           //  input costs [left v, right v]
+                        0.02
+                ),
                 configz, // The robot configuration
                 () -> {
                     return false;
@@ -213,6 +217,7 @@ public class CANDriveSubsystem extends SubsystemBase {
         DifferentialDriveWheelSpeeds wheelSpeeds =
                 new DifferentialDriveWheelSpeeds(leftMPS, rightMPS);
 
+
         return kinematics.toChassisSpeeds(wheelSpeeds);
     }
     public void driveRobotRelative(ChassisSpeeds speeds) {
@@ -220,12 +225,13 @@ public class CANDriveSubsystem extends SubsystemBase {
         DifferentialDriveWheelSpeeds wheelSpeeds =
                 kinematics.toWheelSpeeds(speeds);
 
+
         // Normalize to max speed (prevents saturation issues)
-        wheelSpeeds.desaturate(3.0);
+        wheelSpeeds.desaturate(2.8);
 
         drive.tankDrive(
-                -wheelSpeeds.leftMetersPerSecond / 3.0,   ///  tune
-                -wheelSpeeds.rightMetersPerSecond / 3.0
+                -wheelSpeeds.leftMetersPerSecond / 2.8,   ///  tune
+                -wheelSpeeds.rightMetersPerSecond / 2.8
         );
     }
 
