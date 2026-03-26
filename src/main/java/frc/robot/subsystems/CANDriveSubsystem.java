@@ -229,8 +229,12 @@ public class CANDriveSubsystem extends SubsystemBase {
         );
     }
 
+
+    int tempReadThrottle = 0;
+    DifferentialDriveWheelSpeeds wheelSpeedsPeriodic =  new DifferentialDriveWheelSpeeds();
     @Override
     public void periodic() {
+        tempReadThrottle++;
         //logging
 
         SmartDashboard.putNumber("llEncoderMeters", leftLeader.getEncoder().getPosition());
@@ -241,10 +245,12 @@ public class CANDriveSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("rPIDPoint", rightPID.getSetpoint());
         SmartDashboard.putNumber("percentage", muffle);
 
-
-        highTempAlert.set((leftLeader.getMotorTemperature() > 50.0 || leftFollower.getMotorTemperature() > 50.0
-                || rightFollower.getMotorTemperature() > 50.0 || rightLeader.getMotorTemperature() > 50.0));
-        SmartDashboard.putBoolean("highTempAlert", highTempAlert.get());
+        if(tempReadThrottle == 20) {
+            highTempAlert.set((leftLeader.getMotorTemperature() > 50.0 || leftFollower.getMotorTemperature() > 50.0
+                    || rightFollower.getMotorTemperature() > 50.0 || rightLeader.getMotorTemperature() > 50.0));
+            SmartDashboard.putBoolean("highTempAlert", highTempAlert.get());
+            tempReadThrottle =0;
+        }
         ///  SIM AND NON-SIM GLOBAL VELOCITIES
         {
 
@@ -255,11 +261,11 @@ public class CANDriveSubsystem extends SubsystemBase {
 
 
 
-            DifferentialDriveWheelSpeeds wheelSpeeds =
-                    new DifferentialDriveWheelSpeeds(leftMPS, rightMPS);
+            wheelSpeedsPeriodic.leftMetersPerSecond = leftMPS;
+            wheelSpeedsPeriodic.rightMetersPerSecond = rightMPS;
 
             ChassisSpeeds robotSpeeds =
-                    kinematics.toChassisSpeeds(wheelSpeeds);
+                    kinematics.toChassisSpeeds(wheelSpeedsPeriodic);
 
             ChassisSpeeds fieldRelative =
                     ChassisSpeeds.fromRobotRelativeSpeeds(
@@ -337,9 +343,9 @@ public class CANDriveSubsystem extends SubsystemBase {
     // Command factory to create command to drive the robot with joystick inputs.
     public Command driveArcade(DoubleSupplier xSpeed, DoubleSupplier zRotation, BooleanSupplier shake) {
         return run(() -> {
-            DoubleSupplier percent = () -> this.muffle;
-            double limitedX = (percent.getAsDouble()/100)*limit.calculate(xSpeed.getAsDouble());
-            double rot = (percent.getAsDouble()/200 + 0.5)*zRotation.getAsDouble();
+            double percent = this.muffle;
+            double limitedX = (percent/100)*limit.calculate(xSpeed.getAsDouble());
+            double rot = (percent/200 + 0.5)*zRotation.getAsDouble();
             double isShake;
             double shakeSpeed = 0;
             if (shake.getAsBoolean()) {
