@@ -232,12 +232,9 @@ public class CANDriveSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         //logging
-        SmartDashboard.putNumber("leftLeaderEncoder", leftLeader.getEncoder().getPosition());
+
         SmartDashboard.putNumber("llEncoderMeters", leftLeader.getEncoder().getPosition());
-        SmartDashboard.putNumber("leftFollowerEncoder", leftFollower.getEncoder().getPosition()); // shouldn't be needed, just here to make sure (actually maybe it goes the opposite direction idk)
-        SmartDashboard.putNumber("rightLeaderEncoder", rightLeader.getEncoder().getPosition());
         SmartDashboard.putNumber("rlEncoderMeters", rightLeader.getEncoder().getPosition());
-        SmartDashboard.putNumber("rightFollowerEncoder", rightFollower.getEncoder().getPosition()); // shouldn't be needed, just here to make sure
         SmartDashboard.putNumber("leftSetPoint", lSetPoint);
         SmartDashboard.putNumber("rightSetPoint", rSetPoint);
         SmartDashboard.putNumber("lPIDPoint", leftPID.getSetpoint());
@@ -420,8 +417,8 @@ public class CANDriveSubsystem extends SubsystemBase {
         ps.resetOdometry(p);
     }
     public Command cresetOdometry(Pose2d p){
-        return run(()->resetOdometry(p));
-    }
+        return runOnce(()->resetOdometry(p));
+    } //not run
 
 
 
