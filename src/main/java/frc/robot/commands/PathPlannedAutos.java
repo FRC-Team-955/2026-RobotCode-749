@@ -16,7 +16,7 @@ public class PathPlannedAutos {
                 //ballSubsystem.launchCommand(() -> -6.63).withTimeout(4), //idk duplicate of above; use this is fable is bad
                 ballSubsystem.runOnce(() -> ballSubsystem.stop()),
                 new ParallelRaceGroup(
-                            AutoBuilder.buildAuto("LBumpShoot"),
+                            AutoBuilder.buildAuto("LBumpAuto"),
                             ballSubsystem.run(() -> ballSubsystem.intake())
                         ),
                 driveSubsystem.driveAtTargetPoseSup(()->ballSubsystem.poseToFaceHub()).withTimeout(1),
