@@ -19,6 +19,7 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
+import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.LTVUnicycleController;
@@ -51,10 +52,7 @@ import static edu.wpi.first.wpilibj.drive.DifferentialDrive.arcadeDriveIK;
 import static frc.robot.Constants.DriveConstants.*;
 import static frc.robot.RobotState.*;
 
-
-
-
-
+@Logged
 public class CANDriveSubsystem extends SubsystemBase {
     private final SparkMax leftLeader;
     private final SparkMax leftFollower;
