@@ -6,6 +6,7 @@ import com.revrobotics.spark.SparkLowLevel;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
+import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -16,7 +17,7 @@ import frc.robot.Constants;
 
 import static frc.robot.Constants.ClimbConstants.ENCODER_CAP;
 
-
+@Logged
 public class  CANClimberSubsystem extends SubsystemBase {
     private final SparkMax climber;
 
