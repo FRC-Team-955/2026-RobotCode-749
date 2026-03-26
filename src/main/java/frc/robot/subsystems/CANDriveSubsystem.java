@@ -12,6 +12,7 @@ import java.util.function.Supplier;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPLTVController;
+import com.pathplanner.lib.util.DriveFeedforwards;
 import com.revrobotics.sim.SparkRelativeEncoderSim;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
@@ -192,9 +193,9 @@ public class CANDriveSubsystem extends SubsystemBase {
                 this::getPose, // Robot pose supplier
                 this::resetOdometry, // Method to reset odometry (will be called if your auto has a starting pose)
                 this::getRobotRelativeSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
-                (speeds, feedforwards) -> driveRobotRelative(speeds), // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds. Also optionally outputs individual module feedforwards
+                (speeds, feedforwards) -> driveRobotRelative(speeds, feedforwards), // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds. Also optionally outputs individual module feedforwards
                 new PPLTVController(
-                        VecBuilder.fill(0.0625*1.2, 0.125*1.2, 3.1),  //  state costs [x, y, heading]
+                        VecBuilder.fill(0.08, 0.08, 0.25),  //  state costs [x, y, heading]
                         VecBuilder.fill(0.55, 0.55),           //  input costs [left v, right v]
                         0.02
                 ),
@@ -220,19 +221,23 @@ public class CANDriveSubsystem extends SubsystemBase {
 
         return kinematics.toChassisSpeeds(wheelSpeeds);
     }
-    public void driveRobotRelative(ChassisSpeeds speeds) {
-
+    public void driveRobotRelative(ChassisSpeeds speeds, DriveFeedforwards ff) {
         DifferentialDriveWheelSpeeds wheelSpeeds =
                 kinematics.toWheelSpeeds(speeds);
 
+        double leftTarget = wheelSpeeds.leftMetersPerSecond;
+        double rightTarget = wheelSpeeds.rightMetersPerSecond;
 
-        // Normalize to max speed (prevents saturation issues)
-        wheelSpeeds.desaturate(2.8);
+        double leftVel = leftLeader.getEncoder().getVelocity();
+        double rightVel = rightLeader.getEncoder().getVelocity();
 
-        drive.tankDrive(
-                -wheelSpeeds.leftMetersPerSecond / 2.8,   ///  tune
-                -wheelSpeeds.rightMetersPerSecond / 2.8
-        );
+        double leftOut = 0.1* leftPID.calculate(leftVel, leftTarget);
+        double rightOut = 0.1 * rightPID.calculate(rightVel, rightTarget);
+
+        leftOut = MathUtil.clamp(leftOut, -1, 1);
+        rightOut = MathUtil.clamp(rightOut, -1, 1);
+
+        drive.tankDrive(-leftOut, -rightOut);
     }
 
 
