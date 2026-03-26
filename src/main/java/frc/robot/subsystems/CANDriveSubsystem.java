@@ -9,6 +9,9 @@ import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
 
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.config.RobotConfig;
+import com.pathplanner.lib.controllers.PPLTVController;
 import com.revrobotics.sim.SparkRelativeEncoderSim;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
@@ -32,6 +35,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim;
@@ -46,6 +50,9 @@ import frc.robot.RobotState;
 import static edu.wpi.first.wpilibj.drive.DifferentialDrive.arcadeDriveIK;
 import static frc.robot.Constants.DriveConstants.*;
 import static frc.robot.RobotState.*;
+
+
+
 
 
 public class CANDriveSubsystem extends SubsystemBase {
@@ -88,20 +95,25 @@ public class CANDriveSubsystem extends SubsystemBase {
 
     private Timer timer = new Timer();
 
-/// TODO: TUNE THIS
+    /// TODO: TUNE THIS
     DifferentialDrivetrainSim drivetrainSim = new DifferentialDrivetrainSim(
             DCMotor.getNEO(2),       // 2 NEO motors on each side of the drivetrain.
             8.45,                    // Gearing
             1.821,                     // MOI from CAD??
             35,                    // 74ish lbs = 33.566 plus a little bit.
             Units.inchesToMeters(3), // The robot uses 3" radius wheels.
-        TRACK_WIDTH,                  // what u think it is
+            TRACK_WIDTH,                  // what u think it is
             // The standard deviations for measurement noise:
             // x and y:          0.001 m
             // heading:          0.001 rad
             // l and r velocity: 0.1   m/s
             // l and r position: 0.005 m
             VecBuilder.fill(0.00001, 0.00001, 0.001, 0.01, 0.01, 0.005, 0.005)); //smaller number makes sim tweak out less
+
+
+
+    /// ///// pathplanner
+    RobotConfig configz;
 
 
 
@@ -174,6 +186,52 @@ public class CANDriveSubsystem extends SubsystemBase {
         anglePID.enableContinuousInput(-Math.PI, Math.PI); // fixes angle wrap! finally
 
 
+        try{
+            configz = RobotConfig.fromGUISettings();
+        } catch (Exception e) {
+            // Handle exception as needed
+            e.printStackTrace();
+        }
+        AutoBuilder.configure(
+                this::getPose, // Robot pose supplier
+                this::resetOdometry, // Method to reset odometry (will be called if your auto has a starting pose)
+                this::getRobotRelativeSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
+                (speeds, feedforwards) -> driveRobotRelative(speeds), // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds. Also optionally outputs individual module feedforwards
+                new PPLTVController(0.02), // PPLTVController is the built in path following controller for differential drive trains
+                configz, // The robot configuration
+                () -> {
+                    return false;
+                },
+                this // Reference to this subsystem to set requirements
+        );
+
+
+    }
+    public Pose2d getPose() {
+        return globalPose;
+    }
+    public ChassisSpeeds getRobotRelativeSpeeds() {
+        double leftMPS = leftLeader.getEncoder().getVelocity();
+        double rightMPS = rightLeader.getEncoder().getVelocity();
+
+        DifferentialDriveWheelSpeeds wheelSpeeds =
+                new DifferentialDriveWheelSpeeds(leftMPS, rightMPS);
+
+        return kinematics.toChassisSpeeds(wheelSpeeds);
+    }
+    public void driveRobotRelative(ChassisSpeeds speeds) {
+        System.out.println("VX: " + speeds.vxMetersPerSecond +
+                " Omega: " + speeds.omegaRadiansPerSecond);
+        DifferentialDriveWheelSpeeds wheelSpeeds =
+                kinematics.toWheelSpeeds(speeds);
+
+        // Normalize to max speed (prevents saturation issues)
+        wheelSpeeds.desaturate(3.0);
+
+        drive.tankDrive(
+                -wheelSpeeds.leftMetersPerSecond / 3.0,   ///  tune
+                -wheelSpeeds.rightMetersPerSecond / 3.0
+        );
     }
 
     @Override
@@ -196,7 +254,7 @@ public class CANDriveSubsystem extends SubsystemBase {
                 || rightFollower.getMotorTemperature() > 50.0 || rightLeader.getMotorTemperature() > 50.0));
         SmartDashboard.putBoolean("highTempAlert", highTempAlert.get());
         ///  SIM AND NON-SIM GLOBAL VELOCITIES
-         {
+        {
 
             // SparkMax encoder velocity is RPM by default
             double leftMPS = leftLeader.getEncoder().getVelocity();
@@ -347,8 +405,8 @@ public class CANDriveSubsystem extends SubsystemBase {
 
     public Command autoSlowDrivePID(DoubleSupplier leftEncoder, DoubleSupplier rightEncoder) {
         return this.run(() -> {
-            drive.tankDrive(MathUtil.clamp(leftPID.calculate(leftEncoder.getAsDouble()), -0.8 * PID_DRIVE_CAP, 0.8*PID_DRIVE_CAP),
-                    MathUtil.clamp(rightPID.calculate(rightEncoder.getAsDouble()), -0.8 * PID_DRIVE_CAP, 0.8*PID_DRIVE_CAP));
+                    drive.tankDrive(MathUtil.clamp(leftPID.calculate(leftEncoder.getAsDouble()), -0.8 * PID_DRIVE_CAP, 0.8*PID_DRIVE_CAP),
+                            MathUtil.clamp(rightPID.calculate(rightEncoder.getAsDouble()), -0.8 * PID_DRIVE_CAP, 0.8*PID_DRIVE_CAP));
                 }
         ).until(() -> {
             return Math.abs(leftPID.getError()) < 0.1 && Math.abs(rightPID.getError()) < 0.1;

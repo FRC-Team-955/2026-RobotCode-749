@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.commands.PathPlannerAuto;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -63,6 +65,8 @@ public class RobotContainer {
 
 
     poseSubsystem.resetOdometry(initialPose);  /// TODO: TUNE THIS
+
+       
 
 
         configureBindings(); //controller bindings
@@ -203,7 +207,8 @@ public class RobotContainer {
      */
     public Command getAutonomousCommand() {
         // An example command will be run in autonomous
-        return autoChooser.getSelected();
+        ///return autoChooser.getSelected();
+        return  AutoBuilder.buildAuto("New Auto");
     }
 
 
