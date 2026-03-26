@@ -73,7 +73,7 @@ public class CANDriveSubsystem extends SubsystemBase {
 
     private final TrapezoidProfile.Constraints forwardConstraints =
             new TrapezoidProfile.Constraints(
-                    2.2,   // max velocity m/s TODO: TUNE THIS!!
+                    2.0,   // max velocity m/s TODO: TUNE THIS!!
                     0.5    // max acceleration (m/s)/s (ty mr buchanan)
             );
     private final ProfiledPIDController forwardPID =

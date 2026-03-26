@@ -115,16 +115,11 @@ public class RobotContainer {
         operatorController.leftBumper()
                 .whileTrue(ballSubsystem.runEnd(() -> ballSubsystem.intake(), () -> ballSubsystem.stop()));
 
-        driverController.y().whileTrue(driveSubsystem.driveAtTargetPoseSup(()->ballSubsystem.poseToFaceHub()).andThen(ballSubsystem.shootAtTarget(0)).finallyDo(()->ballSubsystem.stop()));
+        // auto aim
+        operatorController.rightBumper().whileTrue(driveSubsystem.driveAtTargetPoseSup(()->ballSubsystem.poseToFaceHub()).andThen(ballSubsystem.shootAtTarget(0)).finallyDo(()->ballSubsystem.stop()));
 
 
         //driverController.y().onTrue(driveSubsystem.shake());
-
-        // auto aim shoot
-        operatorController.rightBumper()
-                .whileTrue(ballSubsystem.spinUpCommand().until(() -> ballSubsystem.isAtSpeed(Constants.FuelConstants.SHOOTER_WEAK_SPEED*1.1))
-                        .andThen(ballSubsystem.launchCommand(() -> Constants.FuelConstants.SHOOTER_WEAK_LAUNCH_VOLTAGE*1.1))
-                        .finallyDo(() -> ballSubsystem.stop()));
 
         // weak shoot
         operatorController.x()
@@ -132,13 +127,13 @@ public class RobotContainer {
                         .andThen(ballSubsystem.launchCommand(() -> Constants.FuelConstants.SHOOTER_WEAK_LAUNCH_VOLTAGE))
                         .finallyDo(() -> ballSubsystem.stop()));
 
-        // mid shoot
+        // weak mid shoot
         operatorController.y()
-                .whileTrue(ballSubsystem.spinUpCommand().until(() -> ballSubsystem.isAtSpeed(Constants.FuelConstants.SHOOTER_WEAK_SPEED*1.2))
-                        .andThen(ballSubsystem.launchCommand(() -> Constants.FuelConstants.SHOOTER_WEAK_LAUNCH_VOLTAGE*1.2))
+                .whileTrue(ballSubsystem.spinUpCommand().until(() -> ballSubsystem.isAtSpeed(Constants.FuelConstants.SHOOTER_WEAK_SPEED*1.1))
+                        .andThen(ballSubsystem.launchCommand(() -> Constants.FuelConstants.SHOOTER_WEAK_LAUNCH_VOLTAGE*1.1))
                         .finallyDo(() -> ballSubsystem.stop()));
 
-        // far shoot
+        // mid shoot
         operatorController.b()
                 .whileTrue(ballSubsystem.spinUpCommand().until(()->ballSubsystem.isAtSpeed(Constants.FuelConstants.SHOOTER_STRONG_SPEED))
                         .andThen(ballSubsystem.launchCommand(() -> Constants.FuelConstants.SHOOTER_LAUNCH_VOLTAGE))
