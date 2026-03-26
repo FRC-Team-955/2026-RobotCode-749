@@ -200,7 +200,7 @@ public class CANDriveSubsystem extends SubsystemBase {
                 ),
                 configz, // The robot configuration
                 () -> {
-                    return false;
+                    return false; // no flip path for opposite alliance; pose subsystem compensates internally.
                 },
                 this // Reference to this subsystem to set requirements
         );
