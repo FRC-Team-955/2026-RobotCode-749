@@ -79,8 +79,6 @@ public class LEDSystem extends SubsystemBase {
 
     public void rainbow() {
         m_scrollingRainbow.applyTo(m_ledBuffer);
-        m_led.setData(m_ledBuffer);
-        m_led.start();
     }
 
     public void setLEDs() {
@@ -118,24 +116,13 @@ public class LEDSystem extends SubsystemBase {
     }
 
     public void setPhase() {
-        if (DriverStation.getMatchTime() < 140.0) {
-            phase = 6;
-            if (DriverStation.getMatchTime() < 110.0) {
-                phase = 5;
-                if (DriverStation.getMatchTime() < 85.0) {
-                    phase = 4;
-                    if (DriverStation.getMatchTime() < 60.0) {
-                        phase = 3;
-                        if (DriverStation.getMatchTime() < 35.0) {
-                            phase = 2;
-                            if (DriverStation.getMatchTime() < 10) {
-                                phase = 1;
-                            }
-                        }
-                    }
-                }
-            }
-        }
+        double matchTime = DriverStation.getMatchTime();
+        if (matchTime < 10.0)  phase = 1;
+        else if (matchTime < 35.0)  phase = 2;
+        else if (matchTime < 60.0)  phase = 3;
+        else if (matchTime < 85.0)  phase = 4;
+        else if (matchTime < 110.0) phase = 5;
+        else if (matchTime < 140.0) phase = 6;
     }
 
     public void redLEDS() {
@@ -157,15 +144,15 @@ public class LEDSystem extends SubsystemBase {
     public void hubLEDS() {
         if (phase == 2 || phase == 4) {
             if (autoWinner == 2) {
-                blueLEDS();
+                blue();
             } else if (autoWinner == 1) {
-                redLEDS();
+                red();
             }
         } else if (phase == 3 || phase == 5) {
             if (autoWinner == 2) {
-                redLEDS();
+                red();
             } else if (autoWinner == 1) {
-                blueLEDS();
+                blue();
             }
         }
     }
