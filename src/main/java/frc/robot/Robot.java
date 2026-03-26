@@ -4,8 +4,6 @@
 
 package frc.robot;
 
-import edu.wpi.first.epilogue.Epilogue;
-import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.hal.HAL;
 import edu.wpi.first.hal.FRCNetComm.tResourceType;
 import edu.wpi.first.math.MathUtil;
@@ -32,27 +30,16 @@ import static frc.robot.RobotState.*;
  * project.
  */
 
-@Logged
 public class Robot extends TimedRobot {
     private Command m_autonomousCommand;
 
     private RobotContainer m_robotContainer;
-    private final CANFuelSubsystem fuelSubsystem;
-    public final PoseSubsystem poseSubsystem;
-    private final CANDriveSubsystem driveSubsystem;
-    public final CANClimberSubsystem climberSubsystem;
-    LEDSystem LEDS = new LEDSystem();
-    private Timer timer = new Timer();
-
-    public Robot() {
-        poseSubsystem = new PoseSubsystem();
-        driveSubsystem = new CANDriveSubsystem(poseSubsystem);
-        fuelSubsystem = new CANFuelSubsystem();
-        climberSubsystem = new CANClimberSubsystem();
-        DataLogManager.start();
-        Epilogue.bind(this);
-    }
-
+        private final CANFuelSubsystem fuelSubsystem = new CANFuelSubsystem();
+        public final PoseSubsystem poseSubsystem = new PoseSubsystem();
+        private final CANDriveSubsystem driveSubsystem = new CANDriveSubsystem(poseSubsystem);
+        public final CANClimberSubsystem climberSubsystem = new CANClimberSubsystem();
+        LEDSystem LEDS = new LEDSystem();
+        private Timer timer = new Timer();
     /**
      * This function is run when the robot is first started up and should be used
      * for any

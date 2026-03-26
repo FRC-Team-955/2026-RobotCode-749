@@ -13,7 +13,6 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.SparkMax;
 
-import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -37,7 +36,6 @@ import java.util.function.DoubleSupplier;
 import static frc.robot.Constants.FuelConstants.*;
 import static frc.robot.RobotState.*;
 
-@Logged
 @SuppressWarnings("removal") //weird deprecation warning. As all programmers know, suppressing errors is better than fixing them
 public class CANFuelSubsystem extends SubsystemBase {
   private final SparkMax feederRoller;

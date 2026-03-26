@@ -1,5 +1,4 @@
 package frc.robot.subsystems;
-import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.DifferentialDrivePoseEstimator;
 
@@ -24,7 +23,6 @@ import frc.robot.LimelightHelpers;
 
 import static frc.robot.RobotState.*;
 
-@Logged
 public class PoseSubsystem extends SubsystemBase {
     Pigeon2 gyro = new Pigeon2(Constants.DriveConstants.PIGEON_ID, "rio");
 
