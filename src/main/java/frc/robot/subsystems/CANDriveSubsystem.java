@@ -450,7 +450,7 @@ public class CANDriveSubsystem extends SubsystemBase {
         double angleError =
                 current.getRotation().minus(target.getRotation()).getRadians();
 
-        return (dist < 0.13) && (Math.abs(angleError) < Math.toRadians(5));
+        return (dist < 0.2) && (Math.abs(angleError) < Math.toRadians(5));
     }
 
     private boolean isAtPoseLessAccurate(Pose2d current, Pose2d target) {
