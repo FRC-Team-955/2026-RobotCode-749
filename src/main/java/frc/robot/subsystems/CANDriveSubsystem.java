@@ -95,7 +95,7 @@ public class CANDriveSubsystem extends SubsystemBase {
     DifferentialDrivetrainSim drivetrainSim = new DifferentialDrivetrainSim(
             DCMotor.getNEO(2),       // 2 NEO motors on each side of the drivetrain.
             8.45,                    // Gearing
-            1.821,                     // MOI from CAD??
+            1/12 * 35 * (Math.pow(DBASE_LENGTH_WITH_BUMPERS+INTAKE_EXTENSION_LENGTH,2) + Math.pow(DBASE_WIDTH_WITH_BUMPERS,2)), // rough estimate based on pathplanner formula (assumes uniform mass so definitely off)
             35,                    // 74ish lbs = 33.566 plus a little bit.
             Units.inchesToMeters(3), // The robot uses 3" radius wheels.
             TRACK_WIDTH,                  // what u think it is

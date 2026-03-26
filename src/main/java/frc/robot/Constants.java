@@ -28,6 +28,7 @@ public final class Constants {
         public static final double TRACK_WIDTH = Units.inchesToMeters(21.5); // meters
         public static final double DBASE_WIDTH_WITH_BUMPERS = Units.inchesToMeters(33.0);
         public static final double DBASE_LENGTH_WITH_BUMPERS = Units.inchesToMeters(32.8);
+        public static final double INTAKE_EXTENSION_LENGTH = 0.167; // meters, taken from PathPlanner which I measured in CAD
 
         // Motor controller IDs for drivetrain motors
         public static final int LEFT_LEADER_ID = 2;
