@@ -66,7 +66,11 @@ public final class LimeLightIO {
                     tiemstamp = est.timestampSeconds;
                     target = est.tagCount >0; // yay saved a LLHelpers call here
                 }
-                //Thread.sleep(1000/refreshRate); // busy wait?? might as well spam poll since its slow
+                try {
+                    Thread.sleep(10); // busy wait?? might as well spam poll since its slow
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
             }
 
         });
