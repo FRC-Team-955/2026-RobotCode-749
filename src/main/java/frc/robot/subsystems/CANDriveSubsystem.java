@@ -196,7 +196,7 @@ public class CANDriveSubsystem extends SubsystemBase {
                 (speeds, feedforwards) -> driveRobotRelative(speeds, feedforwards), // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds. Also optionally outputs individual module feedforwards
                 new PPLTVController(
                         VecBuilder.fill(0.08, 0.08, 0.25),  //  state costs [x, y, heading]
-                        VecBuilder.fill(0.45, 0.45),           //  input costs [left v, right v]    //// TODO: tune this
+                        VecBuilder.fill(0.445, 0.445),           //  input costs [left v, right v]    //// TODO: tune this
                         0.02
                 ),
                 configz, // The robot configuration
