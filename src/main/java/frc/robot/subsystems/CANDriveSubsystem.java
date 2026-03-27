@@ -224,6 +224,8 @@ public class CANDriveSubsystem extends SubsystemBase {
 
         return kinematics.toChassisSpeeds(wheelSpeeds);
     }
+
+    double BLEND_FACTOR = 0.67; //tune this down for more blend (also maybe an issue in the LTV costs. Really we want tp avoid having a bajillion things to tune, but for now)
     public void driveRobotRelative(ChassisSpeeds speeds, DriveFeedforwards ff) {
         DifferentialDriveWheelSpeeds wheelSpeeds =
                 kinematics.toWheelSpeeds(speeds);
@@ -234,8 +236,12 @@ public class CANDriveSubsystem extends SubsystemBase {
         double leftVel = leftLeader.getEncoder().getVelocity();
         double rightVel = rightLeader.getEncoder().getVelocity();
 
-        double leftOut = 0.8 * leftPIDVelocity.calculate(leftVel, leftTarget);  //TODO: tune this number (and the PID constants)
-        double rightOut = 0.8 * rightPIDVelocity.calculate(rightVel, rightTarget);
+        double leftOut = 0.85 * leftPIDVelocity.calculate(leftVel, leftTarget);  //TODO: tune this number (and the PID constants)
+        double rightOut = 0.85 * rightPIDVelocity.calculate(rightVel, rightTarget);
+
+        double overal = (leftOut+rightOut)/2.0;
+        leftOut = BLEND_FACTOR*leftOut + (1.0-BLEND_FACTOR)*overal;
+        rightOut = BLEND_FACTOR*rightOut + (1.0-BLEND_FACTOR)*overal;
 
         leftOut = MathUtil.clamp(leftOut, -1, 1);
         rightOut = MathUtil.clamp(rightOut, -1, 1);
