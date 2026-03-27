@@ -9,6 +9,8 @@ import frc.robot.subsystems.CANDriveSubsystem;
 import frc.robot.subsystems.CANFuelSubsystem;
 
 import static frc.robot.Constants.PoseConstants.INITIAL_POSE_LEFT_BUMP;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 
 public class PathPlannedAutos {
 
