@@ -96,7 +96,7 @@ public class CANDriveSubsystem extends SubsystemBase {
     DifferentialDrivetrainSim drivetrainSim = new DifferentialDrivetrainSim(
             DCMotor.getNEO(2),       // 2 NEO motors on each side of the drivetrain.
             8.45,                    // Gearing
-            1.0/12.0 * 35.0 * (Math.pow(DBASE_LENGTH_WITH_BUMPERS+INTAKE_EXTENSION_LENGTH,2) + Math.pow(DBASE_WIDTH_WITH_BUMPERS,2)), // rough estimate based on pathplanner formula (assumes uniform mass so definitely off)
+            1.0/12.0 * 37.648 * (Math.pow(DBASE_LENGTH_WITH_BUMPERS+INTAKE_EXTENSION_LENGTH,2) + Math.pow(DBASE_WIDTH_WITH_BUMPERS,2)), // rough estimate based on pathplanner formula (assumes uniform mass so definitely off)
             35.0,                    // 74ish lbs = 33.566 plus a little bit.
             Units.inchesToMeters(3), // The robot uses 3" radius wheels.
             TRACK_WIDTH,                  // what u think it is
@@ -196,7 +196,7 @@ public class CANDriveSubsystem extends SubsystemBase {
                 (speeds, feedforwards) -> driveRobotRelative(speeds, feedforwards), // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds. Also optionally outputs individual module feedforwards
                 new PPLTVController(
                         VecBuilder.fill(0.08, 0.08, 0.25),  //  state costs [x, y, heading]
-                        VecBuilder.fill(0.55, 0.55),           //  input costs [left v, right v]    //// TODO: tune this
+                        VecBuilder.fill(0.45, 0.45),           //  input costs [left v, right v]    //// TODO: tune this
                         0.02
                 ),
                 configz, // The robot configuration

@@ -19,6 +19,7 @@ public class PathPlannedAutos {
                 ballSubsystem.shootAtTarget(0).withTimeout(4), //// TODO: tune the table!
                 //ballSubsystem.launchCommand(() -> -6.63).withTimeout(4), //idk duplicate of above; use this is fable is bad
                 ballSubsystem.runOnce(() -> ballSubsystem.stop()),
+                driveSubsystem.driveAtTargetPoseSup(()->INITIAL_POSE_LEFT_BUMP).withTimeout(1),
                 new ParallelRaceGroup(
                             AutoBuilder.buildAuto("Left Bump Shoot"),
                             ballSubsystem.run(() -> ballSubsystem.intake())
