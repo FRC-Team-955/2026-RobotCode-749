@@ -9,6 +9,8 @@ import frc.robot.subsystems.CANDriveSubsystem;
 import frc.robot.subsystems.CANFuelSubsystem;
 
 import static frc.robot.Constants.PoseConstants.INITIAL_POSE_LEFT_BUMP;
+import static frc.robot.Constants.PoseConstants.INITIAL_POSE_RIGHT_BUMP;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 
@@ -26,6 +28,25 @@ public class PathPlannedAutos {
                             AutoBuilder.buildAuto("Left Bump Shoot"),
                             ballSubsystem.run(() -> ballSubsystem.intake())
                         ),
+                driveSubsystem.driveAtTargetPoseSup(()->ballSubsystem.poseToFaceHub()).withTimeout(1),
+                ballSubsystem.shootAtTarget(0).withTimeout(4), //// TODO: tune the table!
+                //ballSubsystem.launchCommand(() -> -6.63).withTimeout(4), //idk duplicate of above; use this is fable is bad
+                ballSubsystem.runOnce(() -> ballSubsystem.stop())
+        );
+    }
+
+    public static Command PathPlanRBumpShootX2(CANDriveSubsystem driveSubsystem, CANFuelSubsystem ballSubsystem){
+        return  new SequentialCommandGroup(
+                driveSubsystem.runOnce(()-> driveSubsystem.resetOdometry(INITIAL_POSE_RIGHT_BUMP)),
+                driveSubsystem.driveAtTargetPoseSup(()->ballSubsystem.poseToFaceHub()).withTimeout(1),
+                ballSubsystem.shootAtTarget(0).withTimeout(4), //// TODO: tune the table!
+                //ballSubsystem.launchCommand(() -> -6.63).withTimeout(4), //idk duplicate of above; use this is fable is bad
+                ballSubsystem.runOnce(() -> ballSubsystem.stop()),
+                driveSubsystem.driveAtTargetPoseSup(()->new Pose2d(INITIAL_POSE_RIGHT_BUMP.getTranslation(),Rotation2d.kZero)).withTimeout(1),
+                new ParallelRaceGroup(
+                        AutoBuilder.buildAuto("Right Bump Shoot"),
+                        ballSubsystem.run(() -> ballSubsystem.intake())
+                ),
                 driveSubsystem.driveAtTargetPoseSup(()->ballSubsystem.poseToFaceHub()).withTimeout(1),
                 ballSubsystem.shootAtTarget(0).withTimeout(4), //// TODO: tune the table!
                 //ballSubsystem.launchCommand(() -> -6.63).withTimeout(4), //idk duplicate of above; use this is fable is bad

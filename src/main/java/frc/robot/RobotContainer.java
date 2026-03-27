@@ -91,6 +91,7 @@ public class RobotContainer {
         autoChooser.addOption("[TEST] center shoot and climb", ClimbAutos.centerShootClimb(driveSubsystem, ballSubsystem)); // TODO: confused as to why this Doesnt use climberSubsystem? -Arin
         autoChooser.addOption("[P2P] Left Climb", ClimbAutos.centerToLClimbP2P(driveSubsystem, ballSubsystem, climberSubsystem));
         autoChooser.addOption("[PathPlan] Left Shoot x2", PathPlannedAutos.PathPlanLBumpShootX2(driveSubsystem, ballSubsystem));
+        autoChooser.addOption("[PathPlan] Right Shoot x2", PathPlannedAutos.PathPlanRBumpShootX2(driveSubsystem, ballSubsystem));
         SmartDashboard.putData(autoChooser);
     }
 
