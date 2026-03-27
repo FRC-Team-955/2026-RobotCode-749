@@ -234,8 +234,8 @@ public class CANDriveSubsystem extends SubsystemBase {
         double leftVel = leftLeader.getEncoder().getVelocity();
         double rightVel = rightLeader.getEncoder().getVelocity();
 
-        double leftOut = 0.7 * leftPIDVelocity.calculate(leftVel, leftTarget);  //TODO: tune this number (and the PID constants)
-        double rightOut = 0.7 * rightPIDVelocity.calculate(rightVel, rightTarget);
+        double leftOut = 0.8 * leftPIDVelocity.calculate(leftVel, leftTarget);  //TODO: tune this number (and the PID constants)
+        double rightOut = 0.8 * rightPIDVelocity.calculate(rightVel, rightTarget);
 
         leftOut = MathUtil.clamp(leftOut, -1, 1);
         rightOut = MathUtil.clamp(rightOut, -1, 1);

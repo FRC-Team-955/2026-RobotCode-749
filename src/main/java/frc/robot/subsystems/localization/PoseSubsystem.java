@@ -42,7 +42,7 @@ public class PoseSubsystem extends SubsystemBase {
 
     public PoseSubsystem() {
         poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(0.28,0.28,Math.PI/6)); // yaw angle +; xy are ok
-        limelight1 = new LimeLightIO("",-0.179,0.0558+0.2732,0.097/2+ 0.302,90.0,-14.0,90.0-30.75);
+        limelight1 = new LimeLightIO("",-0.179,0.0558+0.2732,0.097/2+ 0.302,90.0,-14.0,90.0-30.75); //from center of robot. IDK if rotations chain or abs
 
     }
 
