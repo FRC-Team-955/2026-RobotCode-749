@@ -75,6 +75,9 @@ public class CANDriveSubsystem extends SubsystemBase {
     public final PIDController leftPID = new PIDController(KP, KI, KD);
     public final PIDController rightPID = new PIDController(KP, KI, KD);
 
+    public final PIDController leftPIDVelocity = new PIDController(0.13, 0, 0.01);
+    public final PIDController rightPIDVelocity = new PIDController(0.13, 0, 0.01);
+
     private final TrapezoidProfile.Constraints forwardConstraints =
             new TrapezoidProfile.Constraints(
                     2.0,   // max velocity m/s TODO: TUNE THIS!!
@@ -231,8 +234,8 @@ public class CANDriveSubsystem extends SubsystemBase {
         double leftVel = leftLeader.getEncoder().getVelocity();
         double rightVel = rightLeader.getEncoder().getVelocity();
 
-        double leftOut = 0.05* leftPID.calculate(leftVel, leftTarget);  //TODO: tune this number
-        double rightOut = 0.05 * rightPID.calculate(rightVel, rightTarget);
+        double leftOut = 0.7 * leftPIDVelocity.calculate(leftVel, leftTarget);  //TODO: tune this number (and the PID constants)
+        double rightOut = 0.7 * rightPIDVelocity.calculate(rightVel, rightTarget);
 
         leftOut = MathUtil.clamp(leftOut, -1, 1);
         rightOut = MathUtil.clamp(rightOut, -1, 1);
