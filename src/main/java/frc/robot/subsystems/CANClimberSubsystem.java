@@ -10,6 +10,7 @@ import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -20,7 +21,8 @@ import static frc.robot.Constants.ClimbConstants.ENCODER_CAP;
 @Logged
 public class  CANClimberSubsystem extends SubsystemBase {
     private final SparkMax climber;
-
+    DigitalInput getLimitSwitch = new  DigitalInput(0);
+    // I2C i2c = new I2C(I2C.Port.kMXP,Constants.ClimbConstants.I2C_PORT);
     private final RelativeEncoder climberEncoder;
     public final PIDController PIDController = new PIDController(Constants.ClimbConstants.KP, Constants.ClimbConstants.KI, Constants.ClimbConstants.KD);
     public double mode = 1;
@@ -28,7 +30,6 @@ public class  CANClimberSubsystem extends SubsystemBase {
     public double topEncoderValue;
     public double bottomEncoderValue;
 
-    DigitalInput limitSwitch = new DigitalInput(Constants.ClimbConstants.LIMITSWITCH_ID);
 
     public  CANClimberSubsystem() {
         climber = new SparkMax(Constants.ClimbConstants.CLIMBER_ID, SparkLowLevel.MotorType.kBrushless);
@@ -36,6 +37,7 @@ public class  CANClimberSubsystem extends SubsystemBase {
         SparkMaxConfig config = new SparkMaxConfig();
         config.idleMode(SparkBaseConfig.IdleMode.kBrake);
         climber.configure(config, SparkBase.ResetMode.kNoResetSafeParameters, SparkBase.PersistMode.kPersistParameters);
+        System.out.println(getLimitSwitch.get());
 
     }
 
@@ -141,7 +143,7 @@ public class  CANClimberSubsystem extends SubsystemBase {
         } else if (mode == 3) {
             SmartDashboard.putString("Climber Mode", "Tuning");
         }
-        SmartDashboard.putBoolean("Climber Limit Switch", limitSwitch.get());
+        // SmartDashboard.putBoolean("Climber Limit Switch", i2c.read(0, 1));
 
         //System.out.print("CLIMBER ENC: "); System.out.println(climberEncoder.getPosition());
         // TOP -93
