@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.GenericHID;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -13,6 +15,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import static frc.robot.Constants.OperatorConstants.*;
 import static frc.robot.RobotState.initialPose;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.commands.*;
 import frc.robot.subsystems.CANClimberSubsystem;
 import frc.robot.subsystems.CANDriveSubsystem;
@@ -37,11 +40,11 @@ public class RobotContainer {
 
 
     // The driver's controller
-    private final CommandXboxController driverController = new CommandXboxController(
+    private static final CommandXboxController driverController = new CommandXboxController(
             DRIVER_CONTROLLER_PORT);
 
     // The operator's controller
-    private final CommandXboxController operatorController = new CommandXboxController(
+    private static final CommandXboxController operatorController = new CommandXboxController(
             OPERATOR_CONTROLLER_PORT);
 
     // The autonomous chooser
@@ -73,7 +76,8 @@ public class RobotContainer {
         // Set the options to show up in the Dashboard for selecting auto modes. If you
         // add additional auto modes you can add additional lines here with
         // autoChooser.addOption
-        autoChooser.setDefaultOption("[P2P] Left Climb", ClimbAutos.centerToLClimbP2P(driveSubsystem, ballSubsystem, climberSubsystem));
+        // autoChooser.setDefaultOption("[P2P] Left Climb", ClimbAutos.centerToLClimbP2P(driveSubsystem, ballSubsystem, climberSubsystem));
+        autoChooser.setDefaultOption("Center Weak Shoot", NonP2PAutos.centerShoot(driveSubsystem, ballSubsystem));
         autoChooser.addOption("Right Bump Shoot", NonP2PAutos.rBumpShoot(driveSubsystem, ballSubsystem));
         autoChooser.addOption("Left Bump Shoot", NonP2PAutos.lBumpShoot(driveSubsystem, ballSubsystem));
         autoChooser.addOption("Center Weak Shoot", NonP2PAutos.centerShoot(driveSubsystem, ballSubsystem));
@@ -179,7 +183,7 @@ public class RobotContainer {
             driveSubsystem.driveArcade(
                     () -> driverController.getRawAxis(1) * DRIVE_SCALING,
                     () -> driverController.getRawAxis(0) * ROTATION_SCALING,
-                    () -> false // im sorry idk what to put here arin
+                    () -> false
             ));
 
             //driveSubsystem.setDefaultCommand(driveSubsystem.driveAtTargetPose(new Pose2d(1,1,new Rotation2d())));
@@ -189,7 +193,7 @@ public class RobotContainer {
             driveSubsystem.driveArcade(
                     () -> driverController.getLeftY() * DRIVE_SCALING,
                     () -> driverController.getRightX() * ROTATION_SCALING,
-                    () -> operatorController.x().getAsBoolean() || operatorController.y().getAsBoolean() || operatorController.b().getAsBoolean() || operatorController.rightBumper().getAsBoolean()));
+                    () -> operatorController.x().getAsBoolean() || operatorController.y().getAsBoolean() || operatorController.b().getAsBoolean() || operatorController.rightBumper().getAsBoolean() || driverController.b().getAsBoolean()));
         }
 
 
@@ -211,6 +215,14 @@ public class RobotContainer {
 
     }
 
+    public static void rumble() {
+        driverController.setRumble(GenericHID.RumbleType.kBothRumble, 0.25);
+        operatorController.setRumble(GenericHID.RumbleType.kBothRumble, 0.25);
+    }
 
+    public static void noRumble() {
+        driverController.setRumble(GenericHID.RumbleType.kBothRumble, 0);
+        operatorController.setRumble(GenericHID.RumbleType.kBothRumble, 0);
+    }
 
 }

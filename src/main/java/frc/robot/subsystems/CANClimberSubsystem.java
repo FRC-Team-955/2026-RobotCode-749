@@ -89,7 +89,7 @@ public class  CANClimberSubsystem extends SubsystemBase {
 
     public void goDown() {
         if (mode == 2) {
-            PIDController.setSetpoint(topEncoderValue - ENCODER_CAP*0.92);
+            PIDController.setSetpoint(topEncoderValue - ENCODER_CAP*0.99);
             climber.set(MathUtil.clamp(PIDController.calculate(climberEncoder.getPosition()), -5, 0));
         } else if (mode == 1) {
             climber.set(0);

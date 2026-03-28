@@ -40,6 +40,7 @@ public class LEDSystem extends SubsystemBase {
     double phase;
     double alliance = 0; // 1 is blue, 2 is red
     double autoWinner = 0; // 1 is blue, 2 is red
+    double matchTime;
 
     public LEDSystem(){
         m_led =  new AddressableLED(0);
@@ -109,14 +110,17 @@ public class LEDSystem extends SubsystemBase {
             char character = message.charAt(0);
             if (character == 'R') {
                 autoWinner = 2;
+                SmartDashboard.putString("Auto Winner", "Red");
             } else if (character == 'B') {
                autoWinner = 1;
+               SmartDashboard.putString("Auto Winner", "Blue");
             }
+        } else {
+            SmartDashboard.putString("Auto Winner", "none");
         }
     }
 
     public void setPhase() {
-        double matchTime = DriverStation.getMatchTime();
         if (matchTime < 10.0)  phase = 1;
         else if (matchTime < 35.0)  phase = 2;
         else if (matchTime < 60.0)  phase = 3;
@@ -157,8 +161,53 @@ public class LEDSystem extends SubsystemBase {
         }
     }
 
+    public void shake() {
+        if (phase == 1) {
+            if (autoWinner == alliance) {
+                RobotContainer.noRumble();
+            } else {
+                if (10.0 - matchTime < 5.0) {
+                    RobotContainer.rumble();
+                } else {
+                    RobotContainer.noRumble();
+                }
+            }
+        } else if (phase == 2) {
+            if (35.0 - matchTime < 5.0) {
+                RobotContainer.rumble();
+            } else {
+                RobotContainer.noRumble();
+            }
+        } else if (phase == 3) {
+            if (60.0 - matchTime < 5.0) {
+                RobotContainer.rumble();
+            } else {
+                RobotContainer.noRumble();
+            }
+        } else if (phase == 4) {
+            if (85.0 - matchTime < 5.0) {
+                RobotContainer.rumble();
+            } else {
+                RobotContainer.noRumble();
+            }
+        } else if (phase == 5) {
+            if (110.0 - matchTime < 5.0) {
+                RobotContainer.rumble();
+            } else {
+                RobotContainer.noRumble();
+            }
+        } else if (phase == 6) {
+            if (140.0 - matchTime < 5.0) {
+                RobotContainer.rumble();
+            } else {
+                RobotContainer.noRumble();
+            }
+        }
+    }
+
     @Override
     public void periodic() {
+        matchTime = DriverStation.getMatchTime();
         setPhase();
 
         if (alliance == 0) {
@@ -227,13 +276,26 @@ public class LEDSystem extends SubsystemBase {
             } else {
                 pink();
             }
+            SmartDashboard.putString("Alliance", "none");
         } else if (alliance == 2) {
             redLEDS();
+            SmartDashboard.putString("Alliance", "Red");
+            shake();
         } else if (alliance == 1) {
             blueLEDS();
+            SmartDashboard.putString("Alliance", "Blue");
+            shake();
+        }
+        if (autoWinner == 1) {
+            SmartDashboard.putString("Auto Winner", "Blue");
+        } else if (autoWinner == 2) {
+            SmartDashboard.putString("Auto Winner", "Red");
+        } else {
+            SmartDashboard.putString("Auto Winner", "none");
         }
 
         setLEDs();
+
     }
 
 
