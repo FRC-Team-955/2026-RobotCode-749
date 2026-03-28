@@ -37,7 +37,7 @@ public class  CANClimberSubsystem extends SubsystemBase {
         SparkMaxConfig config = new SparkMaxConfig();
         config.idleMode(SparkBaseConfig.IdleMode.kBrake);
         climber.configure(config, SparkBase.ResetMode.kNoResetSafeParameters, SparkBase.PersistMode.kPersistParameters);
-        System.out.println(getLimitSwitch.get());
+        System.out.print("Climber Limit Switch:"); System.out.println(getLimitSwitch.get());
 
     }
 

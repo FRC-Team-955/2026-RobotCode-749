@@ -96,6 +96,7 @@ public class RobotContainer {
         autoChooser.addOption("[P2P] Left Climb", ClimbAutos.centerToLClimbP2P(driveSubsystem, ballSubsystem, climberSubsystem));
         autoChooser.addOption("[PathPlan] Left Shoot x2", PathPlannedAutos.PathPlanLBumpShootX2(driveSubsystem, ballSubsystem));
         autoChooser.addOption("[PathPlan] Right Shoot x2", PathPlannedAutos.PathPlanRBumpShootX2(driveSubsystem, ballSubsystem));
+        autoChooser.addOption("[PathPlan] L Climb", PathPlannedAutos.PathPlanLClimb(driveSubsystem, climberSubsystem));
         SmartDashboard.putData(autoChooser);
     }
 
