@@ -9,8 +9,10 @@ import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.hal.HAL;
 import edu.wpi.first.hal.FRCNetComm.tResourceType;
 import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.subsystems.CANClimberSubsystem;
@@ -33,13 +35,14 @@ import static frc.robot.RobotState.*;
 @Logged
 public class Robot extends TimedRobot {
     private Command m_autonomousCommand;
-
+    LEDSchedule LEDS;
     private RobotContainer m_robotContainer;
     private final CANFuelSubsystem fuelSubsystem;
     public final PoseSubsystem poseSubsystem;
     private final CANDriveSubsystem driveSubsystem;
     public final CANClimberSubsystem climberSubsystem;
-    LEDSystem LEDS = new LEDSystem();
+    //LEDSystem LEDS = new LEDSystem();
+
     private Timer timer = new Timer();
 
     public Robot() {
@@ -100,7 +103,6 @@ public class Robot extends TimedRobot {
     @Override
     public void disabledInit() {
         fuelSubsystem.setBrakeMode();
-        LEDS.stopTimer();
     }
 
     @Override
@@ -114,6 +116,8 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void autonomousInit() {
+        LEDS = new LEDSchedule(RobotState.isRedAlliance()?2:1);
+        LEDS.goAuto();
         System.out.println("AUTO.INIT");
         driveSubsystem.resetOdometry(initialPose);
         globalPose = initialPose;
@@ -137,12 +141,26 @@ public class Robot extends TimedRobot {
 
     @Override
     public void teleopInit() {
+        int aw = 0;
+        String message = DriverStation.getGameSpecificMessage();
+        if (message.length() > 0) {
+            char character = message.charAt(0);
+            if (character == 'R') {
+                aw = 2;
+                SmartDashboard.putString("Auto Winner", "Red");
+            } else if (character == 'B') {
+                aw = 1;
+                SmartDashboard.putString("Auto Winner", "Blue");
+            }
+        } else {
+            SmartDashboard.putString("Auto Winner", "none");
+        }
+        LEDS.setAutoWinner(aw);
+        LEDS.goTeleop();
         driveSubsystem.resetSetPoints();
         driveSubsystem.startTimer();
         climberSubsystem.resetMode();
         timer.reset();
-        LEDS.setAutoWinner();
-        LEDS.startTimer();
         timer.start();
         // This makes sure that the autonomous stops running when
         // teleop starts running. If you want the autonomous to
