@@ -70,6 +70,8 @@ public class Robot extends TimedRobot {
         globalPose = initialPose;  // hard to update this in drive practice without vision cuz we need to edit the code
         m_robotContainer = new RobotContainer(fuelSubsystem, driveSubsystem, poseSubsystem, climberSubsystem);
 
+        LEDS = new LEDSchedule(0);
+
 
         // Used to track usage of Kitbot code, please do not remove.
         HAL.report(tResourceType.kResourceType_Framework, 10);
@@ -116,7 +118,7 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void autonomousInit() {
-        LEDS = new LEDSchedule(RobotState.isRedAlliance()?2:1);
+        LEDS.setAlliance(RobotState.isRedAlliance()?2:1);
         LEDS.goAuto();
         System.out.println("AUTO.INIT");
         driveSubsystem.resetOdometry(initialPose);

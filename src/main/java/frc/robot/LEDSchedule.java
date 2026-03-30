@@ -86,6 +86,9 @@ public class LEDSchedule {
     public void setAutoWinner(int winner){
         autoWinner = winner;
     }
+    public void setAlliance(int alliance){
+        this.alliance = alliance;
+    }
 
     private void auto(){
         pink();
