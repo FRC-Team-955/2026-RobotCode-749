@@ -33,6 +33,7 @@ import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.Alert;
@@ -116,6 +117,22 @@ public class CANDriveSubsystem extends SubsystemBase {
     RobotConfig configz;
 
 
+
+    private final DoublePublisher simLeftLeaderVoltage =
+            NetworkTableInstance.getDefault().getDoubleTopic("/sim/motors/0/voltage").publish();
+
+    private final DoublePublisher simLeftFollowerVoltage =
+            NetworkTableInstance.getDefault().getDoubleTopic("/sim/motors/2/voltage").publish();
+
+    private final DoublePublisher simRightLeaderVoltage =
+            NetworkTableInstance.getDefault().getDoubleTopic("/sim/motors/1/voltage").publish();
+
+    private final DoublePublisher simRightFollowerVoltage =
+            NetworkTableInstance.getDefault().getDoubleTopic("/sim/motors/3/voltage").publish();
+
+    private double motorVoltage(SparkMax motor) {
+        return motor.getAppliedOutput() * RobotController.getBatteryVoltage();
+    }
 
     public CANDriveSubsystem(PoseSubsystem ps) {
         this.ps = ps;
@@ -600,6 +617,14 @@ public class CANDriveSubsystem extends SubsystemBase {
             m_rightEncoderSim.setPosition(-drivetrainSim.getRightPositionMeters());
             m_rightEncoderSim.setVelocity(-drivetrainSim.getRightVelocityMetersPerSecond());
         }
+
+        //-leftLeader.get() * RobotController.getInputVoltage(),
+        //                -rightLeader.get() * RobotController.getInputVoltage()
+        simLeftLeaderVoltage.set(-leftLeader.get() * RobotController.getInputVoltage());
+        simLeftFollowerVoltage.set(-leftLeader.get() * RobotController.getInputVoltage());
+        simRightLeaderVoltage.set(-rightLeader.get() * RobotController.getInputVoltage());
+        simRightFollowerVoltage.set(-rightLeader.get() * RobotController.getInputVoltage());
+
     }
 
 }
