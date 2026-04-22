@@ -100,7 +100,7 @@ public class CANFuelSubsystem extends SubsystemBase {
     // the motor to inverted so that positive values are used for both intaking and
     // launching, and apply the config to the controller
     SparkMaxConfig launcherConfig = new SparkMaxConfig();
-    intakeLauncherRoller.
+    intakeLauncherRoller.configure(launcherConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
 
   }
@@ -162,7 +162,7 @@ public class CANFuelSubsystem extends SubsystemBase {
       }
 
 
-      double current = -shooterWheels.getVelocity().getValueAsDouble();
+      double current = -shooterWheels.getEncoder().getVelocity();
       double error = hitVelocity - current;
 
       double output = error * Constants.FuelConstants.kP;
@@ -211,11 +211,11 @@ public class CANFuelSubsystem extends SubsystemBase {
   }
 
   public boolean isAtSpeed(double speed){
-      shooterRatio = (-shooterWheels.getVelocity().getValueAsDouble()/speed);
+      shooterRatio = (-shooterWheels.getEncoder().getVelocity()/speed);
       if(shooterRatio>1){
           shooterRatio=-2;
       }
-      return (((-shooterWheels.getVelocity().getValueAsDouble())- speed) > -1.2);
+      return (((-shooterWheels.getEncoder().getVelocity())- speed) > -1.2);
   }
 
   public double toFaceHub(){
@@ -253,8 +253,8 @@ public class CANFuelSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("Shooter %", shooterRatio);
       counter++;
     // This method will be called once per scheduler run
-      SmartDashboard.putNumber("Shooter Velocity", -shooterWheels.getVelocity().getValueAsDouble()); // 58 running, ~61(?) for spinup
-      SmartDashboard.putNumber("Shooter Encoder", -shooterWheels.getPosition().getValueAsDouble());
+      SmartDashboard.putNumber("Shooter Velocity", -shooterWheels.getEncoder().getVelocity()); // 58 running, ~61(?) for spinup
+      SmartDashboard.putNumber("Shooter Encoder", -shooterWheels.getEncoder().getPosition());
 
       if(counter == calculateEvery) {
 
@@ -262,7 +262,7 @@ public class CANFuelSubsystem extends SubsystemBase {
           double cV = SS.getShooterVel(globalPose,target);
           SmartDashboard.putNumber("shooter target vel",cV);
           boolean closeEnoughAngle = (Math.abs(MathUtil.angleModulus(SS.toFaceHub().getRadians() - MathUtil.angleModulus(globalPose.getRotation().getRadians()))) <Math.PI/36);
-          double currentAngV = -shooterWheels.getVelocity().getValueAsDouble();
+          double currentAngV = -shooterWheels.getEncoder().getVelocity();
           if(isSim()){
               currentAngV=cV;
           }
