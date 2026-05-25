@@ -4,11 +4,16 @@
 
 package frc.robot;
 
+import edu.wpi.first.networktables.BooleanPublisher;
+import edu.wpi.first.networktables.DoubleArrayPublisher;
+import edu.wpi.first.networktables.DoublePublisher;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
 
@@ -36,6 +41,12 @@ public class RobotContainer {
     private CANClimberSubsystem climberSubsystem;
     private PoseSubsystem poseSubsystem;
 
+
+    // Sim shooter NT publishers
+    private final NetworkTableInstance m_nt          = NetworkTableInstance.getDefault();
+    private final DoublePublisher m_simSpeed     = m_nt.getDoubleTopic("/sim/shooter/speed").publish();
+    private final DoubleArrayPublisher m_simDirection = m_nt.getDoubleArrayTopic("/sim/shooter/direction").publish();
+    private final BooleanPublisher m_simFire      = m_nt.getBooleanTopic("/sim/shooter/fire").publish();
 
 
 
@@ -134,19 +145,34 @@ public class RobotContainer {
         operatorController.x()
                 .whileTrue(ballSubsystem.spinUpCommand().until(()->ballSubsystem.isAtSpeed(Constants.FuelConstants.SHOOTER_WEAK_SPEED))
                         .andThen(ballSubsystem.launchCommand(() -> Constants.FuelConstants.SHOOTER_WEAK_LAUNCH_VOLTAGE))
-                        .finallyDo(() -> ballSubsystem.stop()));
+                        .finallyDo(() -> { ballSubsystem.stop(); m_simFire.set(false); }))
+                .onTrue(Commands.runOnce(() -> {
+                    m_simSpeed.set(10.0);
+                    m_simDirection.set(new double[]{1.0, 0.3, 0.0});
+                    m_simFire.set(true);
+                }));
 
         // weak mid shoot
         operatorController.y()
                 .whileTrue(ballSubsystem.spinUpCommand().until(() -> ballSubsystem.isAtSpeed(Constants.FuelConstants.SHOOTER_WEAK_SPEED*1.1))
                         .andThen(ballSubsystem.launchCommand(() -> Constants.FuelConstants.SHOOTER_WEAK_LAUNCH_VOLTAGE*1.1))
-                        .finallyDo(() -> ballSubsystem.stop()));
+                        .finallyDo(() -> { ballSubsystem.stop(); m_simFire.set(false); }))
+                .onTrue(Commands.runOnce(() -> {
+                    m_simSpeed.set(10.0);
+                    m_simDirection.set(new double[]{1.0, 0.5, 0.0});
+                    m_simFire.set(true);
+                }));
 
         // mid shoot
         operatorController.b()
                 .whileTrue(ballSubsystem.spinUpCommand().until(()->ballSubsystem.isAtSpeed(Constants.FuelConstants.SHOOTER_STRONG_SPEED))
                         .andThen(ballSubsystem.launchCommand(() -> Constants.FuelConstants.SHOOTER_LAUNCH_VOLTAGE))
-                        .finallyDo(() -> ballSubsystem.stop()));
+                        .finallyDo(() -> { ballSubsystem.stop(); m_simFire.set(false); }))
+                .onTrue(Commands.runOnce(() -> {
+                    m_simSpeed.set(10.0);
+                    m_simDirection.set(new double[]{1.0, 0.7, 0.0});
+                    m_simFire.set(true);
+                }));
 
         // While the A button is held on the operator controller, eject fuel back out
         // the intake

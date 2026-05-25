@@ -122,10 +122,10 @@ public class CANDriveSubsystem extends SubsystemBase {
             NetworkTableInstance.getDefault().getDoubleTopic("/sim/motors/0/voltage").publish();
 
     private final DoublePublisher simLeftFollowerVoltage =
-            NetworkTableInstance.getDefault().getDoubleTopic("/sim/motors/2/voltage").publish();
+            NetworkTableInstance.getDefault().getDoubleTopic("/sim/motors/1/voltage").publish();
 
     private final DoublePublisher simRightLeaderVoltage =
-            NetworkTableInstance.getDefault().getDoubleTopic("/sim/motors/1/voltage").publish();
+            NetworkTableInstance.getDefault().getDoubleTopic("/sim/motors/2/voltage").publish();
 
     private final DoublePublisher simRightFollowerVoltage =
             NetworkTableInstance.getDefault().getDoubleTopic("/sim/motors/3/voltage").publish();
