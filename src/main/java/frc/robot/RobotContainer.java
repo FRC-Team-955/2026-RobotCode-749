@@ -135,6 +135,8 @@ public class RobotContainer {
         operatorController.leftBumper()
                 .whileTrue(ballSubsystem.runEnd(() -> ballSubsystem.intake(), () -> ballSubsystem.stop()));
 
+        // auto aim
+        operatorController.rightBumper().whileTrue(driveSubsystem.driveAtTargetPoseSup(()->ballSubsystem.poseToFaceHub()).andThen(ballSubsystem.shootAtTarget(0)).finallyDo(()->ballSubsystem.stop()));
 
 
         //driverController.y().onTrue(driveSubsystem.shake());

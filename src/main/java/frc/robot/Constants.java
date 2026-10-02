@@ -74,16 +74,13 @@ public final class Constants {
         public static final double LAUNCHING_LAUNCHER_VOLTAGE = 12*LAUNCH_SCALE;
         public static final double FEEDER_SPIN_UP_VOLTAGE = (-6)*LAUNCH_SCALE; //
         public static final double OUTTAKING_INTAKE_VOLTAGE = 4*INTAKE_SCALE;
-
-
-        public static final double OUTREACH_SHOOTER_DOWNSCALING = 0.8;
-        public static final double SHOOTER_SPIN_UP_VOLTAGE = -10.2 * OUTREACH_SHOOTER_DOWNSCALING;
-        public static final double SHOOTER_LAUNCH_VOLTAGE = -6.7 * OUTREACH_SHOOTER_DOWNSCALING;
-        public static final double SHOOTER_WEAK_LAUNCH_VOLTAGE = -5.2 * OUTREACH_SHOOTER_DOWNSCALING;
-        public static final double SHOOTER_STRONG_SPEED = 58 * OUTREACH_SHOOTER_DOWNSCALING;
-        public static final double SHOOTER_WEAK_SPEED = 37* OUTREACH_SHOOTER_DOWNSCALING;
-        public static final double CORNER_HIT_VELOCITY = 70* OUTREACH_SHOOTER_DOWNSCALING;
-        public static final double SHOOTING_INTAKE_VOLTAGE = -7  * OUTREACH_SHOOTER_DOWNSCALING;
+        public static final double SHOOTER_SPIN_UP_VOLTAGE = -10.2;
+        public static final double SHOOTER_LAUNCH_VOLTAGE = -6.7;
+        public static final double SHOOTER_WEAK_LAUNCH_VOLTAGE = -5.2;
+        public static final double SHOOTER_STRONG_SPEED = 58;
+        public static final double SHOOTER_WEAK_SPEED = 37;
+        public static final double CORNER_HIT_VELOCITY = 70;
+        public static final double SHOOTING_INTAKE_VOLTAGE = -7;
     }
 
     public static class ClimbConstants {
@@ -147,8 +144,7 @@ public final class Constants {
 
         // This value is multiplied by the joystick value when driving the robot to
         // help avoid driving and turning too fast and being difficult to control
-                public static double OUTREACH_DOWNSCALING = 0.60;
-        public static final double DRIVE_SCALING = .749*OUTREACH_DOWNSCALING; //
-        public static final double ROTATION_SCALING = .55*OUTREACH_DOWNSCALING;
+        public static final double DRIVE_SCALING = .749; //
+        public static final double ROTATION_SCALING = .55;
     }
 }
