@@ -75,8 +75,8 @@ public final class Constants {
         public static final double FEEDER_SPIN_UP_VOLTAGE = (-6)*LAUNCH_SCALE; //
         public static final double OUTTAKING_INTAKE_VOLTAGE = 4*INTAKE_SCALE;
         public static final double SHOOTER_SPIN_UP_VOLTAGE = -10.2;
-        public static final double SHOOTER_LAUNCH_VOLTAGE = -6.7;
-        public static final double SHOOTER_WEAK_LAUNCH_VOLTAGE = -5.2;
+        public static final double SHOOTER_LAUNCH_VOLTAGE = -8.2;
+        public static final double SHOOTER_WEAK_LAUNCH_VOLTAGE = -6.9;
         public static final double SHOOTER_STRONG_SPEED = 58;
         public static final double SHOOTER_WEAK_SPEED = 37;
         public static final double CORNER_HIT_VELOCITY = 70;
