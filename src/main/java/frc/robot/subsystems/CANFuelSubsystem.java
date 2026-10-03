@@ -46,7 +46,6 @@ public class CANFuelSubsystem extends SubsystemBase {
   private final SparkMax feederRoller;
   private final SparkMax intakeLauncherRoller;
   private final SparkMax shooterWheels;
-  private SparkMaxConfig config = new SparkMaxConfig();
   private boolean runFeederAutoAim = false;
   private double hitVelocity = -1;
 
@@ -56,14 +55,19 @@ public class CANFuelSubsystem extends SubsystemBase {
     Pose3d target;
 
     public void setBrakeMode() {
-        SparkMaxConfig config = new SparkMaxConfig();
-
-        //config.idleMode(SparkMaxConfig.IdleMode.kBrake);
-        shooterWheels.configure(config.idleMode(SparkMaxConfig.IdleMode.kBrake), ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        configureShooter(SparkMaxConfig.IdleMode.kBrake);
     }
 
     public void setCoastMode() {
-        shooterWheels.configure(config.idleMode(SparkMaxConfig.IdleMode.kCoast), ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        configureShooter(SparkMaxConfig.IdleMode.kCoast);
+    }
+
+    private void configureShooter(SparkMaxConfig.IdleMode idleMode) {
+        SparkMaxConfig shooterConfig = new SparkMaxConfig();
+        shooterConfig.idleMode(idleMode);
+        // TalonFX velocity was rotations/second; a Spark encoder is RPM by default.
+        shooterConfig.encoder.velocityConversionFactor(1.0 / 60.0);
+        shooterWheels.configure(shooterConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }
   /** Creates a new CANBallSubsystem. */
   public CANFuelSubsystem() {
@@ -76,6 +80,7 @@ public class CANFuelSubsystem extends SubsystemBase {
     intakeLauncherRoller = new SparkMax(INTAKE_LAUNCHER_MOTOR_ID, MotorType.kBrushless);
     feederRoller = new SparkMax(FEEDER_MOTOR_ID, MotorType.kBrushless);
     shooterWheels = new SparkMax(SHOOTER_WHEELS_MOTOR_ID, MotorType.kBrushless);
+    configureShooter(SparkMaxConfig.IdleMode.kCoast);
 
 
 
@@ -152,7 +157,7 @@ public class CANFuelSubsystem extends SubsystemBase {
       }
 
       if(runFeederAutoAim){
-          feederRoller.set(LAUNCHING_FEEDER_VOLTAGE);
+          feederRoller.setVoltage(LAUNCHING_FEEDER_VOLTAGE);
           intakeLauncherRoller
                   .setVoltage(-SmartDashboard.getNumber("Launching launcher roller value", LAUNCHING_LAUNCHER_VOLTAGE));
       }
@@ -172,7 +177,7 @@ public class CANFuelSubsystem extends SubsystemBase {
               Math.min(10.6, output)
       );
 
-      shooterWheels.set(-output);
+      shooterWheels.setVoltage(-output);
   }
   public Command shootAtTarget(double overrideVelocity){
       return run(()->funcShootAtTarget(overrideVelocity));
